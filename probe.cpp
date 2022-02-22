@@ -16,7 +16,7 @@
 #endif
 
 Q_GLOBAL_STATIC_WITH_ARGS(QMutex, s_lock, (QMutex::Recursive))
-Q_GLOBAL_STATIC_WITH_ARGS(QMutex, s_lock2, (QMutex::Recursive))
+//Q_GLOBAL_STATIC_WITH_ARGS(QMutex, s_lock2, (QMutex::Recursive))
 
 QAtomicPointer<Probe> Probe::s_instance = QAtomicPointer<Probe>(nullptr);
 
@@ -151,7 +151,7 @@ void Probe::objectAdded(QObject *obj, bool fromCtor) {
     } else {
         instance()->objectFullyConstructed(obj);
     }
-    Probe::instance()->addFocusObject(obj);
+    // Probe::instance()->addFocusObject(obj);
 }
 void Probe::objectRemoved(QObject *obj)
 {
@@ -340,7 +340,7 @@ void Probe::addFocusObject(QObject *obj) {
     // printf("add object: %x %s %s\n", obj, obj->metaObject()->className(), super.toLocal8Bit().data());
     if (!(super == "QAbstractButton" || super == "QWindow" || super == "QWidget")) return;
     if (m_objs.contains(obj)) return;
-    QMutexLocker lock(s_lock2());
+    // QMutexLocker lock(s_lock2());
     m_objs.append(obj);
 }
 void Probe::setFocusObjects(QObjectList objs) {

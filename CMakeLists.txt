@@ -1,11 +1,17 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_AUTOMOC ON)
 
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+
+add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x040800)
+
 add_executable(demo
     main.cpp
+
+    sop.h
+    sop.cpp
 
     hooks.h
     hooks.cpp
@@ -16,6 +22,8 @@ add_executable(demo
     sigspy.h
     sigspy.cpp
 
+    scopeguard.h
+
     probeguard.h
     probeguard.cpp
 
@@ -23,6 +31,9 @@ add_executable(demo
 
     probecreator.h
     probecreator.cpp
+
+    objecthelper.h
+    objecthelper.cpp
 
     signalspycallbackset.h
     signalspycallbackset.cpp
