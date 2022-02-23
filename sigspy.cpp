@@ -10,6 +10,8 @@
 #include <QMetaType>
 
 #include "signalspycallbackset.h"
+#include "objectpath.h"
+
 using namespace GammaRay;
 
 int signalIndexToMethodIndex(const QMetaObject *metaObject, int signalIndex) {
@@ -44,16 +46,21 @@ void signal_begin_callback(QObject *caller, int method_index, void **argv)
     // }
     // if (!Probe::instance()->focusObjects().size()) return;
     QObjectList tmpList = Probe::instance()->focusObjects();
-    // if (tmpList.contains(caller)) {
     if (tmpList.contains(caller) && caller != Probe::instance()) {
         method_index = signalIndexToMethodIndex(caller->metaObject(), method_index);
         qInfo() << "signal_begin_callback: " <<  caller << caller->metaObject()->className() << " " << caller->metaObject()->method(method_index).methodSignature().data();
-        for (int j = 0; j < caller->metaObject()->method(method_index).parameterCount(); ++j) {
-            const QByteArray parameterType = caller->metaObject()->method(method_index).parameterTypes().at(j);
-            qInfo() << "parameterType: " << parameterType;
-            if (parameterType == "bool") {
-                qInfo() << "parameterValue: " << *(bool *)argv;
-            }
+        //! 获取参数
+        // for (int j = 0; j < caller->metaObject()->method(method_index).parameterCount(); ++j) {
+        //     const QByteArray parameterType = caller->metaObject()->method(method_index).().at(j);
+        //     qInfo() << "parameterType: " << parameterType;
+        //     if (parameterType == "bool") {
+        //         qInfo() << "parameterValue: " << *(bool *)argv;
+        //     }
+        // }
+        if (caller->metaObject()->method(method_index).methodSignature() == "pressed()") {
+            ObjectPath path(ObjectPath::parseObjectPath(caller)); // 加入重复对象的检测
+            path.setMethod("pressed()");
+            ObjectPathManager::instance()->append(path);
         }
     }
     // if (Probe::instance()->isObjectCreationQueued(caller)) {
@@ -73,7 +80,7 @@ void signal_begin_callback(QObject *caller, int method_index, void **argv)
 
 void signal_end_callback(QObject *caller, int method_index)
 {
-#if 1
+#if 0
     if (!Probe::instance()) {
         return;
     }

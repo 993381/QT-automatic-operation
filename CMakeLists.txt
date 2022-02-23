@@ -10,8 +10,8 @@ add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x040800)
 add_executable(demo
     main.cpp
 
-    sop.h
-    sop.cpp
+#    sop.h
+#    sop.cpp
 
     hooks.h
     hooks.cpp
@@ -24,6 +24,9 @@ add_executable(demo
 
     scopeguard.h
 
+    objectpath.h
+    objectpath.cpp
+
     probeguard.h
     probeguard.cpp
 
@@ -32,8 +35,11 @@ add_executable(demo
     probecreator.h
     probecreator.cpp
 
-    objecthelper.h
-    objecthelper.cpp
+#    objecthelper.h
+#    objecthelper.cpp
+
+    objectpathresolver.h
+    objectpathresolver.cpp
 
     signalspycallbackset.h
     signalspycallbackset.cpp
