@@ -8,6 +8,7 @@
 #include <QtCore/private/qmetaobject_p.h>
 #include <QObject>
 #include <QMetaType>
+#include <QModelIndex>
 
 #include "signalspycallbackset.h"
 #include "objectpath.h"
@@ -49,23 +50,31 @@ void signal_begin_callback(QObject *caller, int method_index, void **argv)
     if (tmpList.contains(caller) && caller != Probe::instance()) {
         method_index = signalIndexToMethodIndex(caller->metaObject(), method_index);
         qInfo() << "signal_begin_callback: " <<  caller << caller->metaObject()->className() << " " << caller->metaObject()->method(method_index).methodSignature().data();
-        //! 获取参数
-        // for (int j = 0; j < caller->metaObject()->method(method_index).parameterCount(); ++j) {
-        //     const QByteArray parameterType = caller->metaObject()->method(method_index).().at(j);
-        //     qInfo() << "parameterType: " << parameterType;
-        //     if (parameterType == "bool") {
-        //         qInfo() << "parameterValue: " << *(bool *)argv;
-        //     }
-        // }
+
         if (caller->metaObject()->method(method_index).methodSignature() == "pressed()") {
-            ObjectPath path(ObjectPath::parseObjectPath(caller)); // 加入重复对象的检测
+            ObjectPath path(ObjectPath::parseObjectPath(caller));       // 加入重复对象的检测
             path.setMethod("pressed()");
             ObjectPathManager::instance()->append(path);
         }
+        if (caller->metaObject()->method(method_index).methodSignature() == "pressed(QModelIndex)") {
+            ObjectPath path(ObjectPath::parseObjectPath(caller));       // 加入重复对象的检测
+            path.setMethod("pressed(QModelIndex)");
+            ObjectPathManager::instance()->append(path);
+            //! 获取参数
+            for (int j = 0; j < caller->metaObject()->method(method_index).parameterCount(); ++j) {
+                const QByteArray parameterType = caller->metaObject()->method(method_index).parameterTypes().at(j);
+
+                qInfo() << "parameterTypes: " << caller->metaObject()->method(method_index).parameterTypes()
+                        << "parameterNames: " << caller->metaObject()->method(method_index).parameterNames()
+                        << "parameterType: " << caller->metaObject()->method(method_index).parameterType(j);
+                if (parameterType == "QModelIndex") {
+                    QModelIndex *index = (QModelIndex *)argv[j+1];  // 根据 QMetaMethod::invoke 推断出参数从 1 开始
+                    // 获取到点击的行、列以及显示的数据
+                    qInfo() << "parameterValue: " <<  index->data().toString() << index << index->row() << " " << index->column();
+                }
+            }
+        }
     }
-    // if (Probe::instance()->isObjectCreationQueued(caller)) {
-    //    printf("signal_begin_callback: %s\n", caller->metaObject()->method(method_index).methodSignature().data());
-    // }
 #endif
     return;
 

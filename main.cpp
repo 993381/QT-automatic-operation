@@ -5,6 +5,9 @@
 #include <QPushButton>
 #include <QLineEdit>
 
+#include <QListView>
+#include <QStandardItem>
+#include <QStandardItemModel>
 
 #include <QDebug>
 //#include <iostream>
@@ -61,9 +64,25 @@ int main(int argc, char *argv[]) {
     widget->resize(200, 100);
     widget->move(100, 70);
 
+    QStandardItemModel model;
+    QListView view(&w);
+    view.setModel(&model);
+    // QAbstractItemModel *model2 = qobject_cast<QAbstractItemModel *>(&model);
+    auto row1 = new QStandardItem("xxxxxxxxxxx");
+    auto row2 = new QStandardItem("yyyyyyyyyyy");
+    model.appendRow(row1);
+    model.appendRow(row2);
+    view.resize(120, 50);
+    view.move(200,200);
+    QModelIndex qindex = model.index(1, 0);   //默认选中 index
+    view.setCurrentIndex(qindex);
+
+    qInfo() << view.currentIndex().row() << view.currentIndex().column();
+    // qInfo() << "mode name: " << row->metaObject()->className();
+
     // after attach.
-    // UiaController::instance()->createUiaWidget();
-    // UiaController::instance()->initOperationSequence();
+    UiaController::instance()->createUiaWidget();
+    UiaController::instance()->initOperationSequence();
 
     QObject::connect(button4, &QPushButton::pressed, []{
         QWidget *widget = new QWidget(nullptr);

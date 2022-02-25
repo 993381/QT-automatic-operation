@@ -13,8 +13,8 @@ ObjectPath::NodeInfo::NodeInfo(const ObjectPath::NodeInfo &other) {
 bool ObjectPath::NodeInfo::operator==(const NodeInfo &other) {
     return className == other.className
             && index == other.index
-            && depth == other.depth;
-    // && type == other.type; // type 不太重要，因为不一定准确
+            && depth == other.depth
+            && type == other.type; // type 不太重要，因为不一定准确
 }
 int ObjectPath::getSiblingIndex(QObject *obj) {
     int index = -1;

@@ -56,7 +56,7 @@ set(SOURCES
         signalspycallbackset.cpp
 )
 add_library(injector SHARED ${SOURCES})
-set_target_properties(injector PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(injector PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 target_link_libraries(injector Qt5::Core Qt5::CorePrivate Qt5::Gui Qt5::Widgets)
 
 add_executable(injector_test_demo main.cpp ${SOURCES})

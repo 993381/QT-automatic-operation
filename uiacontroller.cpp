@@ -10,6 +10,7 @@
 
 #include <QEvent>
 #include <QWidget>
+#include <QListView>
 #include <QMouseEvent>
 #include <QPushButton>
 #include <QMetaMethod>
@@ -27,11 +28,24 @@ protected:
         if (event->type() == QEvent::MouseButtonPress) {
             QMouseEvent *mouseEv = static_cast<QMouseEvent *>(event);
             if (mouseEv->button() == Qt::LeftButton) {
+                QObject *target = nullptr;
                 QWidget *widget = QApplication::widgetAt(mouseEv->globalPos());
                 if (widget && !ObjectListManager::instance()->isInBlackList(widget, true)) {
-                    QObjectList tmpList = widget->children();
-                    tmpList.append(widget);
+                    qInfo() << "widget: " << widget << widget->objectName() << widget->metaObject()->className();
+                    target = widget;
+                    if (widget->objectName() == "qt_scrollarea_viewport") {
+                        if (auto listview = qobject_cast<QListView *>(widget->parent())) {
+                            qInfo() << "is list view ........... " << listview->model()->data(listview->indexAt(mouseEv->pos())).toString();
+                            target = listview;
+                        }
+                    }
+                    QObjectList tmpList = target->children();
+                    tmpList.append(target);
                     Probe::instance()->setFocusObjects(tmpList);
+                }
+
+                if (auto listview = qobject_cast<QAbstractItemView *>(widget)) {
+                    qInfo() << "is list view ........... " << listview->metaObject()->className();
                 }
             }
         }
@@ -71,6 +85,7 @@ void UiaController::stopSigslotMonitoring() {
     // unregister sigslot callback
     QSignalSpyCallbackSet cbs = { nullptr, nullptr, nullptr, nullptr };
     qt_register_signal_spy_callbacks(cbs);
+
 }
 
 bool UiaController::startAllMonitoring() {
@@ -103,20 +118,21 @@ bool UiaController::initOperationSequence() {
                 // 从符合层级关系的对象中找出符合路径关系的对象
                 QObjectList objects = resolver.objects();
                 qInfo() << "objects size........... " << objects.size() << objects[0];
-                // static int inteval = 0;
+                static int inteval = 0;
                 for (QObject *obj : objects) {
                     ObjectPath obj_path(ObjectPath::parseObjectPath(obj));
 
                     if (obj_path == path) {
                         obj_path.dump();
                         path.dump();
-                        // inteval++;
+
                         int index2 = obj->metaObject()->indexOfSignal("pressed()");
                         if (index2 < 0) continue;
-                        // QTimer::singleShot(1000*inteval, [obj, index2] {
+                        QTimer::singleShot(1000*inteval, [obj, index2] {
                         qInfo() << "target obj found: " << obj;
                             obj->metaObject()->method(index2).invoke(obj, Qt::ConnectionType::DirectConnection);    // 信号的调用和槽的调用几乎是一样的
-                        // });
+                        });
+                        inteval+=5;
                     }
                 }
             }
@@ -146,6 +162,10 @@ bool UiaController::createUiaWidget() {
     QPushButton *button7 = new QPushButton("stop", widget);
 
     ObjectListManager::instance()->addToBlackList({widget});     // 只加toplevel，判断的时候用 recursive 就行
+
+    QObject::connect(button7, &QPushButton::clicked, [](bool checked){
+        OperationManager::instance()->stop();
+    });
 
     QObject::connect(button6, &QPushButton::clicked, [](bool checked){
         QString openFileName = showFileDialog(QFileDialog::AcceptOpen);
