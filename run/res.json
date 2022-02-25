@@ -1,0 +1,42 @@
+{
+    "path_1": {
+        "parents_1": {
+            "className": "QWidget",
+            "depth": 2,
+            "index": 4,
+            "type": 2
+        },
+        "target": {
+            "className": "QPushButton",
+            "depth": 3,
+            "index": 0,
+            "type": 3
+        },
+        "topLevel": {
+            "className": "QMainWindow",
+            "depth": 1,
+            "index": -1,
+            "type": 1
+        }
+    },
+    "path_2": {
+        "parents_1": {
+            "className": "QWidget",
+            "depth": 2,
+            "index": 0,
+            "type": 2
+        },
+        "target": {
+            "className": "QPushButton",
+            "depth": 3,
+            "index": 0,
+            "type": 3
+        },
+        "topLevel": {
+            "className": "QWidget",
+            "depth": 1,
+            "index": -1,
+            "type": 1
+        }
+    }
+}

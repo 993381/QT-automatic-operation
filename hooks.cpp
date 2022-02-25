@@ -3,6 +3,7 @@
 #include <QtCore/private/qhooks_p.h>
 #include "probecreator.h"
 #include "probe.h"
+#include "uiacontroller.h"
 
 #define IF_NONNULL_EXEC(func, ...) { if (func) { func(__VA_ARGS__); } }
 
@@ -75,6 +76,9 @@ extern "C" Q_DECL_EXPORT void gammaray_probe_attach()
     new ProbeCreator(ProbeCreator::Create |
                      ProbeCreator::FindExistingObjects |
                      ProbeCreator::ResendServerAddress);
+
+    UiaController::instance()->createUiaWidget();
+    UiaController::instance()->initOperationSequence();
 }
 
 #undef IF_NONNULL_EXEC

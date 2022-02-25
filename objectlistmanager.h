@@ -14,6 +14,7 @@ class ObjectListManager {
 
     static constexpr char Black[] = "Black";
     static constexpr char White[] = "White";
+//    static constexpr char Focus[] = "Focus";
     static constexpr char User[] = "User";
 
 public:
@@ -37,6 +38,12 @@ public:
     inline bool isInBlackList(QObject *obj, bool recursive = false) const {
         return isInList(obj, Black, recursive);
     }
+//    inline void addToFocusList(const QObjectList &objs) {
+//        addToList(objs, Focus);
+//    }
+//    inline bool isInFocusList(QObject *obj, bool recursive = false) const {
+//        return isInList(obj, Focus, recursive);
+//    }
     inline void addToUserList(const QString &listName, const QObjectList &objs) {
         addToList(objs, listName);
     }

@@ -25,6 +25,9 @@ public:
     bool startAllMonitoring();
     void stopAllMonitoring();
 
+    bool initOperationSequence();
+    bool createUiaWidget();
+
 private:
     QScopedPointer<EventFilter> m_filter;
 };

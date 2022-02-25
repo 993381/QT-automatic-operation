@@ -7,7 +7,7 @@
 #include <QFileDialog>
 #include "objectlistmanager.h"
 
-bool fileReadWrite(const QString &fileName, QByteArray &data, bool isRead) {
+inline bool fileReadWrite(const QString &fileName, QByteArray &data, bool isRead) {
     QFile file(fileName);
     if (isRead && !file.exists()) {         // 文件不存在
         qInfo() << "file not exist!";
@@ -25,7 +25,7 @@ bool fileReadWrite(const QString &fileName, QByteArray &data, bool isRead) {
     return true;
 };
 
-QString showFileDialog(const QFileDialog::AcceptMode &mode) {
+inline QString showFileDialog(const QFileDialog::AcceptMode &mode) {
     QFileDialog dialog;
     ObjectListManager::instance()->addToBlackList({&dialog});
 

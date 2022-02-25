@@ -77,7 +77,7 @@ void signal_begin_callback(QObject *caller, int method_index, void **argv)
             callbacks.signalBeginCallback(caller, method_index, argv);
     });
 }
-
+# if 0
 void signal_end_callback(QObject *caller, int method_index)
 {
 #if 0
@@ -154,4 +154,4 @@ void slot_end_callback(QObject *caller, int method_index)
     //            callbacks.slotEndCallback(caller, method_index);
     //    });
 }
-
+#endif
