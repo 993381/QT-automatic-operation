@@ -13,6 +13,9 @@ add_executable(demo
 #    sop.h
 #    sop.cpp
 
+    util.h
+    util.cpp
+
     hooks.h
     hooks.cpp
 
@@ -37,6 +40,16 @@ add_executable(demo
 
 #    objecthelper.h
 #    objecthelper.cpp
+
+    uiacontroller.h
+    uiacontroller.cpp
+
+    operationmanager.h
+    operationmanager.cpp
+
+    # 记录一些对象的黑白名单
+    objectlistmanager.h
+    objectlistmanager.cpp
 
     objectpathresolver.h
     objectpathresolver.cpp

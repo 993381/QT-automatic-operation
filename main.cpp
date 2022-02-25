@@ -5,12 +5,12 @@
 #include <QPushButton>
 #include <QLineEdit>
 
-#include "sigspy.h"
+
 #include <QDebug>
 #include <iostream>
 
 #include <QObject>
-#include <QtCore/private/qobject_p.h>  // qt_register_signal_spy_callbacks
+
 
 #include <QJsonObject>
 #include <QJsonDocument>
@@ -30,9 +30,14 @@
 #include <QMetaMethod>
 #include "scopeguard.h"
 #include <QWindow>
+#include <QFileDialog>
 
 #include "objectpath.h"
 #include "objectpathresolver.h"
+#include "operationmanager.h"
+#include "util.h"
+#include "uiacontroller.h"
+#include "objectlistmanager.h"
 
 // 添加关注的对象、类型、方法：void MetaObjectRepository::initQObjectTypes()
 // void MetaObject::addBaseClass(MetaObject *baseClass) 这里面有对于baseclass inherts的判断: #define MO_ADD_BASECLASS(Base)
@@ -43,38 +48,37 @@
 // PluginInfo::isStatic
 // 森林的层序遍历及求高度：https://www.freesion.com/article/5690776446/
 
-class EventFilter : public QObject {
-public:
-    EventFilter() {}
-    ~EventFilter() {}
-    QWidget *last_widget = nullptr;
-protected:
-    bool eventFilter(QObject *object, QEvent *event) override
-    {
-        if (event->type() == QEvent::MouseButtonPress) {
-            // qInfo() << "MouseButtonPress";
-            QMouseEvent *mouseEv = static_cast<QMouseEvent *>(event);
-            if (mouseEv->button() == Qt::LeftButton) {
-                QWidget *widget = QApplication::widgetAt(mouseEv->globalPos());
-                if (widget) {
-                    // QList<QAbstractButton *> btns = qFindChildren<QAbstractButton *>(widget/*->parentWidget()*/);
-                    // int index = btns.indexOf((QAbstractButton *)widget);
-                    // qInfo() << "widget: " << index << widget->metaObject()->className();
-                    QObjectList tmpList = widget->children();       // Probe::instance()->focusObject()->children();
-                    tmpList.append(widget);
-                    Probe::instance()->setFocusObjects(tmpList);
-                }
-            }
-        }
-        return QObject::eventFilter(object, event);
-    }
-};
-
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
-    EventFilter filter;
-    qApp->installEventFilter(&filter);
+
+//    QStringList node_keys({"parents_3", "parents_12", "topLevel", "target", "xxxxx", "11", "parents_3"});
+//    qSort(node_keys.begin(), node_keys.end(), [](const QString& s1, const QString& s2) {
+//        static const QByteArray parents(QByteArrayLiteral("parents_"));
+//        static const QByteArray topLevel(QByteArrayLiteral("topLevel"));
+//        static const QByteArray target(QByteArrayLiteral("target"));
+//        // if (s1 == target) return false;
+//        // if (s1 == topLevel) return true;
+//        if (s1.startsWith(parents) && s2.startsWith(parents)) {
+//            return s1.mid(parents.length()).toInt() < s2.mid(parents.length()).toInt();
+//        } else if (s1.startsWith(parents)) {
+//            if (s2 == topLevel) {
+//                return false;
+//            }
+//            if (s2 == target) {
+//                return true;
+//            }
+//        } else if (s2.startsWith(parents)) {
+//            if (s1 == topLevel) {
+//                return true;
+//            }
+//            if (s1 == target) {
+//                return false;
+//            }
+//        }
+//        return s1 < s2;
+//    });
+//    qInfo() << node_keys;
 
     QMainWindow w;
     w.resize(420, 380);
@@ -89,9 +93,128 @@ int main(int argc, char *argv[]) {
     edit->move(100, 30);
     widget->resize(200, 100);
     widget->move(100, 70);
-    QSignalSpyCallbackSet cbs = { nullptr, nullptr, nullptr, nullptr };
-    cbs.signal_begin_callback = signal_begin_callback;
-    qt_register_signal_spy_callbacks(cbs);
+
+
+    auto CreateOptionWidget = []{
+        // add to black list.
+        // UiaWidget obj;
+        QWidget *widget = new QWidget(/*&obj*/);
+        // qInfo() << ((QObject *)widget)->metaObject()->classInfo(0).value();
+        // auto paly / next
+        QPushButton *button1 = new QPushButton("record", widget);
+        QPushButton *button2 = new QPushButton("play", widget);
+        QPushButton *button3 = new QPushButton("save", widget);
+        QPushButton *button4 = new QPushButton("exit", widget);
+        QPushButton *button5 = new QPushButton("edit", widget);
+        QPushButton *button6 = new QPushButton("load", widget);      // load json file
+        QPushButton *button7 = new QPushButton("stop", widget);
+
+        ObjectListManager::instance()->addToBlackList({widget});     // 只加toplevel，判断的时候用 recursive 就行
+
+        QObject::connect(button6, &QPushButton::clicked, [](bool checked){
+            QString openFileName = showFileDialog(QFileDialog::AcceptOpen);
+            if (openFileName.isEmpty()) return;
+
+            QByteArray allData;
+            if (!fileReadWrite(openFileName, allData, true)) {
+                qInfo() << "read error: " << openFileName;
+                return;
+            }
+
+            QJsonParseError json_error;
+            QJsonDocument jsonDoc(QJsonDocument::fromJson(allData, &json_error));
+            if(json_error.error != QJsonParseError::NoError) {
+                qInfo() << "json parser error! " << json_error.errorString();
+                return;
+            }
+            QJsonObject rootObj = jsonDoc.object();
+            ObjectPathManager::instance()->readFromJson(rootObj);
+        });
+        QObject::connect(button1, &QPushButton::clicked, [](bool checked){
+            OperationManager::instance()->startRecording();
+        });
+        QObject::connect(button2, &QPushButton::clicked, [](bool checked){
+            OperationManager::instance()->startPlaying();
+        });
+        QObject::connect(button3, &QPushButton::clicked, [](bool checked){
+            if (OperationManager::instance()->state() != OperationManager::Recording) {
+                qInfo() << "不在录制状态!";
+                return;
+            }
+
+            QString saveFileName = showFileDialog(QFileDialog::AcceptSave);
+            if (saveFileName.isEmpty()) return;
+            qInfo() << "Save json file to: " << saveFileName;
+
+            // 录制完毕转 Json 保存
+            QVector<ObjectPath> paths = ObjectPathManager::instance()->paths();
+            qInfo() << "paths size: " << paths.size();
+            QJsonObject json = ObjectPathManager::convertToJson(paths);
+            QJsonDocument doc;
+            doc.setObject(json);
+            QByteArray byte = doc.toJson(QJsonDocument::Indented);
+            bool res = fileReadWrite(saveFileName, byte, false);
+            qInfo() << res << doc;
+        });
+        button2->move(100, 0);
+        button3->move(200, 0);
+        button4->move(300, 0);
+        button5->move(400, 0);
+        button6->move(500, 0);
+        button7->move(600, 0);
+
+        widget->resize(750, 100);
+        widget->show();
+    };
+    CreateOptionWidget();
+
+    auto InitOperationSequence = []{
+        QObject::connect(OperationManager::instance(), &OperationManager::Start, [](OperationManager::State state){
+            if (state == OperationManager::State::Playing) {        // start playing
+                UiaController::instance()->stopAllMonitoring();
+                const QVector<ObjectPath> &paths = ObjectPathManager::instance()->loadPaths();
+                qInfo() << "xxxxxxxxxxxxxxxxxxxxxxxxx " << paths.size();
+                for (auto path : paths){ //ObjectPathManager::instance()->loadPaths()) {
+                    ObjectPathResolver resolver;
+                    resolver.setDiscoverCallback([path](QObject *obj) -> bool {
+                        ObjectPath::NodeInfo info1 = ObjectPath::parseObjectInfo(obj);
+                        if (/*info1.depth<0 || */info1.depth>path.path().size()) return false;              // 对象路径的长度应该和输入的路径长度一致
+                        ObjectPath::NodeInfo info2 = path.path().at(info1.depth-1);
+                        qInfo() << "------------ " << obj << " depth: " << info1.depth << (info1 == info2);
+                        return info1 == info2;
+                    });
+
+                    resolver.findExistingObjects();
+                    // 从符合层级关系的对象中找出符合路径关系的对象
+                    QObjectList objects = resolver.objects();
+                    qInfo() << "objects size........... " << objects.size() << objects[0];
+                    // static int inteval = 0;
+                    for (QObject *obj : objects) {
+                        ObjectPath obj_path(ObjectPath::parseObjectPath(obj));
+
+                        if (obj_path == path) {
+                            obj_path.dump();
+                            path.dump();
+                            // inteval++;
+                            int index2 = obj->metaObject()->indexOfSignal("pressed()");
+                            if (index2 < 0) continue;
+                            // QTimer::singleShot(1000*inteval, [obj, index2] {
+                            qInfo() << "target obj found: " << obj;
+                                obj->metaObject()->method(index2).invoke(obj, Qt::ConnectionType::DirectConnection);    // 信号的调用和槽的调用几乎是一样的
+                            // });
+                        }
+                    }
+                }
+            }
+            if (state == OperationManager::State::Recording) {      // start recording
+                UiaController::instance()->startAllMonitoring();
+            }
+        });
+        QObject::connect(OperationManager::instance(), &OperationManager::Stopped, [](OperationManager::State state){
+            UiaController::instance()->stopAllMonitoring();
+        });
+    };
+    InitOperationSequence();
 
     QObject::connect(button4, &QPushButton::pressed, []{
         QWidget *widget = new QWidget(nullptr);
@@ -103,88 +226,11 @@ int main(int argc, char *argv[]) {
         widget->show();
         QObject::connect(button2, &QPushButton::pressed, []{
             qInfo() << "button2 pressed ...............................";
-            exit(0);
-
-            // 录制完毕转 Json 保存
-#if 0
-sop : {
-    path_1 : {
-        top : {             // top level
-            type : xxx,
-            index : xxxx,
-            className : xxxx,
-            depth : xxx
-        },
-        parents_n : {
-            type : xxxx,
-            index : xxxx,
-            className : xxxx,
-            depth : xxxx
-        },
-        target : {
-            type : xxxx,
-            index : xxxx,
-            className : xxxx,
-            depth : xxxx
-        }
-    },
-    path_2 : {
-    },
-    path_3 : {
-    }
-}
-
-#endif
-            auto constructJsonObject = [](const QVector<ObjectPath> &paths){
-                QJsonObject sop;
-                for (int i = 0; i < paths.size(); ++i) {
-                    QJsonObject jsonPath;
-                    QVector<ObjectPath::NodeInfo> nodePath = paths[i].path();
-                    for (int j = 0; j < nodePath.size(); ++j) {
-                        QJsonObject nodeData;
-                        nodeData["type"] = (int)nodePath[j].type;
-                        nodeData["index"] = nodePath[j].index;
-                        nodeData["className"] = nodePath[j].className;
-                        nodeData["depth"] = nodePath[j].depth;
-                        QString nodeName;
-                        if (j == 0) {
-                            nodeName = "target";
-                        } else if (j == paths.size() - 1) {
-                            nodeName = "topLevel";
-                        } else {
-                            nodeName = QString("parents_%1").arg(j-1);
-                        }
-                        jsonPath.insert(nodeName, nodeData);
-                    }
-                    sop[QString("path_%1").arg(i+1)] = jsonPath;
-                }
-                return sop;
-            };
-            QVector<ObjectPath> paths = ObjectPathManager::instance()->paths();
-            qInfo() << "paths size: " << paths.size();
-            QJsonObject json = constructJsonObject(paths);
-            QJsonDocument doc;
-            doc.setObject(json);
-            QByteArray byte = doc.toJson(QJsonDocument::Indented);
-            auto fileReadWrite = [](const QString &fileName, QByteArray &data, bool isRead) {
-                QFile file(fileName);
-                if (isRead && !file.exists())         // 文件不存在
-                    return false;
-                QIODevice::OpenMode mode = isRead ? QIODevice::ReadOnly : QIODevice::WriteOnly;
-                if (!file.open(mode | QIODevice::Text))
-                    return false;
-                if (isRead) {
-                    data = file.readAll();
-                } else {
-                    file.write(data, data.length());
-                }
-                file.close();
-                return true;
-            };
-            bool res = fileReadWrite("/home/alex/Desktop/gamademo/record.json", byte, false);
-            qInfo() << res << doc;
+            // exit(0);
         });
     });
+
+#if 0
     QTimer::singleShot(1000*1, []{
         qInfo() << "singleShot 3s ------------------------------------";
 #if 1
@@ -276,12 +322,14 @@ sop : {
 
 #endif
     });
+#endif
 
     w.show();
-
     return app.exec();
 }
 
+
+#if 0
 int main1(int argc, char *argv[]) {
     QSignalSpyCallbackSet cbs = { nullptr, nullptr, nullptr, nullptr };
     cbs.signal_begin_callback = signal_begin_callback;
@@ -314,8 +362,6 @@ int main1(int argc, char *argv[]) {
     return app.exec();
 }
 
-
-#if 0
 int main2(int argc, char *argv[]) {
     using namespace GammaRay;
     QSignalSpyCallbackSet cbs = { nullptr, nullptr, nullptr, nullptr };
@@ -346,4 +392,6 @@ int main2(int argc, char *argv[]) {
     return app.exec();
 }
 #endif
+
+
 

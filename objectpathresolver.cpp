@@ -15,6 +15,8 @@ ObjectPathResolver::ObjectPathResolver() : m_layer_count (0) {}
 ObjectPathResolver::~ObjectPathResolver() {}
 void ObjectPathResolver::findExistingObjects()
 {
+    m_validObjects.clear();
+    m_objs.clear();
     // discoverObject(QCoreApplication::instance());
     // if (auto guiApp = qobject_cast<QGuiApplication *>(QCoreApplication::instance())) {
     if (qApp) {

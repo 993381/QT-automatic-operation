@@ -4,6 +4,8 @@
 #include <QString>
 #include <QVector>
 
+#include <QDebug>
+
 class ObjectPath {
 public:
     ObjectPath() {}
@@ -30,12 +32,12 @@ public:
     // 只对比了 path，method 需要单独处理
     bool operator==(const ObjectPath &other) {
         bool equal = true;
-        if (other.path().size() != m_path.size()) {
+        QVector<ObjectPath::NodeInfo> other_path = other.path();
+        if (other_path.size() != m_path.size()) {
             return false;
         }
-        const QVector<ObjectPath::NodeInfo> &node = other.path();
-        for (int i = 0 ; i < node.size(); ++i) {
-            equal &= (other.path()[i] == node[i]);  // 也是被重载的
+        for (int i = 0 ; i < other_path.size(); ++i) {
+            equal &= (other_path[i] == m_path[i]);  // 也是被重载的
         }
         return equal;
     }
@@ -52,8 +54,14 @@ public:
     void setMethod(const QString &method);
     QString method() const;
 
-public:
-    // private:
+    void dump () {
+        for (NodeInfo &node : m_path) {
+            qInfo() << "dump "<< this << " type: " << node.type << " index: " << node.index << " className: " << node.className << " depth: " << node.depth;
+        }
+    }
+
+//public:
+private:
     QString m_method;                 // signal or slot，最后要调用的方法
     QVector<NodeInfo> m_path;
 };
@@ -77,13 +85,18 @@ public:
     }
     //! at(int index)  // layer
     //! initFromObjects(QObjectList) // method?  -> override append(object, method)
-    //! readFromJson(jsonFile)
+    static QJsonObject convertToJson(const QVector<ObjectPath> &paths);
+    bool readFromJson(const QJsonObject &rootObj);
+    QVector<ObjectPath> loadPaths() const {
+        return m_loadPaths;
+    }
     //! writeToJson(jsonFile)
     //! next() { return ObjectPath }
     //! hasNext
 
 private:
     QVector<ObjectPath> m_paths;
+    QVector<ObjectPath> m_loadPaths;
 };
 
 #endif//OBJECTPATH_H

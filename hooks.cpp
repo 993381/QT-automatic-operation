@@ -20,7 +20,7 @@ static void (*gammaray_next_removeObject)(QObject *) = nullptr;
 
 extern "C" Q_DECL_EXPORT void gammaray_startup_hook()
 {
-    printf("gammaray_startup_hook\n");
+    puts("gammaray_startup_hook");
     Probe::startupHookReceived();
     new ProbeCreator(GammaRay::ProbeCreator::Create);
 
