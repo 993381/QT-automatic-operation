@@ -1,6 +1,7 @@
 #include "objectpath.h"
 
 #include <QDebug>
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
 
@@ -23,10 +24,12 @@ int ObjectPath::getSiblingIndex(QObject *obj) {
         QObjectList children =  parent->children();
         std::list<QObject *> list = children.toStdList();
         auto shouldErease = [obj, parent](QObject *child){
-            bool isRemove = child != obj; // child 里面包含了 obj 自己, 不能被误删
+            if (child == obj) {
+                return false;               // child 里面包含了 obj 自己, 不能被误删
+            }
             bool isSameType = child->metaObject()->className() == obj->metaObject()->className();
             bool isDirectChild = child->parent() == parent;
-            return isRemove && isSameType && isDirectChild;
+            return !(isSameType && isDirectChild);
         };
         list.erase(std::remove_if(list.begin(), list.end(), shouldErease), list.end());
         index = QList<QObject *>::fromStdList(list).indexOf(obj);
@@ -34,23 +37,22 @@ int ObjectPath::getSiblingIndex(QObject *obj) {
     return index;
 }
 
-ObjectPath::NodeInfo ObjectPath::parseObjectInfo(QObject *object, ObjectPath::NodeType targetType) {
-    auto getDepth = [](QObject *root_obj)
-    {
-        if (!root_obj) {
-            return 1;
-        }
-        int depth = 0;
-        QObject *obj = root_obj;
-        do {
-            ++depth;
-            obj = obj->parent();
-        } while (obj);
-        return depth;
-    };
+int ObjectPath::getLayerCount(QObject *root_obj) {
+    if (!root_obj) {
+        return 0;
+    }
+    int count = 0;
+    QObject *obj = root_obj;
+    do {
+        ++count;
+        obj = obj->parent();
+    } while (obj);
+    return count;
+}
 
+ObjectPath::NodeInfo ObjectPath::parseObjectInfo(QObject *object, ObjectPath::NodeType targetType) {
     NodeInfo node;
-    node.depth = getDepth(object);
+    node.depth = getLayerCount(object);
     node.index = getSiblingIndex(object);
     node.className = object->metaObject()->className();
     node.type = targetType;
@@ -74,24 +76,6 @@ QVector<ObjectPath::NodeInfo> ObjectPath::parseObjectPath(QObject *object, Objec
         } while (obj);
         return path;
     };
-    auto getSiblingIndex = [](QObject *obj)
-    {
-        int index = -1;
-        QObject *parent = obj->parent();
-        if (parent) {
-            QObjectList children =  parent->children();
-            std::list<QObject *> list = children.toStdList();
-            auto shouldErease = [obj, parent](QObject *child){
-                bool isRemove = child != obj; // child 里面包含了 obj 自己, 不能被误删
-                bool isSameType = child->metaObject()->className() == obj->metaObject()->className();
-                bool isDirectChild = child->parent() == parent;
-                return isRemove && isSameType && isDirectChild;
-            };
-            list.erase(std::remove_if(list.begin(), list.end(), shouldErease), list.end());
-            index = QList<QObject *>::fromStdList(list).indexOf(obj);
-        }
-        return index;
-    };
 
     // getRelationship 0~n: target parent_1 parent_2 ... parent_n topLevel
     QObjectList path = getRelationship(object);
@@ -99,7 +83,7 @@ QVector<ObjectPath::NodeInfo> ObjectPath::parseObjectPath(QObject *object, Objec
     result.reserve(path.size());
     for (int i = 0; i < path.size(); ++i) {
         NodeInfo info;
-        info.depth = path.size() - i;
+        info.depth = getLayerCount(path.at(i));
         info.index = getSiblingIndex(path.at(i));
         info.className = path.at(i)->metaObject()->className();
         if (i == 0) {
@@ -127,12 +111,13 @@ void ObjectPath::setPath(const QVector<NodeInfo> &path) {
 QVector<ObjectPath::NodeInfo> ObjectPath::path() const {
     return m_path;
 }
-void ObjectPath::setMethod(const QString &method) {
-    m_method = method;
+void ObjectPath::setRecordMethod(const QString &method) {
+    m_arg.recordMethod = method;
 }
-QString ObjectPath::method() const {
-    return m_method;
+void ObjectPath::setPlayMethod(const QString &method) {
+    m_arg.playMethod = method;
 }
+
 QJsonObject ObjectPathManager::convertToJson(const QVector<ObjectPath> &paths) {
     QJsonObject sop;
     qInfo() << "path size ************: " << paths.size();
@@ -146,14 +131,34 @@ QJsonObject ObjectPathManager::convertToJson(const QVector<ObjectPath> &paths) {
             nodeData["className"] = nodePath[j].className;
             nodeData["depth"] = nodePath[j].depth;
             QString nodeName;
+            QJsonObject targetOption;
             if (j == 0) {
                 nodeName = "topLevel";
             } else if (j == (nodePath.size() - 1)) {
                 nodeName = "target";
+
+                // QJsonArray 当参数类型不同的时候，还能这么存吗？
+                ObjectPath::Arguments args = paths[i].parameters();
+                if (args.parameterCount) {
+                    QJsonArray parameterTypesArr, parameterValuesArr;
+                    for (int i = 0; i < args.parameterCount; ++i) {
+                        parameterTypesArr.insert(i, args.parameterTypes.at(i));
+                        parameterValuesArr.insert(i, args.parameterValues.at(i).toJsonValue());
+                    }
+                    targetOption["uniqIndex"] = args.uniqIndex;
+                    targetOption["playMethod"] = args.playMethod;
+                    targetOption["recordMethod"] = args.recordMethod;
+                    targetOption["discoverDesc"] = args.discoverDesc;
+                    targetOption["parameterCount"] = args.parameterCount;
+                    targetOption["parameterTypes"] =  parameterTypesArr;
+                    targetOption["parameterValues"] =  parameterValuesArr;
+                }
             } else {
                 nodeName = QString("parents_%1").arg(j);
             }
-            jsonPath.insert(nodeName, nodeData);
+            jsonPath[nodeName] = nodeData;
+            if (!targetOption.isEmpty())
+                jsonPath["target_option"] = targetOption;
         }
         sop[QString("path_%1").arg(i+1)] = jsonPath;
     }
@@ -185,19 +190,31 @@ bool ObjectPathManager::readFromJson(const QJsonObject &rootObj) {
             continue;
         }
 
-        QVector<ObjectPath::NodeInfo> nodePath(node_keys.size());
+        // 只剩下确定的节点名称
+        std::list<QString> node_list = node_keys.toStdList();
+        node_list.erase(std::remove_if(node_list.begin(), node_list.end(), [](const QString &key){
+                            return !(key == "target" || key == "topLevel" || key.startsWith("parents_"));
+                        }),  node_list.end());
+
+        QVector<ObjectPath::NodeInfo> nodePath(node_list.size());
         bool filled = false;
-        for (auto s : node_keys) {
+        for (QString &s : node_list) {
+            // qInfo() << "-------: " << s << "  " << node_list.size(); // continue;
+
             int idx = -1;
             if (s == "topLevel") {
                 idx = 0;
             } else if (s == "target") {
-                idx = node_keys.size() - 1;
-            } else {
+                idx = node_list.size() - 1;
+            } else if (s.startsWith("parents_")) {
                 static const QByteArray parents(QByteArrayLiteral("parents_"));
                 idx = s.mid(parents.length()).toInt();
+            } else {
+                continue;
             }
-            if (!(idx > -1 && idx < node_keys.size())) {
+            // qInfo() << "-------idx: " << idx;
+
+            if (!(idx > -1 && idx < node_list.size())) {
                 qInfo() <<"fatal error, idx invalid: " << pathName << " " << s << idx;
                 continue;
             }
@@ -214,6 +231,22 @@ bool ObjectPathManager::readFromJson(const QJsonObject &rootObj) {
         }
         ObjectPath paths;
         paths.setPath(nodePath);
+        if (node_keys.contains("target_option")) {
+            ObjectPath::Arguments args;
+            QJsonValue target_option = nodes.take("target_option");
+            qInfo() << "obj_node xxxxxxxxxxx: " << target_option;
+            args.uniqIndex = target_option["uniqIndex"].toInt();
+            args.playMethod = target_option["playMethod"].toString();
+            args.recordMethod = target_option["recordMethod"].toString();
+            args.discoverDesc = target_option["discoverDesc"].toString();
+            args.parameterCount = target_option["parameterCount"].toInt();
+            for (int i = 0; i < args.parameterCount; ++i) {
+                args.parameterTypes.push_back(target_option["parameterTypes"].toArray().takeAt(i).toString());
+                args.parameterValues.push_back(target_option["parameterValues"].toArray().takeAt(i).toVariant());
+            }
+            // qInfo() << ".............+ " << args.parameterCount << args.playMethod << args.parameterTypes << args.parameterValues;
+            paths.setParameters(args);
+        }
         for (int idx = 0; idx < nodePath.size(); ++idx) {
             qInfo() << "from json!!! " << " type: " << nodePath[idx].type << " index: " << nodePath[idx].index << " className: " << nodePath[idx].className << " depth: " << nodePath[idx].depth;
         }

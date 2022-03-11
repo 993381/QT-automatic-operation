@@ -68,6 +68,7 @@ private:
         }
     }
     inline bool isInList(QObject *obj, const QString &type, bool recursive = false) const {
+        if (!obj) return false;
         const QObjectList &list = m_obj_list_map.value(type);
         if (list.contains(obj))
             return true;

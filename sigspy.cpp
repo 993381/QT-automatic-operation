@@ -6,12 +6,17 @@
 #include <QMetaMethod>
 #include <QtCore/private/qobject_p.h>
 #include <QtCore/private/qmetaobject_p.h>
+#include <QLabel>
 #include <QObject>
 #include <QMetaType>
+#include <QListView>
+#include <QLineEdit>
 #include <QModelIndex>
 
+#include "objectlistmanager.h"
 #include "signalspycallbackset.h"
 #include "objectpath.h"
+#include "util.h"
 
 using namespace GammaRay;
 
@@ -36,30 +41,81 @@ static void executeSignalCallback(const Func &func)
     func(m_previousSignalSpyCallbackSet);
 }
 
-void signal_begin_callback(QObject *caller, int method_index, void **argv)
+void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
 {
 #if 1
     if (!Probe::instance()) {
         return;
     }
-    // if (Probe::instance()->focusObject() == caller) {
-    //     qInfo() << "signal_begin_callback: " <<  caller->metaObject()->method(method_index).methodSignature().data();
-    // }
-    // if (!Probe::instance()->focusObjects().size()) return;
+    if (!Probe::instance()->focusObjects().contains(caller) || ObjectListManager::instance()->isInBlackList(caller, true)) {
+        return;
+    }
+    if (caller->metaObject()->className() == QByteArrayLiteral("QWidgetLineControl")) {
+        return;
+    }
     QObjectList tmpList = Probe::instance()->focusObjects();
     if (tmpList.contains(caller) && caller != Probe::instance()) {
-        method_index = signalIndexToMethodIndex(caller->metaObject(), method_index);
+        const int &method_index = signalIndexToMethodIndex(caller->metaObject(), method_index_in);
+        const QString methodSignature = caller->metaObject()->method(method_index).methodSignature();
         qInfo() << "signal_begin_callback: " <<  caller << caller->metaObject()->className() << " " << caller->metaObject()->method(method_index).methodSignature().data();
 
-        if (caller->metaObject()->method(method_index).methodSignature() == "pressed()") {
+        QAbstractButton * button = qobject_cast<QAbstractButton *>(caller);
+        if (button && methodSignature == "pressed()") {
             ObjectPath path(ObjectPath::parseObjectPath(caller));       // 加入重复对象的检测
-            path.setMethod("pressed()");
+            path.dump();
+            path.setRecordMethod("pressed()");
+            if (!button->objectName().isEmpty()) {
+                const QObjectList &result = findObjects(ByObjectName, button->objectName());
+                bool isUnique = result.size() == 1;
+                int uniq_index = -1;
+                if (!isUnique) {
+                    uniq_index = result.indexOf(caller);
+                }
+                path.setParameters(1, {"QString"}, { button->objectName() }, "click()", "FindButtonByObjectName", uniq_index);
+            } else if (!button->accessibleName().isEmpty()){
+                qInfo() << "FindButtonByAccessibleName ................................1";
+                const QObjectList &result = findObjects(ByAccessibleName, button->accessibleName());
+                bool isUnique = result.size() == 1;
+                int uniq_index = -1;
+                if (!isUnique) {
+                    qInfo() << "FindButtonByAccessibleName ................................2";
+                    uniq_index = result.indexOf(caller);
+                    qInfo() << "FindButtonByAccessibleName ................................3";
+                }
+                path.setParameters(1, {"QString"}, { button->accessibleName() }, "click()", "FindButtonByAccessibleName", uniq_index);
+            } else if (!button->text().isEmpty()) {
+                const QObjectList &result = findObjects(ByButtonText, button->text());
+                bool isUnique = result.size() == 1;
+                int uniq_index = -1;
+                if (!isUnique) {
+                    uniq_index = result.indexOf(caller);
+                }
+                path.setParameters(1, {"QString"}, { button->text() }, "click()", "FindButtonByButtonText", uniq_index);
+            } else if (!button->toolTip().isEmpty()) {
+                const QObjectList &result = findObjects(ByToolTip, button->toolTip());
+                bool isUnique = result.size() == 1;
+                int uniq_index = -1;
+                if (!isUnique) {
+                    uniq_index = result.indexOf(caller);
+                }
+                path.setParameters(1, {"QString"}, { button->toolTip() }, "click()", "FindButtonByToolTip", uniq_index);
+            } else {   // 啥都没有，只有图标的 button
+                const QObjectList &result = findObjects(ByClassName, button->metaObject()->className());
+                bool isUnique = result.size() == 1;
+                int uniq_index = -1;
+                if (!isUnique) {
+                    uniq_index = result.indexOf(caller);
+                }
+                path.setParameters(1, {"QString"}, { button->metaObject()->className() }, "click()", "FindButtonByButtonIndex", uniq_index);
+            }
             ObjectPathManager::instance()->append(path);
+            return;
         }
-        if (caller->metaObject()->method(method_index).methodSignature() == "pressed(QModelIndex)") {
+
+        QAbstractItemView *listView = qobject_cast<QAbstractItemView *>(caller);
+        if (listView && methodSignature == "pressed(QModelIndex)") {
             ObjectPath path(ObjectPath::parseObjectPath(caller));       // 加入重复对象的检测
-            path.setMethod("pressed(QModelIndex)");
-            ObjectPathManager::instance()->append(path);
+            path.setRecordMethod("pressed(QModelIndex)");
             //! 获取参数
             for (int j = 0; j < caller->metaObject()->method(method_index).parameterCount(); ++j) {
                 const QByteArray parameterType = caller->metaObject()->method(method_index).parameterTypes().at(j);
@@ -68,16 +124,117 @@ void signal_begin_callback(QObject *caller, int method_index, void **argv)
                         << "parameterNames: " << caller->metaObject()->method(method_index).parameterNames()
                         << "parameterType: " << caller->metaObject()->method(method_index).parameterType(j);
                 if (parameterType == "QModelIndex") {
-                    QModelIndex *index = (QModelIndex *)argv[j+1];  // 根据 QMetaMethod::invoke 推断出参数从 1 开始
+                    QModelIndex *modelIndex = (QModelIndex *)argv[j+1];  // 根据 QMetaMethod::invoke 推断出参数从 1 开始
                     // 获取到点击的行、列以及显示的数据
-                    qInfo() << "parameterValue: " <<  index->data().toString() << index << index->row() << " " << index->column();
+                    qInfo() << "parameterValue: " <<  modelIndex->data().toString() << modelIndex << modelIndex->row() << " " << modelIndex->column();
+                    const QString &itemText = modelIndex->data().toString();
+                    int uniq_index = -1;
+                    QObjectList objs ;
+                    if (!itemText.isEmpty()) {
+                        objs = findObjects(ByItemText, itemText);
+                    } else {
+                        objs = findObjects(ByClassName, listView->metaObject()->className());
+                    }
+                    // 如果不唯一，要记住被点击项的全局索引
+                    if (objs.size() > 1) {
+                        uniq_index = objs.indexOf(caller);
+                    } else if (objs.size() == 1){
+                        uniq_index = 0;
+                    } else {
+                        qInfo() << "Fatal error, cannot find!";
+                    }
+                    // path.setParameters(1, {"QString"}, {modelIndex->data().toString()}, "selectListItemByText", "FindListItemByText", uniq_index);
+                    if (itemText.isEmpty()) {
+                        path.setParameters(3, { "QString", "int", "int" }
+                                           , { listView->metaObject()->className(),  modelIndex->row(), modelIndex->column() }
+                                           , "selectListItemByIndex", "FindListItemByIndex", uniq_index);
+                    } else {
+                        path.setParameters(3, { "QString", "int", "int" }
+                                           , { modelIndex->data().toString(), modelIndex->row(), modelIndex->column() }
+                                           , "selectListItemByText", "FindListItemByText", uniq_index);
+                    }
+                    ObjectPathManager::instance()->append(path);
+                    // 再在这里查找一下这个是不是唯一的，否则用合适的方式存储，最后分析json序列生成代码
                 }
             }
+            return;
+        }
+        QLineEdit *lineEdit = qobject_cast<QLineEdit *>(caller);
+        if (lineEdit && methodSignature == "editingFinished()") {
+            ObjectPath path(ObjectPath::parseObjectPath(caller));       // 加入重复对象的检测
+            path.dump();
+            path.setRecordMethod("setText(QString)");
+#if 0
+            if (!lineEdit->objectName().isEmpty()) {
+                const QObjectList &result = findObjects(ByObjectName, lineEdit->objectName());
+                bool isUnique = result.size() == 1;
+                int uniq_index = -1;
+                if (!isUnique) {
+                    uniq_index = result.indexOf(caller);
+                }
+                path.setParameters(1, {"QString"}, { lineEdit->objectName() }, "click()", "FindLineEditByObjectName", uniq_index);
+            } else if (!lineEdit->accessibleName().isEmpty()){
+                qInfo() << "FindButtonByAccessibleName ................................1";
+                const QObjectList &result = findObjects(ByAccessibleName, lineEdit->accessibleName());
+                bool isUnique = result.size() == 1;
+                int uniq_index = -1;
+                if (!isUnique) {
+                    qInfo() << "FindButtonByAccessibleName ................................2";
+                    uniq_index = result.indexOf(caller);
+                    qInfo() << "FindButtonByAccessibleName ................................3";
+                }
+                path.setParameters(1, {"QString"}, { lineEdit->accessibleName() }, "click()", "FindLineEditByAccessibleName", uniq_index);
+            } else if (!lineEdit->text().isEmpty()) {
+                const QObjectList &result = findObjects(ByButtonText, lineEdit->text());
+                bool isUnique = result.size() == 1;
+                int uniq_index = -1;
+                if (!isUnique) {
+                    uniq_index = result.indexOf(caller);
+                }
+                path.setParameters(1, {"QString"}, { lineEdit->text() }, "click()", "FindLineEditByButtonText", uniq_index);
+            } else if (!lineEdit->toolTip().isEmpty()) {
+                const QObjectList &result = findObjects(ByToolTip, lineEdit->toolTip());
+                bool isUnique = result.size() == 1;
+                int uniq_index = -1;
+                if (!isUnique) {
+                    uniq_index = result.indexOf(caller);
+                }
+                path.setParameters(1, {"QString"}, { lineEdit->toolTip() }, "click()", "FindLineEditByToolTip", uniq_index);
+            }
+#endif
+            {   // 啥都没有，只有图标的 button
+                const QObjectList &result = findObjects(ByClassName, lineEdit->metaObject()->className());
+                bool isUnique = result.size() == 1;
+                int uniq_index = -1;
+                if (!isUnique) {
+                    uniq_index = result.indexOf(caller);
+                }
+                path.setParameters(4, {"ClassName", "Layer", "SilbingIndex",  "TextContent" }
+                                   , { lineEdit->metaObject()->className()
+                                       , ObjectPath::parseObjectInfo(caller).depth
+                                       , ObjectPath::parseObjectInfo(caller).index
+                                       , lineEdit->text()
+                                   }
+                                   , "editingFinished()", "FindLineEditByItemIndex", uniq_index);
+            }
+            ObjectPathManager::instance()->append(path);
+            return;
+        }
+        if (caller) {
+             const QString &method = caller->metaObject()->method(method_index).methodSignature();
+             int methodType = caller->metaObject()->method(method_index).methodType();
+             int access = caller->metaObject()->method(method_index).access();
+             // 只关心公开的信号
+             if (QMetaMethod::Access::Public != access && QMetaMethod::MethodType::Signal != methodType) {
+                 return;
+             }
+             qInfo() << "method: " << method << " methodType: " << methodType;
+             return;
         }
     }
 #endif
     return;
-
+#if 0
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     method_index = signalIndexToMethodIndex(caller->metaObject(), method_index);
 #endif
@@ -85,6 +242,7 @@ void signal_begin_callback(QObject *caller, int method_index, void **argv)
         if (callbacks.signalBeginCallback)
             callbacks.signalBeginCallback(caller, method_index, argv);
     });
+#endif
 }
 # if 0
 void signal_end_callback(QObject *caller, int method_index)

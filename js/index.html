@@ -1,0 +1,40 @@
+<html>
+<head>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<!--script type="text/javascript" src="../auto/js/qwebchannel.js"></script-->
+<script type="text/javascript">
+    var TestContext;
+    window.onload = function () {
+      // 浏览器内核自带
+      new QWebChannel(qt.webChannelTransport, function (channel) {
+
+        // 获取 Qt 通道类 ...
+        var tester = channel.objects.tester;            // 注册对象名
+
+        TestContext.test = function () {
+            tester.findListItemByText("aaaaa", "bbbbbbbbb");      // 发送消息
+        };
+
+        // 通过 Qt 通道类 JSSendMessage 函数向 Qt 发送消息
+        // $("#_login_").click(function () {
+        //   var name = "aaaa";                            // document.getElementById("_username_").value;
+        //   var passwd = "bbbb";                          // document.getElementById("_password_").value;
+        //   tester.findListItemByText(name, passwd);      // 发送消息
+        // });
+
+        // 接收 Qt 发来的数据 ...
+        // context.SigSendMessageToJS.connect(function (str) {
+        //   if (str == "ok") alert("success");
+        // });
+
+      });
+
+    };
+</script>
+</head>
+
+<body>
+<p>If you click on me, I will disappear.</p>
+</body>
+
+</html>

@@ -16,7 +16,6 @@
 #endif
 
 Q_GLOBAL_STATIC_WITH_ARGS(QMutex, s_lock, (QMutex::Recursive))
-//Q_GLOBAL_STATIC_WITH_ARGS(QMutex, s_lock2, (QMutex::Recursive))
 
 QAtomicPointer<Probe> Probe::s_instance = QAtomicPointer<Probe>(nullptr);
 

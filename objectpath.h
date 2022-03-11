@@ -28,6 +28,10 @@ public:
     explicit ObjectPath(const QVector<NodeInfo>&path) { //! default method   // 这里的explicit就很重要
         m_path = path;
     }
+//    ObjectPath(const ObjectPath &other) {
+//        m_arg = other.m_arg;
+//        m_path = other.m_path;
+//    }
 
     // 只对比了 path，method 需要单独处理
     bool operator==(const ObjectPath &other) {
@@ -43,6 +47,7 @@ public:
     }
 
     static int getSiblingIndex(QObject *obj);
+    static int getLayerCount(QObject *obj);
 
     static NodeInfo parseObjectInfo(QObject *object, ObjectPath::NodeType targetType = ObjectPath::Taget);
 
@@ -51,18 +56,50 @@ public:
 
     void setPath(const QVector<NodeInfo> &path);        //! setSignatuare
     QVector<NodeInfo> path() const;
-    void setMethod(const QString &method);
-    QString method() const;
+
+    class Arguments {
+    public:
+        Arguments()
+            : parameterCount (0)
+        {}
+        ~Arguments() {}
+        int parameterCount;
+        QStringList parameterTypes;
+        QVariantList parameterValues;
+        QString recordMethod;           // 录制的时候被调用的方法
+        QString playMethod;             // 播放的时候要调用的方法
+        QString discoverDesc;           // 找到改对象要调用的方法
+        int uniqIndex;
+    };
+    void setRecordMethod(const QString &method);
+    void setPlayMethod(const QString &method);
+
+    void setParameters(int parameterCount, QStringList parameterTypes, QVariantList parameterValues, QString playMethod, QString discoverDesc, int uniqIndex = -1) {
+        m_arg.parameterCount = parameterCount;
+        m_arg.parameterTypes = parameterTypes;
+        m_arg.parameterValues = parameterValues;
+        m_arg.discoverDesc = discoverDesc;
+        m_arg.playMethod = playMethod;
+        m_arg.uniqIndex = uniqIndex;
+    }
+
+    void setParameters(const Arguments &args) {
+        m_arg = args;
+    }
+    Arguments parameters() const {
+        return m_arg;
+    }
 
     void dump () {
         for (NodeInfo &node : m_path) {
             qInfo() << "dump "<< this << " type: " << node.type << " index: " << node.index << " className: " << node.className << " depth: " << node.depth;
         }
+        if (m_arg.parameterCount) qInfo() << "___________" << m_arg.parameterCount << m_arg.parameterTypes << m_arg.parameterValues << m_arg.playMethod;
     }
 
 //public:
 private:
-    QString m_method;                 // signal or slot，最后要调用的方法
+    Arguments m_arg;
     QVector<NodeInfo> m_path;
 };
 

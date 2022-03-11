@@ -3,7 +3,9 @@
 #include "operationmanager.h"
 #include "objectpathresolver.h"
 #include "objectpath.h"
-
+#include "scopeguard.h"
+#include "gdbinjector/gdb_injector.h"
+#include "scriptengine/scriptengine.h"
 #include "util.h"
 #include "probe.h"
 #include "sigspy.h"
@@ -13,8 +15,11 @@
 #include <QListView>
 #include <QMouseEvent>
 #include <QPushButton>
+#include <QLineEdit>
 #include <QMetaMethod>
 #include <QJsonObject>
+#include <QSizePolicy>
+#include <QHBoxLayout>
 #include <QJsonDocument>
 #include <QtCore/private/qobject_p.h>  // qt_register_signal_spy_callbacks
 
@@ -25,13 +30,23 @@ public:
 protected:
     bool eventFilter(QObject *object, QEvent *event) override
     {
+        // 在黑名单中的将不会加入到focus列表
+        if (ObjectListManager::instance()->isInBlackList(object, true)) {
+            return false; // QObject::eventFilter(object, event);
+        }
+
         if (event->type() == QEvent::MouseButtonPress) {
             QMouseEvent *mouseEv = static_cast<QMouseEvent *>(event);
             if (mouseEv->button() == Qt::LeftButton) {
                 QObject *target = nullptr;
                 QWidget *widget = QApplication::widgetAt(mouseEv->globalPos());
-                if (widget && !ObjectListManager::instance()->isInBlackList(widget, true)) {
-                    qInfo() << "widget: " << widget << widget->objectName() << widget->metaObject()->className();
+                if (widget) {
+                    qInfo() << "widget: " << widget
+                            << " object name: " << widget->objectName()
+                            << " class name: " << widget->metaObject()->className()
+                            << " tooltipText: " << widget->toolTip()
+                            << " accessibleName: " << widget->accessibleName();
+
                     target = widget;
                     if (widget->objectName() == "qt_scrollarea_viewport") {
                         if (auto listview = qobject_cast<QListView *>(widget->parent())) {
@@ -39,13 +54,18 @@ protected:
                             target = listview;
                         }
                     }
+                    if (auto button = qobject_cast<QAbstractButton *>(widget)) {
+                        qInfo() << "eventFilter, is QAbstractButton ........... " << button->metaObject()->className() << " text: " << button->text();
+                    }
+                    if (auto listView = qobject_cast<QAbstractItemView *>(widget)) {
+                        qInfo() << "eventFilter, is QListView ........... " << listView->metaObject()->className();
+                    }
+                    if (auto lineEdit = qobject_cast<QLineEdit *>(widget)) {
+                        qInfo() << "eventFilter, is QLineEdit ........... " << lineEdit->metaObject()->className();
+                    }
                     QObjectList tmpList = target->children();
                     tmpList.append(target);
                     Probe::instance()->setFocusObjects(tmpList);
-                }
-
-                if (auto listview = qobject_cast<QAbstractItemView *>(widget)) {
-                    qInfo() << "is list view ........... " << listview->metaObject()->className();
                 }
             }
         }
@@ -55,10 +75,18 @@ protected:
 
 UiaController::UiaController()
     : m_filter (new EventFilter)
+    , m_itr (m_paths.begin())
 {
 }
 
 UiaController::~UiaController() {
+}
+
+bool UiaController::attachApp(int pid) {
+}
+
+bool UiaController::startApp(const QStringList &programAndArgs) {
+    GdbInjector::instance()->launchInject(programAndArgs);
 }
 
 bool UiaController::startEventMonitoring() {
@@ -102,9 +130,39 @@ bool UiaController::initOperationSequence() {
     QObject::connect(OperationManager::instance(), &OperationManager::Start, [](OperationManager::State state){
         if (state == OperationManager::State::Playing) {        // start playing
             UiaController::instance()->stopAllMonitoring();
+            UiaController::instance()->m_paths.clear();
             const QVector<ObjectPath> &paths = ObjectPathManager::instance()->loadPaths();
+            instance()->m_paths = paths;
+            instance()->m_itr = UiaController::instance()->m_paths.begin();
+
+#if 0
             qInfo() << "xxxxxxxxxxxxxxxxxxxxxxxxx " << paths.size();
-            for (auto path : paths){ //ObjectPathManager::instance()->loadPaths()) {
+            for (auto path : paths) {                           // ObjectPathManager::instance()->loadPaths()) {
+                if (path.parameters().parameterCount) {
+                    const int &uniq_index = path.parameters().uniqIndex;
+                    const QString &method = path.parameters().playMethod;
+                    const QString &text = path.parameters().parameterValues.first().toString();
+                    qInfo() << "method selectListItemByText: "
+                            << method << " uniq_index: " << uniq_index
+                            << path.parameters().parameterCount
+                            << path.parameters().parameterValues.first();
+                    if (uniq_index == -1) {
+                         qInfo() << "uniq_index error";
+                         exit(0);
+                    }
+                    static int inteval = 0;
+                    if (method == "selectListItemByText") {
+                        QTimer::singleShot(1000 * inteval, [path, text, uniq_index] {
+                            // qInfo() << "selectListItemByText: " << text;
+                            selectListItemByText(text, uniq_index == -1? 0 : uniq_index);
+                        });
+                        continue;
+                    }
+                    inteval+=5;
+                }
+
+
+#if 0
                 ObjectPathResolver resolver;
                 resolver.setDiscoverCallback([path](QObject *obj) -> bool {
                     ObjectPath::NodeInfo info1 = ObjectPath::parseObjectInfo(obj);
@@ -118,7 +176,7 @@ bool UiaController::initOperationSequence() {
                 // 从符合层级关系的对象中找出符合路径关系的对象
                 QObjectList objects = resolver.objects();
                 qInfo() << "objects size........... " << objects.size() << objects[0];
-                static int inteval = 0;
+                // static int inteval = 0;
                 for (QObject *obj : objects) {
                     ObjectPath obj_path(ObjectPath::parseObjectPath(obj));
 
@@ -128,14 +186,16 @@ bool UiaController::initOperationSequence() {
 
                         int index2 = obj->metaObject()->indexOfSignal("pressed()");
                         if (index2 < 0) continue;
-                        QTimer::singleShot(1000*inteval, [obj, index2] {
-                        qInfo() << "target obj found: " << obj;
-                            obj->metaObject()->method(index2).invoke(obj, Qt::ConnectionType::DirectConnection);    // 信号的调用和槽的调用几乎是一样的
+                        QTimer::singleShot(1000*inteval, [path, obj, index2] {
+                            qInfo() << "target obj found: " << obj;
+                            // obj->metaObject()->method(index2).invoke(obj, Qt::ConnectionType::DirectConnection);    // 信号的调用和槽的调用几乎是一样的
                         });
-                        inteval+=5;
+                        // inteval+=5;
                     }
                 }
+#endif
             }
+#endif
         }
         if (state == OperationManager::State::Recording) {      // start recording
             UiaController::instance()->startAllMonitoring();
@@ -147,26 +207,108 @@ bool UiaController::initOperationSequence() {
     return true;
 }
 
+bool UiaController::nextStep() {
+    if (instance()->m_itr == instance()->m_paths.end()) {
+        qInfo() << "UiaController::nextStep end";
+        return false;
+    }
+    auto guard = qScopeGuard([]{
+        instance()->m_itr++;
+    });
+    if (instance()->m_itr->parameters().parameterCount) {
+        const int &uniq_index = instance()->m_itr->parameters().uniqIndex;
+        const QString &playMethod = instance()->m_itr->parameters().playMethod;
+        const QString &recordMethod = instance()->m_itr->parameters().recordMethod;
+        const QString &discoverDesc = instance()->m_itr->parameters().discoverDesc;
+        const QString &text = instance()->m_itr->parameters().parameterValues.first().toString();
+
+        qInfo() << " playMethod: " << playMethod
+                << " recordMethod: " << recordMethod
+                << " discoverDesc: " << discoverDesc
+                << " uniq_index: " << uniq_index
+                << instance()->m_itr->parameters().parameterCount
+                << instance()->m_itr->parameters().parameterValues.first();
+        if (uniq_index == -1) {
+             qInfo() << "uniq_index error: " << -1;
+             // exit(0);
+        }
+        if (discoverDesc == "FindListItemByText") {
+            const QString &text = instance()->m_itr->parameters().parameterValues.first().toString();
+            return selectListItemByText(text, uniq_index == -1? 0 : uniq_index);
+        }
+        if (discoverDesc == "FindListItemByIndex") {
+            const int &row = instance()->m_itr->parameters().parameterValues.at(1).toInt();
+            const int &coloum = instance()->m_itr->parameters().parameterValues.at(2).toInt();
+            return selectListItemByIndex(text, uniq_index == -1? 0 : uniq_index, row, coloum);
+        }
+
+        if (discoverDesc == "FindButtonByObjectName") {
+            return clickButtonByObjectName(text, uniq_index == -1? 0 : uniq_index);
+        }
+        if (discoverDesc == "FindButtonByButtonText") {
+            return clickButtonByButtonText(text, uniq_index == -1? 0 : uniq_index);
+        }
+        if (discoverDesc == "FindButtonByToolTip") {
+            return clickButtonByToolTip(text, uniq_index == -1 ? 0 : uniq_index);
+        }
+        if (discoverDesc == "FindButtonByAccessibleName") {
+            return clickButtonByAccessbleName(text, uniq_index == -1 ? 0 : uniq_index);
+        }
+        if (discoverDesc == "FindButtonByButtonIndex") {
+            return clickButtonByButtonIndex(text, uniq_index == -1 ? 0 : uniq_index);
+        }
+
+        if (discoverDesc == "FindLineEditByItemIndex") {
+            const int &layer = instance()->m_itr->parameters().parameterValues.at(1).toInt();
+            const int &index = instance()->m_itr->parameters().parameterValues.at(2).toInt();
+            const QString &content = instance()->m_itr->parameters().parameterValues.at(3).toString();
+            return setLineEditTextByItemIndex(text, content, layer, index, instance()->m_itr);
+        }
+    }
+    return false;
+}
+
 bool UiaController::createUiaWidget() {
     // add to black list.
-    // UiaWidget obj;
-    QWidget *widget = new QWidget(/*&obj*/);
-    // qInfo() << ((QObject *)widget)->metaObject()->classInfo(0).value();
-    // auto paly / next
-    QPushButton *button1 = new QPushButton("record", widget);
-    QPushButton *button2 = new QPushButton("play", widget);
-    QPushButton *button3 = new QPushButton("save", widget);
-    QPushButton *button4 = new QPushButton("exit", widget);
-    QPushButton *button5 = new QPushButton("edit", widget);
-    QPushButton *button6 = new QPushButton("load", widget);      // load json file
-    QPushButton *button7 = new QPushButton("stop", widget);
-
+    QWidget *widget = new QWidget;
     ObjectListManager::instance()->addToBlackList({widget});     // 只加toplevel，判断的时候用 recursive 就行
 
+    widget->setWindowTitle("Uia Controller");
+
+    QHBoxLayout *layout  = new QHBoxLayout(widget);
+    QPushButton *button1 = new QPushButton("record");
+    QPushButton *button2 = new QPushButton("play");
+    QPushButton *button3 = new QPushButton("save");
+    QPushButton *button4 = new QPushButton("exit");
+    QPushButton *button5 = new QPushButton("edit");
+    QPushButton *button6 = new QPushButton("load");      // load json file
+    QPushButton *button7 = new QPushButton("stop");
+    QPushButton *button8 = new QPushButton("next");
+    QPushButton *button9 = new QPushButton("launch");
+
+    layout->addWidget(button1);
+    layout->addWidget(button2);
+    layout->addWidget(button3);
+    layout->addWidget(button4);
+    layout->addWidget(button5);
+    layout->addWidget(button6);
+    layout->addWidget(button7);
+    layout->addWidget(button8);
+    layout->addWidget(button9);
+
+    QObject::connect(button9, &QPushButton::clicked, [](bool checked) {
+        // UiaController::instance()->startApp({"/usr/bin/dde-control-center", "-s"});
+
+        // QObject::connect(GdbInjector::instance(), &GdbInjector::injectFinished, []{
+        //     ScriptEngine::instance()->runScript("Uia.startTest();");
+        // });
+    });
+    QObject::connect(button8, &QPushButton::clicked, [](bool checked){
+        instance()->nextStep();
+    });
     QObject::connect(button7, &QPushButton::clicked, [](bool checked){
         OperationManager::instance()->stop();
     });
-
     QObject::connect(button6, &QPushButton::clicked, [](bool checked){
         QString openFileName = showFileDialog(QFileDialog::AcceptOpen);
         if (openFileName.isEmpty()) return;
@@ -212,13 +354,11 @@ bool UiaController::createUiaWidget() {
         bool res = fileReadWrite(saveFileName, byte, false);
         qInfo() << res << doc;
     });
-    button2->move(100, 0);
-    button3->move(200, 0);
-    button4->move(300, 0);
-    button5->move(400, 0);
-    button6->move(500, 0);
-    button7->move(600, 0);
+    QObject::connect(button4, &QPushButton::clicked, [](bool checked){
+        qApp->exit();
+    });
 
-    widget->resize(750, 100);
+    widget->setFixedSize(widget->sizeHint());
     widget->show();
 }
+

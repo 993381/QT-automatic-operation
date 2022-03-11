@@ -4,12 +4,17 @@
 #include <QMainWindow>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QMainWindow>
 
 #include <QListView>
 #include <QStandardItem>
 #include <QStandardItemModel>
 
 #include <QDebug>
+#include <QTimer>
+
+#include "util.h"
+
 //#include <iostream>
 
 //#include <QObject>
@@ -33,10 +38,16 @@
 
 //#include "objectpath.h"
 //#include "objectpathresolver.h"
+#include <QAbstractButton>
+#include <QLineEdit>
+#include <QTextEdit>
 
+#include <QJsonArray>
 //#include "util.h"
 #include "uiacontroller.h"
 
+#include "scriptengine/scriptengine.h"
+#include "gdbinjector/gdb_injector.h"
 
 // 添加关注的对象、类型、方法：void MetaObjectRepository::initQObjectTypes()
 // void MetaObject::addBaseClass(MetaObject *baseClass) 这里面有对于baseclass inherts的判断: #define MO_ADD_BASECLASS(Base)
@@ -50,19 +61,75 @@
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
+#if 1
+    QMainWindow window;
+    QPushButton *button = new QPushButton("Launch", &window);
+    QObject::connect(button, &QPushButton::clicked, [] {
+        QByteArray testCase;
+        if (fileReadWrite(TESTCASE_JS, testCase, true)) {
+            auto result = ScriptEngine::instance()->syncRunJavaScript(testCase);
+            if (!result.first) {
+                qInfo() << "error when load TESTER_JS";
+            }
+            ScriptEngine::instance()->runScript("Uia.startApp();");
+        }
+    });
+
+    window.show();
+    return app.exec();
+#endif
+
+#if 0
+    UiaController::instance()->createUiaWidget();
+    UiaController::instance()->initOperationSequence();
+
+    return app.exec();
+#endif
+
+#if 0
+    QWebEngineView *webview = new QWebEngineView();
+    // webview->load(QUrl("http://qt-project.org/"));
+    webview->load(QUrl("http://www.baidu.com"));
+    webview->show();
+
+    QWebEnginePage *page = new QWebEnginePage;
+    page->runJavaScript("'Java' + 'Script'", [](const QVariant &result){ qDebug() << result; });
+    // qInfo() << page->profile()->scripts()->toList().at(0).sourceCode();
+
+    return app.exec();
+#endif
+
     QMainWindow w;
     w.resize(420, 380);
+    // const int constexpr *const ptr = nullptr;
+
     QPushButton *button1 = new QPushButton("btn1", &w);             // pressed()
     QPushButton *button2 = new QPushButton("btn2", &w);             // pressed()
     QPushButton *button3 = new QPushButton("btn3", &w);             // pressed()
     QWidget *widget = new QWidget(&w);
     QPushButton *button4 = new QPushButton("btn4", widget);         // pressed()
-    QLineEdit *edit = new QLineEdit(&w);                            // editingFinished()
+    QLineEdit *edit1 = new QLineEdit(&w);                            // editingFinished()
+    QLineEdit *edit2 = new QLineEdit(&w);                            // editingFinished()
     button2->move(100, 0);
     button3->move(200, 0);
-    edit->move(100, 30);
+    edit1->move(100, 30);
+    edit2->move(200, 30);
     widget->resize(200, 100);
     widget->move(100, 70);
+
+    QObject::connect(edit1, &QLineEdit::editingFinished, [edit1] {
+        qInfo() << "editingFinished " << edit1->metaObject()->superClass()->className();
+        // if (edit->metaObject()->superClass()) qInfo() << "editingFinished " << edit->metaObject()->superClass();
+    });
+
+    // QTimer::singleShot(1000*2, [button1]{
+    //     button1->click();
+    // });
+
+    QObject::connect(button2, &QPushButton::pressed, [] {
+        qInfo() << "button2 pressed.............. widget1 level1";
+    });
+
 
     QStandardItemModel model;
     QListView view(&w);
@@ -75,16 +142,32 @@ int main(int argc, char *argv[]) {
     view.resize(120, 50);
     view.move(200,200);
     QModelIndex qindex = model.index(1, 0);   //默认选中 index
-    view.setCurrentIndex(qindex);
+    // view.setCurrentIndex(qindex);
+    // QObject obj;
+    // obj.metaObject()->
 
-    qInfo() << view.currentIndex().row() << view.currentIndex().column();
+    edit1->setToolTip("11111111111111111");
+
+//    auto cb = [](QObject *target, QVariant value){
+//        if (auto listview = qobject_cast<QListView *>(target/*->parent()*/)) {
+//            listview->setCurrentIndex(value.toModelIndex());
+//        }
+//    };
+
+    selectListItemByText("yyyyyyyyyyy");
+    // qInfo() << view.objectName() << view.currentIndex().row() << view.currentIndex().column();
     // qInfo() << "mode name: " << row->metaObject()->className();
 
     // after attach.
     UiaController::instance()->createUiaWidget();
     UiaController::instance()->initOperationSequence();
 
-    QObject::connect(button4, &QPushButton::pressed, []{
+    // QJsonArray parameterTypesArr;
+    // parameterTypesArr.insert(0, 1);
+    // parameterTypesArr.insert(1, "2");
+    // qInfo() << parameterTypesArr;
+
+    QObject::connect(button4, &QPushButton::pressed, [] {
         QWidget *widget = new QWidget(nullptr);
         QWidget *sub_widget = new QWidget(widget);
         QPushButton *button1 = new QPushButton("btn1", widget);             // pressed()
@@ -92,9 +175,20 @@ int main(int argc, char *argv[]) {
         button2->move(0, 100);
         widget->resize(400, 300);
         widget->show();
-        QObject::connect(button2, &QPushButton::pressed, []{
-            qInfo() << "button2 pressed ...............................";
-            // exit(0);
+        // QObject::connect(button2, &QPushButton::pressed, [=] {
+        //     QObjectList btns = findObjects(ByButtonText, "btn1");
+        //     qInfo() << "button2 pressed ............................... widget2 level1";
+        //     for (auto btn : btns) {
+        //          ((QAbstractButton *)btn)->click();
+        //     }
+        //     Q_ASSERT(btns[0] == button1);
+        //     Q_ASSERT(btns[1] == button2);
+        // });
+        QObject::connect(button1, &QPushButton::pressed, [] {
+            qInfo() << "button1 pressed ............................... widget2 level1";
+        });
+        QObject::connect(button2, &QPushButton::pressed, [] {
+            qInfo() << "button2 pressed ............................... widget2 level1";
         });
     });
 
@@ -260,6 +354,7 @@ int main2(int argc, char *argv[]) {
     return app.exec();
 }
 #endif
+
 
 
 

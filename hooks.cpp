@@ -4,6 +4,8 @@
 #include "probecreator.h"
 #include "probe.h"
 #include "uiacontroller.h"
+#include "scriptengine/scriptengine.h"
+#include "util.h"
 
 #define IF_NONNULL_EXEC(func, ...) { if (func) { func(__VA_ARGS__); } }
 
@@ -12,6 +14,34 @@ using namespace GammaRay;
 static void gammaray_pre_routine()
 {
     new ProbeCreator(ProbeCreator::Create | ProbeCreator::FindExistingObjects);
+
+    /*
+        export LD_PRELOAD=`pwd`/libinjector.so
+        export EXEC_JS_SCRIPT_PRE=1
+        export SHOW_UIA_WINDOW=1
+    */
+
+    if (!qApp) {
+        return;
+    }
+    if (QString(getenv("EXEC_JS_SCRIPT_PRE")) == "1") {
+        QTimer::singleShot(1000, []{
+            QByteArray testCase;
+            if (fileReadWrite(TESTCASE_JS, testCase, true)) {
+                auto result = ScriptEngine::instance()->syncRunJavaScript(testCase);
+                if (!result.first) {
+                    qInfo() << "error when load TESTER_JS";
+                }
+                ScriptEngine::instance()->syncRunJavaScript("Uia.startTest();");
+            }
+        });
+        if (QString(getenv("SHOW_UIA_WINDOW_PRE")) == "1") {
+            UiaController::instance()->createUiaWidget();
+            UiaController::instance()->initOperationSequence();
+
+            qInfo() << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx singleShot1";
+        }
+    }
 }
 Q_COREAPP_STARTUP_FUNCTION(gammaray_pre_routine)
 
@@ -77,8 +107,19 @@ extern "C" Q_DECL_EXPORT void gammaray_probe_attach()
                      ProbeCreator::FindExistingObjects |
                      ProbeCreator::ResendServerAddress);
 
-    UiaController::instance()->createUiaWidget();
-    UiaController::instance()->initOperationSequence();
+    QTimer::singleShot(1000, []{
+        if (QString(getenv("EXEC_JS_SCRIPT")) == "1") {
+            QByteArray testCase;
+            if (fileReadWrite(TESTCASE_JS, testCase, true)) {
+                auto result = ScriptEngine::instance()->syncRunJavaScript(testCase);
+                if (!result.first) {
+                    qInfo() << "error when load TESTER_JS";
+                }
+                ScriptEngine::instance()->syncRunJavaScript("Uia.startTest();");
+            }
+        }
+        qInfo() << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx singleShot2";
+    });
 }
 
 #undef IF_NONNULL_EXEC
