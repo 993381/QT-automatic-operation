@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
             if (!result.first) {
                 qInfo() << "error when load TESTER_JS";
             }
-            ScriptEngine::instance()->runScript("Uia.startApp();");
+            ScriptEngine::instance()->runScript("TestMethod.launch();");
         }
     });
 

@@ -18,29 +18,34 @@ static void gammaray_pre_routine()
     /*
         export LD_PRELOAD=`pwd`/libinjector.so
         export EXEC_JS_SCRIPT_PRE=1
-        export SHOW_UIA_WINDOW=1
+        export SHOW_UIA_WINDOW_PRE=1
     */
 
     if (!qApp) {
         return;
     }
+
     if (QString(getenv("EXEC_JS_SCRIPT_PRE")) == "1") {
-        QTimer::singleShot(1000, []{
+        QTimer::singleShot(100, []{
+            // 如果执行的是execv，要把窗口显示出来
+            // for (auto w : qApp->topLevelWindows()) {
+            //     w->show();
+            // }
+
+            if (QString(getenv("SHOW_UIA_WINDOW_PRE")) == "1") {
+                UiaController::instance()->createUiaWidget();
+                UiaController::instance()->initOperationSequence();
+            }
+
             QByteArray testCase;
             if (fileReadWrite(TESTCASE_JS, testCase, true)) {
                 auto result = ScriptEngine::instance()->syncRunJavaScript(testCase);
                 if (!result.first) {
                     qInfo() << "error when load TESTER_JS";
                 }
-                ScriptEngine::instance()->syncRunJavaScript("Uia.startTest();");
+                ScriptEngine::instance()->syncRunJavaScript("TestMethod.startTest();");
             }
         });
-        if (QString(getenv("SHOW_UIA_WINDOW_PRE")) == "1") {
-            UiaController::instance()->createUiaWidget();
-            UiaController::instance()->initOperationSequence();
-
-            qInfo() << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx singleShot1";
-        }
     }
 }
 Q_COREAPP_STARTUP_FUNCTION(gammaray_pre_routine)
@@ -115,7 +120,7 @@ extern "C" Q_DECL_EXPORT void gammaray_probe_attach()
                 if (!result.first) {
                     qInfo() << "error when load TESTER_JS";
                 }
-                ScriptEngine::instance()->syncRunJavaScript("Uia.startTest();");
+                ScriptEngine::instance()->syncRunJavaScript("TestMethod.startTest();");
             }
         }
         qInfo() << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx singleShot2";

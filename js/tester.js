@@ -1,10 +1,9 @@
-var Uia = new Object();   // 用来动态添加成员函数/对象
+var TestMethod = new Object();   // 用来动态添加成员函数/对象
 var globalTester = null;
 if (!globalTester) {
     globalTester = new QWebChannel(qt.webChannelTransport, function (channel) {
         // 获取 Qt 通道类
-        var TestMethod = channel.objects.tester;
-        Uia.TestMethod = TestMethod;
+        TestMethod = channel.objects.tester;
         // 接收 Qt 发来的数据
         TestMethod.Qt2JsMessage.connect(function (msg) {
             console.log("xxxxxxxxxxxxx 3 " + msg);

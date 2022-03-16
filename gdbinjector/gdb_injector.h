@@ -5,6 +5,7 @@
 #include <QDebug>
 
 #include <dlfcn.h>
+#include <unistd.h>
 
 class GdbInjector : public QObject {
     Q_OBJECT
@@ -28,7 +29,47 @@ public:
     bool attachInject(const int &pid) {
     }
 
-    bool launchPreload(const QStringList &programAndArgs) {
+    bool launchPreload(const QStringList &programAndArgs, const QProcessEnvironment &env = QProcessEnvironment()) {
+        if (m_process && m_process->state() == QProcess::ProcessState::Running) {
+            qInfo() << "process is running";
+            return false;
+        }
+        m_process.reset(new QProcess);
+
+        qputenv("LD_PRELOAD", INJECTOR_DLL);
+        qputenv("EXEC_JS_SCRIPT_PRE", "1");
+        qputenv("SHOW_UIA_WINDOW_PRE", "1");
+
+        QStringList args(programAndArgs);
+        QString program = args.takeFirst();
+
+#define USE_EXEC_LAUNCH 0
+#if !USE_EXEC_LAUNCH
+        m_process->start(program, args);
+        bool status = m_process->waitForStarted(-1);
+
+        if (!status) {
+            qInfo() << "process start failed!";
+            return false;
+        }
+        Q_EMIT gdbStarted();
+        qInfo() << "process start success";
+
+        return true;
+#else
+        char *argv[args.size() + 1];
+
+        if (args.size()) {
+            argv[args.size()] = nullptr;
+        }
+        for (int i = 0; i < args.size(); ++i) {
+            QString arg = args.takeFirst();
+            argv[i] = new char[arg.size()];
+            memcpy(argv[i], arg.toStdString().c_str(), arg.toStdString().size());
+        }
+        extern char **environ;
+        return execve(program.toStdString().c_str(), argv, environ) != -1;
+#endif
     }
 
     //! 从GDB启动相当于子进程，还需要处理进程通信，比较麻烦

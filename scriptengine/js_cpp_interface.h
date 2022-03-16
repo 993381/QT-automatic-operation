@@ -23,7 +23,8 @@ public:
 
     Q_SCRIPTABLE void startApp(const QStringList &appParameters) {
         qInfo() << "startApp: " << appParameters;
-        GdbInjector::instance()->launchInject(appParameters);
+        // GdbInjector::instance()->launchInject(appParameters);
+        GdbInjector::instance()->launchPreload(appParameters);
     }
     Q_SCRIPTABLE void closeApp() {
         qInfo() << "closeApp";

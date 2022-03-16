@@ -86,7 +86,8 @@ bool UiaController::attachApp(int pid) {
 }
 
 bool UiaController::startApp(const QStringList &programAndArgs) {
-    GdbInjector::instance()->launchInject(programAndArgs);
+    GdbInjector::instance()->launchPreload(programAndArgs);
+    // GdbInjector::instance()->launchInject(programAndArgs);
 }
 
 bool UiaController::startEventMonitoring() {
