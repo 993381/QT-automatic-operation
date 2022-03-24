@@ -120,7 +120,15 @@ void EchoServer::processTextMessage1(QString message)
             m_appList.erase(m_appList.find(pid));
         }
         m_appList.insert(pid, qMakePair<QString, QWebSocket*>(name, socket));
+
+        m_currentSelect.first = name;
+        m_currentSelect.second = pid;
         return;
+    }
+    if (message.startsWith("Exec-")) {
+        for (auto c : m_clients) {
+            c->sendTextMessage(message);
+        }
     }
 }
 
@@ -155,10 +163,9 @@ void EchoServer::processTextMessage2(QString message) {
             socket->sendTextMessage("Already-Online");
         } else {
             qputenv("LD_PRELOAD", INJECTOR_DLL);
-            qputenv("EXEC_JS_SCRIPT_PRE", "1");
+            // qputenv("EXEC_JS_SCRIPT_PRE", "1");
+            // qputenv("SHOW_UIA_WINDOW_PRE", "1");
             QProcess *process = new QProcess;
-            // QList<QPair<int, QProcess *>> &list = m_processList[socket];
-            // list << qMakePair<int, QProcess *>(process->pid(), process);
             m_processMap.insert(process->pid(), process);
 
             QStringList args;
@@ -172,6 +179,16 @@ void EchoServer::processTextMessage2(QString message) {
             socket->sendTextMessage(status ? "launch success" : "launch failed" + process->readAll());
         }
     }
+    if (message.startsWith("execute-script:")) {
+        QStringList msg = message.split(":");
+        if (!isOnline(m_currentSelect.first)) {
+            socket->sendTextMessage("App-not-online");
+        } else {
+            if (auto appSock = getAppSocket(m_currentSelect.first)) {
+                appSock->sendTextMessage(QString("Exec-script:%1").arg(msg.at(1)));   // TODO: Exec-Reply
+            }
+        }
+    }
 }
 
 //void EchoServer::processBinaryMessage(QByteArray message)
@@ -183,6 +200,22 @@ void EchoServer::processTextMessage2(QString message) {
 //        pClient->sendBinaryMessage(message);
 //    }
 //}
+
+QWebSocket *EchoServer::getAppSocket(const QString &appName, int pid) {
+    if (pid) {
+        auto app = m_appList.find(pid);
+        if (app.key() == pid && app.key() == app->first) {
+            return app->second;
+        }
+    }
+    QMap <int, QPair<QString, QWebSocket*>>::iterator itr = m_appList.begin();
+    for (; itr != m_appList.end(); ++itr) {
+        if (itr->first == appName) {
+            return itr->second;
+        }
+    }
+    return nullptr;
+}
 
 bool EchoServer::isOnline(const QString &app) {
     QMap <int, QPair<QString, QWebSocket*>>::iterator itr = m_appList.begin();

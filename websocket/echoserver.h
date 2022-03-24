@@ -66,6 +66,7 @@ public:
     explicit EchoServer(quint16 port, bool debug = false, QObject *parent = nullptr);
     ~EchoServer();
 
+    QWebSocket *getAppSocket(const QString &app, int pid = 0);
     bool isOnline(const QString &app);
 
 Q_SIGNALS:
@@ -88,10 +89,12 @@ private:
 
     // app client manager
     QMap <int, QPair<QString, QWebSocket*>> m_appList;
-    QList<QWebSocket *> m_clients;
+    QList<QWebSocket *> m_clients;      // 所有的控制端。目前为单实例，只有一个。应该和instanceID绑定
     // QMap<QWebSocket *, QList<QPair<QString, QProcess *>>> m_processList;  // app name, process
     // QMap<QWebSocket *, QList<QPair<int, QProcess *>>> m_processList;  // app id, process
     QMap<int, QProcess *> m_processMap;
+
+    QPair<QString, int> m_currentSelect;  // name pid
 };
 
 #endif //ECHOSERVER_H

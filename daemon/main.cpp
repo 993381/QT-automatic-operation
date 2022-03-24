@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     // 执行单句的脚本命令
     QCommandLineOption exec_opt({"e", "exec"}, "Execute script command.");
     // 执行指定的脚本文件
-    QCommandLineOption script_opt({"f", "file"}, "Execute script file.");
+    QCommandLineOption script_opt({"f", "file"}, "Execute script file.", "/path/to/javascript");
     // QCommandLineOption app_opt({"a", "app"}, "Name of the app you want to launch.");
     parser.setApplicationDescription("DTK automatic test software.");
     parser.addHelpOption();
@@ -34,9 +34,8 @@ int main(int argc, char *argv[]) {
     parser.addOption(launch_opt);
     //    parser.addOption(arg_opt);
     //    parser.addOption(exec_opt);
-    //    parser.addOption(script_opt);
+    parser.addOption(script_opt);
     // parser.addOption(app_opt);
-    //    parser.addPositionalArgument("script", "The js script file to execute.");
     parser.addPositionalArgument("args", "The args pass to process.");
     parser.process(app);
     // qDebug() << "app: " << parser.value("app");
@@ -66,6 +65,9 @@ int main(int argc, char *argv[]) {
                 client->sendTextMessage(param);
                 // client->sendTextMessage("isOnline?dde-control-center");
             }
+            if (parser.isSet("f")) {
+                client->sendTextMessage(QString("execute-script:%1").arg(parser.value("f")));
+            }
         }
         // 注意这里不能用qApp->exit，只能退出嵌套，还会往下执行
         if (msg.startsWith("launch success")) {
@@ -78,6 +80,22 @@ int main(int argc, char *argv[]) {
         if (msg == "Already-Online") {
             qInfo() << "failed: " << msg;
             exit(0);
+        }
+        if (msg == "App-not-online") {
+            qInfo() << "App-not-online";
+            exit(1);
+        }
+        if (msg.startsWith("Exec-failed:")) {
+            qInfo() << "Exec-failed:" << msg;
+            exit(1);
+        }
+        if (msg.startsWith("Exec-success")) {
+            qInfo() << "Exec-success";
+            exit(0);
+        }
+        if (msg.startsWith("Exec-file--read-error")) {
+            qInfo() << "Exec-file--read-error";
+            exit(1);
         }
     });
 

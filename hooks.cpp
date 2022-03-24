@@ -33,18 +33,18 @@ static void gammaray_pre_routine()
         return;
     }
 
-    if (QString(getenv("EXEC_JS_SCRIPT_PRE")) == "1") {
-        QTimer::singleShot(100, []{
-            // 如果执行的是execv，要把窗口显示出来
-            // for (auto w : qApp->topLevelWindows()) {
-            //     w->show();
-            // }
 
-            if (QString(getenv("SHOW_UIA_WINDOW_PRE")) == "1") {
-                UiaController::instance()->createUiaWidget();
-                UiaController::instance()->initOperationSequence();
-            }
+    QTimer::singleShot(100, []{
+        // 如果执行的是execv，要把窗口显示出来
+        // for (auto w : qApp->topLevelWindows()) {
+        //     w->show();
+        // }
 
+        if (QString(getenv("SHOW_UIA_WINDOW_PRE")) == "1") {
+            UiaController::instance()->createUiaWidget();
+            UiaController::instance()->initOperationSequence();
+        }
+        if (QString(getenv("EXEC_JS_SCRIPT_PRE")) == "1") {
             QByteArray testCase;
             if (fileReadWrite(TESTCASE_JS, testCase, true)) {
                 auto result = ScriptEngine::instance()->syncRunJavaScript(testCase);
@@ -53,26 +53,39 @@ static void gammaray_pre_routine()
                 }
                 ScriptEngine::instance()->syncRunJavaScript("TestMethod.startTest();");
             }
+        }
+        // DbusRegister::instance()->create();
 
-            // DbusRegister::instance()->create();
+        // DtkUiTest::Client::instance()->ensureDaemon();
 
-            // DtkUiTest::Client::instance()->ensureDaemon();
-
-            //! TODO: 未启动服务端则弹窗警告
-            static QScopedPointer <EchoClient> client(new EchoClient(QUrl(QStringLiteral("ws://localhost:45535")), {QString("appinfo:%1:%2").arg(std::to_string(getpid()).c_str()).arg(qAppName())}, true));
-            client->handleMessage([](QString msg){
-                qInfo() << "----------- " << msg;
-                if (msg == "loginOn") {
-                    client->sendTextMessage("isOnline?dde-control-center");
+        //! TODO: 未启动服务端则弹窗警告
+        static QScopedPointer <EchoClient> client(new EchoClient(QUrl(QStringLiteral("ws://localhost:45535")), {QString("appinfo:%1:%2").arg(std::to_string(getpid()).c_str()).arg(qAppName())}, true));
+        client->handleMessage([](QString msg){
+            qInfo() << "----------- " << msg;
+            // if (msg == "loginOn") {
+            //     client->sendTextMessage("isOnline?dde-control-center");
+            // }
+            if (msg.startsWith("Exec-script:")) {
+                QStringList res = msg.split(":");
+                QByteArray userCode;
+                if (fileReadWrite(res.at(1), userCode, true)) {
+                    auto result = ScriptEngine::instance()->syncRunJavaScript(userCode);
+                    ScriptEngine::instance()->syncRunJavaScript("TestMethod.startTest();");
+                    if (!result.first) {
+                        client->sendTextMessage("Exec-failed: " + result.second.toString().toLocal8Bit());
+                    } else {
+                        client->sendTextMessage("Exec-success");
+                    }
+                } else {
+                    client->sendTextMessage("Exec-file--read-error");
                 }
-            });
-
-            // LocalClient::instance()->setAppInfo({QString(std::to_string(getppid()).c_str()), qAppName()});
-            // LocalClient::instance()->ConnectToServer("INJECTOR");
-            // LocalClient::instance()->sendMessage(QString(std::to_string(getppid()).c_str()) + QString(" ") + qAppName());
-
+            }
         });
-    }
+
+        // LocalClient::instance()->setAppInfo({QString(std::to_string(getppid()).c_str()), qAppName()});
+        // LocalClient::instance()->ConnectToServer("INJECTOR");
+        // LocalClient::instance()->sendMessage(QString(std::to_string(getppid()).c_str()) + QString(" ") + qAppName());
+    });
 }
 Q_COREAPP_STARTUP_FUNCTION(gammaray_pre_routine)
 
