@@ -5,9 +5,17 @@ TestMethod.launch = function() {
     // TestMethod.startApp("/usr/bin/deepin-calculator");   // QStringList对应数组
 }
 
+//var 执行完毕 = function() {
+//    resetTimer();
+//    updateResult();
+//}
+
 // 要有查找的过程
 // 录制的时候要对控件的唯一性进行检查并提示
 // TestMethod.startTest = function() {
+    resetTimer();
+    // useTimer = false;
+
     失败后立即停止(1)
     设置速度('快')
     选择('帐户')
@@ -24,6 +32,8 @@ TestMethod.launch = function() {
     返回主界面()
 
     重复执行(100)
+
+    执行结束()
 
 //    return
 //}

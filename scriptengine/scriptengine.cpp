@@ -7,6 +7,7 @@
 #include <QUrl>
 #include <QWebChannel>
 
+static QString errorMsg;
 class WebPage : public QWebEnginePage {
 public:
     WebPage() {}
@@ -15,8 +16,12 @@ public:
     void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString& message, int lineNumber, const QString& sourceID) override {
         // qInfo() << "level: " << level << " message: " << message << " linNumber: "  << sourceID;
         qInfo() << "message: " << message;
+        if (level == JavaScriptConsoleMessageLevel::ErrorMessageLevel) {
+            errorMsg = message;
+        }
     }
 };
+
 
 ScriptEngine::ScriptEngine()
     : m_webViewEngine (new QWebEngineView)
@@ -46,7 +51,13 @@ ScriptEngine::ScriptEngine()
         return;
     }
     m_interface->waitForLoadFinished();
-    qInfo() << "Read js finished";
+    QWebEngineCallback<const QString &> cb = [](const QString &page){
+        qInfo() << "Exported html page: " << page;
+    };
+    page->toHtml(cb);
+    for (auto sc: page->profile()->scripts()->toList()) {
+        qInfo() << "Read js finished: " << sc.sourceCode();
+    }
 }
 
 ScriptEngine* ScriptEngine::instance()  {
@@ -62,10 +73,11 @@ QPair<bool, QVariant> ScriptEngine::syncRunJavaScript(const QString &javascript,
      QPair<bool, QVariant> result = qMakePair(false, 0);
      QSharedPointer<QEventLoop> loop = QSharedPointer<QEventLoop>(new QEventLoop());
      if (msec) QTimer::singleShot(msec, loop.data(), &QEventLoop::quit);
+     errorMsg.clear();
      m_webViewEngine->page()->runJavaScript(javascript, [loop, &result](const QVariant &val) {
          if (loop->isRunning()) {
-             result.first = true;
-             result.second = val;
+             result.first = errorMsg.isEmpty() ? true : false;
+             result.second = errorMsg;
              loop->quit();
          }
      });

@@ -5,6 +5,7 @@
 #include "probe.h"
 #include "uiacontroller.h"
 #include "scriptengine/scriptengine.h"
+#include "scriptengine/js_cpp_interface.h"
 #include "util.h"
 
 #include <unistd.h>
@@ -65,20 +66,39 @@ static void gammaray_pre_routine()
             // if (msg == "loginOn") {
             //     client->sendTextMessage("isOnline?dde-control-center");
             // }
+            QObject::connect(ScriptEngine::instance()->interface(), &JsCppInterface::execFinished, client.data(), [&](QVariant res){
+                if (res.toBool()) {
+                    client->sendTextMessage(QString("Exec-all-finished-success"));
+                } else {
+                    client->sendTextMessage(QString("Exec-all-finished-failed"));
+                }
+            }, Qt::ConnectionType::UniqueConnection);
+            QStringList res = msg.split(":");
             if (msg.startsWith("Exec-script:")) {
-                QStringList res = msg.split(":");
                 QByteArray userCode;
                 if (fileReadWrite(res.at(1), userCode, true)) {
-                    auto result = ScriptEngine::instance()->syncRunJavaScript(userCode);
-                    ScriptEngine::instance()->syncRunJavaScript("resetTimer(); //TestMethod.startTest();");
-                    if (!result.first) {
-                        client->sendTextMessage("Exec-failed: " + result.second.toString().toLocal8Bit());
-                    } else {
-                        client->sendTextMessage("Exec-success");
-                    }
+                    ScriptEngine::instance()->runScript("resetTimer();" + userCode + ";execFinished()");
+                    // auto result = ScriptEngine::instance()->syncRunJavaScript("resetTimer();" + userCode + ";execFinished()");
+                    // // ScriptEngine::instance()->syncRunJavaScript("// resetTimer(); //TestMethod.startTest();");
+                    // if (!result.first) {
+                    //     client->sendTextMessage("Exec-s-failed: " + result.second.toString().toLocal8Bit());
+                    // } else {
+                    //     client->sendTextMessage("Exec-s-success");
+                    // }
                 } else {
                     client->sendTextMessage("Exec-file--read-error");
                 }
+            }
+            if (msg.startsWith("Exec-function:")) {
+                QString userCode = res.at(1);
+                ScriptEngine::instance()->runScript("resetTimer();" + userCode + ";execFinished()");
+
+                // auto result = ScriptEngine::instance()->syncRunJavaScript("resetTimer();" + userCode + ";execFinished()");
+                // if (!result.first) {
+                //     client->sendTextMessage("Exec-c-failed: " + result.second.toString().toLocal8Bit());
+                // } else {
+                //     client->sendTextMessage("Exec-c-success " + result.second.toString().toLocal8Bit());
+                // }
             }
         });
 

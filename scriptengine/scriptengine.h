@@ -14,7 +14,9 @@ class ScriptEngine : public QObject {
     ~ScriptEngine() {}
 public:
     static ScriptEngine* instance();
-
+    JsCppInterface *interface() {
+        return m_interface;
+    }
     QWidget *widget() {
         return m_webViewEngine.get();
     }

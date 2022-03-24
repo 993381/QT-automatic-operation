@@ -36,6 +36,12 @@ public:
         qInfo() << "JSLoadFinished";
         Q_EMIT Qt2JsMessage({"ssssss", "xxxxxxxxx"});
     }
+    Q_SCRIPTABLE void jsExecFinished(QVariant result) {
+        // 可以用一个随机字符标识每次的执行
+        // m_jsLoadFinished = true;
+        // qInfo() << "JSLoadFinished";
+        Q_EMIT execFinished(result);
+    }
     Q_SCRIPTABLE void findListItemByText(QString strParameter, QString str) {
         // 当接收到 JS 发来的数据时，向外部发送消息 ...
         qInfo() << strParameter << " " << str;
@@ -69,6 +75,8 @@ Q_SIGNALS:
     void startTest(const QString &str);
     void Qt2JsMessage(const QStringList &message);
     void Js2QtMessage(const QStringList &message);  //! TODO
+    void execFinished(const QVariant &result);
+
 private:
     bool loadFinished () {
         return m_jsLoadFinished;

@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
     // 启动待执行的程序
     QCommandLineOption launch_opt({"l", "launch"}, "Launch application.", "/path/to/app");
     // 执行单句的脚本命令
-    QCommandLineOption exec_opt({"e", "exec"}, "Execute script command.");
+    QCommandLineOption exec_opt({"c", "code"}, "Execute script command.", "js script code");
     // 执行指定的脚本文件
     QCommandLineOption script_opt({"f", "file"}, "Execute script file.", "/path/to/javascript");
     // QCommandLineOption app_opt({"a", "app"}, "Name of the app you want to launch.");
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
     //    parser.addOption(daemon_opt);
     parser.addOption(launch_opt);
     //    parser.addOption(arg_opt);
-    //    parser.addOption(exec_opt);
+    parser.addOption(exec_opt);
     parser.addOption(script_opt);
     // parser.addOption(app_opt);
     parser.addPositionalArgument("args", "The args pass to process.");
@@ -63,12 +63,16 @@ int main(int argc, char *argv[]) {
                     }
                 }
                 client->sendTextMessage(param);
+                return;  // -f 不支持和其它参数组合，最多再带个-l
                 // client->sendTextMessage("isOnline?dde-control-center");
             }
             if (parser.isSet("f")) {
                 client->sendTextMessage(QString("execute-script:%1").arg(parser.value("f")));
+            } else if (parser.isSet("c")) {
+                client->sendTextMessage(QString("execute-function:%1").arg(parser.value("c")));
             }
         }
+        // handle reply
         // 注意这里不能用qApp->exit，只能退出嵌套，还会往下执行
         if (msg.startsWith("launch success")) {
             exit(0);
@@ -85,16 +89,38 @@ int main(int argc, char *argv[]) {
             qInfo() << "App-not-online";
             exit(1);
         }
-        if (msg.startsWith("Exec-failed:")) {
+
+        // 处理单句或多句命令的执行结果，也需要根据总的执行结果退出程序
+        if (msg.startsWith("Exec-c-failed:")) {
             qInfo() << "Exec-failed:" << msg;
-            exit(1);
+            exit(1);        // 如果有一句失败了那么全都失败了
         }
-        if (msg.startsWith("Exec-success")) {
+        if (msg.startsWith("Exec-c-success")) {
             qInfo() << "Exec-success";
-            exit(0);
+            // exit(0);
+        }
+
+        // 处理脚本文件执行结果，脚本都是异步执行的，只有总的执行结果获取到才算完成
+        if (msg.startsWith("Exec-s-failed:")) {
+            qInfo() << "Exec-failed:" << msg;
+            exit(1);        // 脚本解析都失败了那么全都失败了
+        }
+        if (msg.startsWith("Exec-s-success")) {
+            qInfo() << "Exec-success " << msg;
+            // exit(0);
         }
         if (msg.startsWith("Exec-file--read-error")) {
             qInfo() << "Exec-file--read-error";
+            exit(1);        // 脚本读取都失败了那么全都失败了
+        }
+
+        // 获取总的执行结果
+        if (msg.startsWith("Exec-all-finished-success")) {
+            qInfo() << "Exec-all-finished-success";
+            exit(0);
+        }
+        if (msg.startsWith("Exec-all-finished-failed")) {
+            qInfo() << "Exec-all-finished-failed";
             exit(1);
         }
     });

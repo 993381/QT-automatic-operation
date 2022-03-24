@@ -189,6 +189,16 @@ void EchoServer::processTextMessage2(QString message) {
             }
         }
     }
+    if (message.startsWith("execute-function:")) {
+        QStringList msg = message.split(":");
+        if (!isOnline(m_currentSelect.first)) {
+            socket->sendTextMessage("App-not-online");
+        } else {
+            if (auto appSock = getAppSocket(m_currentSelect.first)) {
+                appSock->sendTextMessage(QString("Exec-function:%1").arg(msg.at(1)));   // TODO: Exec-Reply
+            }
+        }
+    }
 }
 
 //void EchoServer::processBinaryMessage(QByteArray message)
