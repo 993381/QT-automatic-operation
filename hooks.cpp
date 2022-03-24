@@ -91,7 +91,7 @@ static void gammaray_pre_routine()
             }
             if (msg.startsWith("Exec-function:")) {
                 QString userCode = res.at(1);
-                ScriptEngine::instance()->runScript("resetTimer();" + userCode + ";execFinished()");
+                ScriptEngine::instance()->runScript("useTimer = false;" + userCode + ";execFinished()");
 
                 // auto result = ScriptEngine::instance()->syncRunJavaScript("resetTimer();" + userCode + ";execFinished()");
                 // if (!result.first) {
