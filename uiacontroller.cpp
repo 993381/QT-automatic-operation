@@ -286,6 +286,8 @@ bool UiaController::createUiaWidget() {
     QPushButton *button7 = new QPushButton("stop");
     QPushButton *button8 = new QPushButton("next");
     QPushButton *button9 = new QPushButton("launch");
+    QLabel *label = new QLabel(qAppName() + " " + QString(std::to_string(getpid()).c_str()));
+    label->setTextInteractionFlags(Qt::TextInteractionFlag::TextSelectableByMouse);
 
     layout->addWidget(button1);
     layout->addWidget(button2);
@@ -296,6 +298,12 @@ bool UiaController::createUiaWidget() {
     layout->addWidget(button7);
     layout->addWidget(button8);
     layout->addWidget(button9);
+    layout->addWidget(label);
+
+    // for (auto window : qApp->allWidgets()) {
+    //     QLabel *windowLabel = new QLabel(window->window()->topLevelWidget()->windowTitle());
+    //     layout->addWidget(windowLabel);
+    // }
 
     QObject::connect(button9, &QPushButton::clicked, [](bool checked) {
         // UiaController::instance()->startApp({"/usr/bin/dde-control-center", "-s"});

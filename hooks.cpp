@@ -7,6 +7,14 @@
 #include "scriptengine/scriptengine.h"
 #include "util.h"
 
+#include <unistd.h>
+// #include "local_socket/local_client.h"
+#include "websocket/echoclient.h"
+#include "daemon/client_d.h"
+// #include "cs/server.h"
+// #include "dbus_register.h"
+
+
 #define IF_NONNULL_EXEC(func, ...) { if (func) { func(__VA_ARGS__); } }
 
 using namespace GammaRay;
@@ -45,6 +53,24 @@ static void gammaray_pre_routine()
                 }
                 ScriptEngine::instance()->syncRunJavaScript("TestMethod.startTest();");
             }
+
+            // DbusRegister::instance()->create();
+
+            // DtkUiTest::Client::instance()->ensureDaemon();
+
+            //! TODO: 未启动服务端则弹窗警告
+            static QScopedPointer <EchoClient> client(new EchoClient(QUrl(QStringLiteral("ws://localhost:45535")), {QString("appinfo:%1:%2").arg(std::to_string(getpid()).c_str()).arg(qAppName())}, true));
+            client->handleMessage([](QString msg){
+                qInfo() << "----------- " << msg;
+                if (msg == "loginOn") {
+                    client->sendTextMessage("isOnline?dde-control-center");
+                }
+            });
+
+            // LocalClient::instance()->setAppInfo({QString(std::to_string(getppid()).c_str()), qAppName()});
+            // LocalClient::instance()->ConnectToServer("INJECTOR");
+            // LocalClient::instance()->sendMessage(QString(std::to_string(getppid()).c_str()) + QString(" ") + qAppName());
+
         });
     }
 }

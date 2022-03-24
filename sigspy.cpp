@@ -64,7 +64,15 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
             ObjectPath path(ObjectPath::parseObjectPath(caller));       // 加入重复对象的检测
             path.dump();
             path.setRecordMethod("pressed()");
-            if (!button->objectName().isEmpty()) {
+            if (!button->text().isEmpty()) {
+                const QObjectList &result = findObjects(ByButtonText, button->text());
+                bool isUnique = result.size() == 1;
+                int uniq_index = -1;
+                if (!isUnique) {
+                    uniq_index = result.indexOf(caller);
+                }
+                path.setParameters(1, {"QString"}, { button->text() }, "click()", "FindButtonByButtonText", uniq_index);
+            } else if (!button->objectName().isEmpty()) {
                 const QObjectList &result = findObjects(ByObjectName, button->objectName());
                 bool isUnique = result.size() == 1;
                 int uniq_index = -1;
@@ -83,14 +91,6 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
                     qInfo() << "FindButtonByAccessibleName ................................3";
                 }
                 path.setParameters(1, {"QString"}, { button->accessibleName() }, "click()", "FindButtonByAccessibleName", uniq_index);
-            } else if (!button->text().isEmpty()) {
-                const QObjectList &result = findObjects(ByButtonText, button->text());
-                bool isUnique = result.size() == 1;
-                int uniq_index = -1;
-                if (!isUnique) {
-                    uniq_index = result.indexOf(caller);
-                }
-                path.setParameters(1, {"QString"}, { button->text() }, "click()", "FindButtonByButtonText", uniq_index);
             } else if (!button->toolTip().isEmpty()) {
                 const QObjectList &result = findObjects(ByToolTip, button->toolTip());
                 bool isUnique = result.size() == 1;
@@ -129,7 +129,7 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
                     qInfo() << "parameterValue: " <<  modelIndex->data().toString() << modelIndex << modelIndex->row() << " " << modelIndex->column();
                     const QString &itemText = modelIndex->data().toString();
                     int uniq_index = -1;
-                    QObjectList objs ;
+                    QObjectList objs;
                     if (!itemText.isEmpty()) {
                         objs = findObjects(ByItemText, itemText);
                     } else {

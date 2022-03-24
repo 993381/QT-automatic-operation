@@ -41,13 +41,13 @@ public:
         qputenv("SHOW_UIA_WINDOW_PRE", "1");
 
         QStringList args(programAndArgs);
-        QString program = args.takeFirst();
-
+//  这种方案为了方便调试
 #define USE_EXEC_LAUNCH 0
 #if !USE_EXEC_LAUNCH
+        QString program = args.takeFirst();
         m_process->start(program, args);
         bool status = m_process->waitForStarted(-1);
-
+        qInfo() << "pid xxxxxxxxxxxx: " << m_process->pid();
         if (!status) {
             qInfo() << "process start failed!";
             return false;
@@ -57,11 +57,17 @@ public:
 
         return true;
 #else
-        char *argv[args.size() + 1];
+        // qputenv("SHOW_UIA_WINDOW_PRE", "0");
 
-        if (args.size()) {
+        QString program = args.takeFirst();
+        // argv 不能为空
+        args.insert(0, program);
+        qInfo() << "args: " <<args;
+
+        char *argv[args.size() + 1];
+        // if (!args.size()) {
             argv[args.size()] = nullptr;
-        }
+        // }
         for (int i = 0; i < args.size(); ++i) {
             QString arg = args.takeFirst();
             argv[i] = new char[arg.size()];

@@ -61,6 +61,7 @@
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
+    // QApplication::notify();   用functionOverride重写一下就能获取到所有的了。
 #if 1
     QMainWindow window;
     QPushButton *button = new QPushButton("Launch", &window);

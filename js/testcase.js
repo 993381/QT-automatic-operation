@@ -2,6 +2,7 @@
 
 TestMethod.launch = function() {
     TestMethod.startApp(["/usr/bin/dde-control-center", "-s"]);   // QStringList对应数组
+    // TestMethod.startApp("/usr/bin/deepin-calculator");   // QStringList对应数组
 }
 
 function sleep(duration) {
@@ -72,10 +73,13 @@ function 设置速度(speed) {
     }
 }
 
+// 要有查找的过程
+// 录制的时候要对控件的唯一性进行检查并提示
 TestMethod.startTest = function() {
+
     失败后立即停止(1)
 
-    设置速度('中');
+    设置速度('慢')
 
     选择('帐户')
     点击('修改密码')

@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.13)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets WebEngineWidgets WebChannel)
+# sudo apt install libqt5websockets5-dev qtwebengine5-dev
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets WebEngineWidgets WebChannel DBus Network WebSockets)
 set(QT_LIBS
     Qt5::Core
     Qt5::CorePrivate
@@ -12,13 +13,49 @@ set(QT_LIBS
     Qt5::WebEngineCore
     Qt5::WebEngineWidgets
     Qt5::WebChannel
+    Qt5::DBus
+    Qt5::Network
+    Qt5::WebSockets
 )
 
 add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x040800)
 
-set(SOURCES
-    #    sop.h
-    #    sop.cpp
+set(LOCAL_SOCKET
+    local_socket/local_client.h
+    # local_socket/local_client.cpp
+
+    local_socket/local_server.h
+    # local_socket/local_server.cpp
+
+    # local_socket/message.h
+    # local_socket/message.cpp
+)
+
+set(WEBSOKETS
+    websocket/proto.h
+    websocket/echoclient.cpp
+    websocket/echoclient.h
+    websocket/echoserver.cpp
+    websocket/echoserver.h
+    websocket/client_manager.h
+    websocket/client_manager.cpp
+)
+
+set(SOURCES          # ${LOCAL_SOCKET}
+    ${WEBSOKETS}
+    # sop.h
+    # sop.cpp
+
+    daemon/client_d.h
+    #daemon/client_d.cpp
+
+    daemon/daemon_process.h
+    # daemon/daemon_process.cpp
+
+
+
+    # dbus_register.h
+    # dbus_register.cpp
 
     gdbinjector/gdb_injector.h
     gdbinjector/gdb_injector.cpp
@@ -89,9 +126,33 @@ add_definitions(
     -DINJECTOR_DLL="${CMAKE_BINARY_DIR}/libinjector.so"
 )
 
-add_library(injector SHARED ${SOURCES})
+set(INSTANCE
+    QSingleInstance/clientinstance.cpp
+    QSingleInstance/clientinstance.h
+    QSingleInstance/qsingleinstance.cpp
+    QSingleInstance/qsingleinstance.h
+    QSingleInstance/qsingleinstance_p.cpp
+    QSingleInstance/qsingleinstance_p.h
+)
+
+add_library(injector SHARED ${SOURCES} ${INSTANCE})
 set_target_properties(injector PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 target_link_libraries(injector ${QT_LIBS})
 
-add_executable(injector_test_demo main.cpp ${SOURCES})
+add_executable(injector_test_demo main.cpp ${SOURCES} ${INSTANCE})
 target_link_libraries(injector_test_demo ${QT_LIBS})
+
+
+
+add_executable(daemon
+    daemon/main.cpp
+    daemon/client_d.h
+    daemon/client_d.cpp
+    daemon/daemon_process.h
+    daemon/daemon_process.cpp
+    ${INSTANCE}
+    ${WEBSOKETS}
+    # ${LOCAL_SOCKET}
+)
+target_link_libraries(daemon Qt5::Core Qt5::DBus Qt5::Network Qt5::WebSockets)
+
