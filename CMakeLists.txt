@@ -112,17 +112,20 @@ set(SOURCES          # ${LOCAL_SOCKET}
 )
 
 set(SOURCES ${SOURCES}
-    "${PROJECT_SOURCE_DIR}/js/index.html"
-    "${PROJECT_SOURCE_DIR}/js/tester.js"
+    # "${PROJECT_SOURCE_DIR}/js/index.html"
+    # "${PROJECT_SOURCE_DIR}/js/globalvar.js"
+    "${PROJECT_SOURCE_DIR}/js/testbase.js"
     "${PROJECT_SOURCE_DIR}/js/testcase.js"
     "${PROJECT_SOURCE_DIR}/js/qwebchannel.js"
+    "${PROJECT_SOURCE_DIR}/js/testapi.js"
 )
 
 add_definitions(
     # -DINDEX_HTML="${PROJECT_SOURCE_DIR}/js/index.html"
-    -DTESTER_JS="${PROJECT_SOURCE_DIR}/js/tester.js"
+    -DTESTBASE_JS="${PROJECT_SOURCE_DIR}/js/testbase.js"
     -DTESTCASE_JS="${PROJECT_SOURCE_DIR}/js/testcase.js"       # 改成动态加载，用户手动指定比较好
     -DCHANNEL_JS="${PROJECT_SOURCE_DIR}/js/qwebchannel.js"
+    -DTESTAPI_JS="${PROJECT_SOURCE_DIR}/js/testapi.js"
     -DINJECTOR_DLL="${CMAKE_BINARY_DIR}/libinjector.so"
 )
 

@@ -30,24 +30,23 @@ ScriptEngine::ScriptEngine()
     webChannel->registerObject(QStringLiteral("tester"), m_interface);
     page->setWebChannel(webChannel);
 
-    QPair<bool, QVariant> result;
-    QByteArray channelJs;
-    if (fileReadWrite(CHANNEL_JS, channelJs, true)) {
-        result = syncRunJavaScript(channelJs);
-        if (!result.first) {
-            qInfo() << "error when load CHANNEL_JS";
-        }
-    }
-    QByteArray testerJs;
-    if (fileReadWrite(TESTER_JS, testerJs, true)) {
-        result = syncRunJavaScript(testerJs);
-        if (!result.first) {
-            qInfo() << "error when load TESTER_JS";
-        }
-    }
+    // 几个都要按顺序加载。把他们拼接后一起加载比较方便
+    QByteArray channelJs, testBaseJs, testApiJs;
+    bool res = fileReadWrite(CHANNEL_JS, channelJs, true)
+            && fileReadWrite(TESTBASE_JS, testBaseJs, true)
+            && fileReadWrite(TESTAPI_JS, testApiJs, true);
 
+    if (!res) {
+        qInfo() << "Error when read CHANNEL_JS && TESTBASE_JS && TESTAPI_JS";
+        return;
+    }
+    QPair<bool, QVariant> result = syncRunJavaScript(channelJs + testBaseJs + testApiJs);
+    if (!result.first) {
+        qInfo() << "Error when load CHANNEL_JS && TESTBASE_JS && TESTAPI_JS";
+        return;
+    }
     m_interface->waitForLoadFinished();
-    qInfo() << "read js finished";
+    qInfo() << "Read js finished";
 }
 
 ScriptEngine* ScriptEngine::instance()  {

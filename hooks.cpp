@@ -70,7 +70,7 @@ static void gammaray_pre_routine()
                 QByteArray userCode;
                 if (fileReadWrite(res.at(1), userCode, true)) {
                     auto result = ScriptEngine::instance()->syncRunJavaScript(userCode);
-                    ScriptEngine::instance()->syncRunJavaScript("TestMethod.startTest();");
+                    ScriptEngine::instance()->syncRunJavaScript("resetTimer(); //TestMethod.startTest();");
                     if (!result.first) {
                         client->sendTextMessage("Exec-failed: " + result.second.toString().toLocal8Bit());
                     } else {
