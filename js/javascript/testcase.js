@@ -12,9 +12,14 @@ TestMethod.launch = function() {
 
 // 要有查找的过程
 // 录制的时候要对控件的唯一性进行检查并提示
-// TestMethod.startTest = function() {
-    resetTimer();
+TestMethod.startTest = function() {
+    resetConfiguration();
     // useTimer = false;
+
+    选择('鼠标')
+    选择('鼠标', 1)
+    选择('通用')
+    return;
 
     失败后立即停止(1)
     设置速度('快')
@@ -36,4 +41,4 @@ TestMethod.launch = function() {
     执行结束()
 
 //    return
-//}
+}

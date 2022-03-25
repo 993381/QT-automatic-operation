@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
 # sudo apt install libqt5websockets5-dev qtwebengine5-dev
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets WebEngineWidgets WebChannel DBus Network WebSockets)
@@ -111,21 +112,24 @@ set(SOURCES          # ${LOCAL_SOCKET}
         signalspycallbackset.cpp
 )
 
+#set(SOURCES ${SOURCES}
+#    # "${PROJECT_SOURCE_DIR}/js/index.html"
+#    "${PROJECT_SOURCE_DIR}/js/testbase.js"
+#    "${PROJECT_SOURCE_DIR}/js/testcase.js"
+#    "${PROJECT_SOURCE_DIR}/js/qwebchannel.js"
+#    "${PROJECT_SOURCE_DIR}/js/testapi.js"
+#)
+
 set(SOURCES ${SOURCES}
-    # "${PROJECT_SOURCE_DIR}/js/index.html"
-    # "${PROJECT_SOURCE_DIR}/js/globalvar.js"
-    "${PROJECT_SOURCE_DIR}/js/testbase.js"
-    "${PROJECT_SOURCE_DIR}/js/testcase.js"
-    "${PROJECT_SOURCE_DIR}/js/qwebchannel.js"
-    "${PROJECT_SOURCE_DIR}/js/testapi.js"
+    js/javascript.qrc
 )
 
 add_definitions(
     # -DINDEX_HTML="${PROJECT_SOURCE_DIR}/js/index.html"
-    -DTESTBASE_JS="${PROJECT_SOURCE_DIR}/js/testbase.js"
-    -DTESTCASE_JS="${PROJECT_SOURCE_DIR}/js/testcase.js"       # 改成动态加载，用户手动指定比较好
-    -DCHANNEL_JS="${PROJECT_SOURCE_DIR}/js/qwebchannel.js"
-    -DTESTAPI_JS="${PROJECT_SOURCE_DIR}/js/testapi.js"
+    -DTESTBASE_JS=":/javascript/testbase.js"
+    -DTESTCASE_JS=":/javascript/testcase.js"       # 改成动态加载，用户手动指定比较好
+    -DCHANNEL_JS=":/javascript/qwebchannel.js"
+    -DTESTAPI_JS=":/javascript/testapi.js"
     -DINJECTOR_DLL="${CMAKE_BINARY_DIR}/libinjector.so"
 )
 

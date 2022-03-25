@@ -66,7 +66,8 @@ ScriptEngine* ScriptEngine::instance()  {
 }
 
 void ScriptEngine::runScript(const QString &string) {
-     m_webViewEngine->page()->runJavaScript(string);
+    //! m_webViewEngine->page()->scripts().clear();
+    m_webViewEngine->page()->runJavaScript(string);
 }
 
 QPair<bool, QVariant> ScriptEngine::syncRunJavaScript(const QString &javascript, int msec) {

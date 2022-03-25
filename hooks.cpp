@@ -37,9 +37,13 @@ static void gammaray_pre_routine()
 
     QTimer::singleShot(100, []{
         // 如果执行的是execv，要把窗口显示出来
-        // for (auto w : qApp->topLevelWindows()) {
-        //     w->show();
-        // }
+        if (QString(qgetenv("DEBUG_APPS_PRE")) == "1") {
+            for (auto w : qApp->topLevelWidgets()) {
+                if (qobject_cast<QMainWindow*>(w)) {
+                    w->show();
+                }
+            }
+        }
 
         if (QString(getenv("SHOW_UIA_WINDOW_PRE")) == "1") {
             UiaController::instance()->createUiaWidget();
@@ -61,44 +65,49 @@ static void gammaray_pre_routine()
 
         //! TODO: 未启动服务端则弹窗警告
         static QScopedPointer <EchoClient> client(new EchoClient(QUrl(QStringLiteral("ws://localhost:45535")), {QString("appinfo:%1:%2").arg(std::to_string(getpid()).c_str()).arg(qAppName())}, true));
+        QObject::connect(ScriptEngine::instance()->interface(), &JsCppInterface::execFinished, client.data(), [&](QVariant res){
+            if (res.toBool()) {
+                client->sendTextMessage(QString("Exec-all-finished-success"));
+            } else {
+                client->sendTextMessage(QString("Exec-all-finished-failed"));
+            }
+        }, Qt::ConnectionType::UniqueConnection);
+
         client->handleMessage([](QString msg){
             qInfo() << "----------- " << msg;
             // if (msg == "loginOn") {
             //     client->sendTextMessage("isOnline?dde-control-center");
             // }
-            QObject::connect(ScriptEngine::instance()->interface(), &JsCppInterface::execFinished, client.data(), [&](QVariant res){
-                if (res.toBool()) {
-                    client->sendTextMessage(QString("Exec-all-finished-success"));
-                } else {
-                    client->sendTextMessage(QString("Exec-all-finished-failed"));
-                }
-            }, Qt::ConnectionType::UniqueConnection);
+
             QStringList res = msg.split(":");
+
+            // useTimer，执行脚本要设置定时器，执行命令不用设置定时器
+            QString execInit = ";resetConfiguration();useTimer = %1;";
+            QString execFinished = ";execFinished();";
             if (msg.startsWith("Exec-script:")) {
                 QByteArray userCode;
                 if (fileReadWrite(res.at(1), userCode, true)) {
-                    ScriptEngine::instance()->runScript("resetTimer();" + userCode + ";execFinished()");
-                    // auto result = ScriptEngine::instance()->syncRunJavaScript("resetTimer();" + userCode + ";execFinished()");
-                    // // ScriptEngine::instance()->syncRunJavaScript("// resetTimer(); //TestMethod.startTest();");
-                    // if (!result.first) {
-                    //     client->sendTextMessage("Exec-s-failed: " + result.second.toString().toLocal8Bit());
-                    // } else {
-                    //     client->sendTextMessage("Exec-s-success");
-                    // }
+                    // ScriptEngine::instance()->runScript("resetConfiguration();" + userCode + execFinished);
+                    auto result = ScriptEngine::instance()->syncRunJavaScript(execInit.arg("true") + userCode + execFinished);
+                    if (!result.first) {
+                        client->sendTextMessage("Exec-s-failed: " + result.second.toString().toLocal8Bit());
+                    } else {
+                        client->sendTextMessage("Exec-s-success");
+                    }
                 } else {
                     client->sendTextMessage("Exec-file--read-error");
                 }
             }
             if (msg.startsWith("Exec-function:")) {
                 QString userCode = res.at(1);
-                ScriptEngine::instance()->runScript("useTimer = false;" + userCode + ";execFinished()");
+                // ScriptEngine::instance()->runScript("useTimer = false;" + userCode + ";execFinished()");
 
-                // auto result = ScriptEngine::instance()->syncRunJavaScript("resetTimer();" + userCode + ";execFinished()");
-                // if (!result.first) {
-                //     client->sendTextMessage("Exec-c-failed: " + result.second.toString().toLocal8Bit());
-                // } else {
-                //     client->sendTextMessage("Exec-c-success " + result.second.toString().toLocal8Bit());
-                // }
+                auto result = ScriptEngine::instance()->syncRunJavaScript(execInit.arg("false") + userCode + execFinished);
+                if (!result.first) {
+                    client->sendTextMessage("Exec-c-failed: " + result.second.toString().toLocal8Bit());
+                } else {
+                    client->sendTextMessage("Exec-c-success " + result.second.toString().toLocal8Bit());
+                }
             }
         });
 

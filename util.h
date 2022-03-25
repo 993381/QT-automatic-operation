@@ -1,6 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <QMap>
 #include <QFile>
 #include <QDebug>
 #include <QString>
@@ -75,7 +76,7 @@ inline QObjectList findObjects(FindType type, QVariant value, QObject *obj = nul
     if (type == ByAccessibleName) {
         resolver.setValidFilter([value](QObject *obj) -> bool {
             if (QWidget *widget = qobject_cast<QWidget *>(obj)) {
-                return widget->accessibleName() == value.toString();
+                return widget->accessibleName() == value.toString() && widget->isVisible();
             }
             return false;
         });
@@ -92,10 +93,13 @@ inline QObjectList findObjects(FindType type, QVariant value, QObject *obj = nul
                 return false;
             }
             if (auto listview = qobject_cast<QListView *>(obj->parent())) {
+                if (!listview->isVisible()) {
+                    return false;
+                }
                 for (int r = 0; r < listview->model()->rowCount(); ++r) {
                     for (int c = 0; c < listview->model()->columnCount(); ++c) {
                         if (listview->model()->index(r, c).data().toString() == value.toString()) {
-                            qInfo() << "found... " << value.toString();
+                            qInfo() << "found... " << value.toString() << listview->objectName() << listview->metaObject()->className();
                             return true;
                         }
                     }
@@ -107,7 +111,7 @@ inline QObjectList findObjects(FindType type, QVariant value, QObject *obj = nul
     if (type == ByButtonText) {
         resolver.setValidFilter([value](QObject *obj) -> bool {
             if (auto button = qobject_cast<QAbstractButton *>(obj)) {
-                if (button->text() == value.toString()) {
+                if (button->isVisible() && button->text() == value.toString()) {
                     return true;
                 }
             }
@@ -151,28 +155,33 @@ inline QModelIndexList getItemIndexesByText(QObject *obj, const QString &text) {
 inline bool selectListItemByText(const QString &text, int index = 0) {
     const QObjectList &list = findObjects(ByItemText, text);
     qInfo() << "selectListItemByText size: " << list.size();
+
+    // 从整个页面中发现有相同的itemText的ListView就都存起来，再看ListView里面还有没有相同的
+    QVector<QPair<QListView*, QModelIndex>> itemIndexList;
     for (QObject *obj : list) {
         if (auto listview = qobject_cast<QListView *>(obj->parent())) {
-            QModelIndexList list(getItemIndexesByText(obj, text));
-            if (!index && list.size() != 1) {
-                qInfo() << "selectListItemByText Index Error， has too mach object found: " << list.size();
-                return false;
+            for (auto idx : getItemIndexesByText(obj, text)) {
+                itemIndexList.push_back({listview, idx});
             }
-            qInfo() << "inline bool selectListItemByText";
-            // listview->setCurrentIndex(list[index]);
-            listview->selectionModel()->select(list[index], QItemSelectionModel::SelectCurrent);
-            // listview->clicked(list[index]);
-            listview->pressed(list[index]);
-            Q_EMIT listview->activated(list[index]);
-            return true;
         }
     }
-    return false;
+    if (index >= itemIndexList.size()) {
+        qInfo() << "selectListItemByText index too big! " << index;
+        return false;
+    }
+
+    auto listview = itemIndexList.at(index).first;
+    auto modelIndex = itemIndexList.at(index).second;
+    qInfo() << "selectListItemByText will select: " << modelIndex.data().toString() << " row: " << modelIndex.row() << " column: " << modelIndex.column();
+    listview->pressed(modelIndex);
+    Q_EMIT listview->activated(modelIndex);
+    listview->selectionModel()->select(modelIndex, QItemSelectionModel::SelectCurrent);
+    return true;
 }
 
 inline bool selectListItemByIndex(const QString className, int uniq_index, int row, int column) {
     const QObjectList &result = findObjects(ByObjectName, className);
-    if (result.size() < uniq_index)
+    if (result.size() <= uniq_index)
         return false;
     if (auto listview = qobject_cast<QListView *>(result.at(uniq_index))) {
         if (row > listview->model()->rowCount() || column > listview->model()->columnCount()) {
@@ -249,7 +258,10 @@ inline bool setLineEditTextByIndex(const QString &lineEditContent,
                                    int index = 0) {
     ObjectPathResolver resolver;
     resolver.setValidFilter([](QObject *obj) -> bool {
-        return qobject_cast<QLineEdit *>(obj) != nullptr;
+        if (auto edit = qobject_cast<QLineEdit *>(obj)) {
+            return edit->isVisible();
+        }
+        return false;
     });
     resolver.findExistingObjects();
 
@@ -280,7 +292,7 @@ inline bool setLineEditTextByItemIndex(const QString &lineEditClassName,
             auto lineEdit = qobject_cast<QLineEdit *>(edit);
             lineEdit->setText(lineEditContent);
             Q_EMIT lineEdit->editingFinished();
-             return true;
+            return true;
         }
     }
 //    if (auto lineEdit = qobject_cast<QLineEdit *>(list[index < 0 ? 0 : index])){

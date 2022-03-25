@@ -48,7 +48,7 @@ void ObjectPathResolver::discoverObject(QObject *object)
             m_objs.push_back(object);
         // qInfo() << "object: " << object << " m_layer_count: " << m_layer_count;
     }
-    qInfo() << "push back object: " << object << " " << m_layer_count;
+    // qInfo() << "push back object: " << object << " " << m_layer_count;
     m_validObjects.push_back(object);
     // qInfo() << "object: " << object << " m_layer_count: " << m_layer_count;
     foreach (QObject *child, object->children()) {

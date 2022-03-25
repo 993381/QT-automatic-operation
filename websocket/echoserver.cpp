@@ -162,7 +162,12 @@ void EchoServer::processTextMessage2(QString message) {
         if (isOnline(msg.at(1))) {
             socket->sendTextMessage("Already-Online");
         } else {
-            qputenv("LD_PRELOAD", INJECTOR_DLL);
+            if (!qgetenv("INJECTOR_PATH").isEmpty()) {
+                qputenv("LD_PRELOAD", qgetenv("INJECTOR_PATH"));
+            } else {
+                qputenv("LD_PRELOAD", INJECTOR_DLL);
+            }
+
             // qputenv("EXEC_JS_SCRIPT_PRE", "1");
             // qputenv("SHOW_UIA_WINDOW_PRE", "1");
             QProcess *process = new QProcess;

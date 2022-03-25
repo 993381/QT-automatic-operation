@@ -1,0 +1,8 @@
+<RCC>
+     <qresource prefix="/">
+	  <file>javascript/testbase.js</file>
+	  <file>javascript/testcase.js</file>
+	  <file>javascript/qwebchannel.js</file>
+	  <file>javascript/testapi.js</file>
+     </qresource>
+</RCC>

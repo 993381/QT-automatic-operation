@@ -41,41 +41,40 @@ public:
         qputenv("SHOW_UIA_WINDOW_PRE", "1");
 
         QStringList args(programAndArgs);
-//  这种方案为了方便调试
-#define USE_EXEC_LAUNCH 0
-#if !USE_EXEC_LAUNCH
-        QString program = args.takeFirst();
-        m_process->start(program, args);
-        bool status = m_process->waitForStarted(-1);
-        qInfo() << "pid xxxxxxxxxxxx: " << m_process->pid();
-        if (!status) {
-            qInfo() << "process start failed!";
-            return false;
-        }
-        Q_EMIT gdbStarted();
-        qInfo() << "process start success";
 
-        return true;
-#else
-        // qputenv("SHOW_UIA_WINDOW_PRE", "0");
+        if (QString(qgetenv("DEBUG_APPS_PRE")) != "1") {
+            QString program = args.takeFirst();
+            m_process->start(program, args);
+            bool status = m_process->waitForStarted(-1);
+            qInfo() << "pid xxxxxxxxxxxx: " << m_process->pid();
+            if (!status) {
+                qInfo() << "process start failed!";
+                return false;
+            }
+            Q_EMIT gdbStarted();
+            qInfo() << "process start success";
 
-        QString program = args.takeFirst();
-        // argv 不能为空
-        args.insert(0, program);
-        qInfo() << "args: " <<args;
+            return true;
+        } else {
+            // 这种方案为了方便调试，使用exec函数替换当前进程为要注入的程序，就能方便的看到log了
+            // qputenv("SHOW_UIA_WINDOW_PRE", "0");
+            qputenv("DEBUG_APPS_PRE", "1");
 
-        char *argv[args.size() + 1];
-        // if (!args.size()) {
+            QString program = args.takeFirst();
+            // argv 不能为空
+            args.insert(0, program);
+            qInfo() << "args: " <<args;
+
+            char *argv[args.size() + 1];
             argv[args.size()] = nullptr;
-        // }
-        for (int i = 0; i < args.size(); ++i) {
-            QString arg = args.takeFirst();
-            argv[i] = new char[arg.size()];
-            memcpy(argv[i], arg.toStdString().c_str(), arg.toStdString().size());
+            for (int i = 0; i < args.size(); ++i) {
+                QString arg = args.takeFirst();
+                argv[i] = new char[arg.size()];
+                memcpy(argv[i], arg.toStdString().c_str(), arg.toStdString().size());
+            }
+            extern char **environ;
+            return execve(program.toStdString().c_str(), argv, environ) != -1;
         }
-        extern char **environ;
-        return execve(program.toStdString().c_str(), argv, environ) != -1;
-#endif
     }
 
     //! 从GDB启动相当于子进程，还需要处理进程通信，比较麻烦
