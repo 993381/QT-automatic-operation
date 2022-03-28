@@ -29,5 +29,5 @@ do
             sleep ${SLEEP_TIME}; 
             ${DAEMON_CLIENT} -c "${LINE}" && logRecord "SUCCESS    ${LINE}" || logRecord "FAILED     ${LINE}"
         fi
-    done < test.js
+    done < js/bak/auto_test.js
 done

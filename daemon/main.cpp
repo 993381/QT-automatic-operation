@@ -7,6 +7,8 @@
 #include <QTimer>
 // #include "../local_socket/local_client.h"
 #include "../websocket/echoclient.h"
+#include <dlfcn.h>
+#include "../gdbinjector/gdb_injector.h"
 
 // 示例程序
 int main(int argc, char *argv[]) {
@@ -22,6 +24,8 @@ int main(int argc, char *argv[]) {
     QCommandLineOption select_opt({"s", "select"}, "Select an application.");
     // 启动待执行的程序
     QCommandLineOption launch_opt({"l", "launch"}, "Launch application.", "/path/to/app");
+    // 启动待执行的程序
+    QCommandLineOption inject_opt({"j", "inject"}, "Inject into application.", "app pid", "0");
     // 执行单句的脚本命令
     QCommandLineOption exec_opt({"c", "code"}, "Execute script command.", "js script code");
     // 执行指定的脚本文件
@@ -32,6 +36,7 @@ int main(int argc, char *argv[]) {
     parser.addVersionOption();
     //    parser.addOption(daemon_opt);
     parser.addOption(launch_opt);
+    parser.addOption(inject_opt);
     //    parser.addOption(arg_opt);
     parser.addOption(exec_opt);
     parser.addOption(script_opt);
@@ -52,6 +57,8 @@ int main(int argc, char *argv[]) {
     client->handleMessage([&client, &parser, args](QString msg){
         qInfo() << "----------- " << msg;
         if (msg == "loginOn") {
+            Q_EMIT client->loginSuccess();
+
             if (parser.isSet("l")) {
                 // 启动应用，可能带有参数
                 const QString &appName = parser.value("l");
@@ -85,8 +92,8 @@ int main(int argc, char *argv[]) {
             qInfo() << "failed: " << msg;
             exit(0);
         }
-        if (msg == "App-not-online") {
-            qInfo() << "App-not-online";
+        if (msg.startsWith("App-not-online")) {
+            qInfo() << msg;
             exit(1);
         }
 
@@ -123,7 +130,50 @@ int main(int argc, char *argv[]) {
             qInfo() << "Exec-all-finished-failed";
             exit(1);
         }
+
+        // 分两个阶段，注入前查询是否在线，在线就不用注入了，注入后查询是否注入成功
+        if (msg.startsWith("Online-status-1")) {
+            QStringList res = msg.split(":");
+            if (res.at(1).toInt()) {
+                qInfo() << "已注入";
+                exit(0);
+            } else {
+                qInfo() << "未注入，即将注入";
+                // 两秒内收到上面的消息的回复，后面的就不执行了
+                const QString &appPid = parser.value("j");
+                QString param = QString("inject:%1").arg(appPid);
+                qInfo() << "value: " << appPid;
+                QObject::connect(GdbInjector::instance(), &GdbInjector::injectFinished, [&]{
+                    qInfo() << "gdb injectFinished!";
+                    client->sendTextMessage(QString("isOnline-pid-2:%1").arg(parser.value("j")));
+                });
+                QObject::connect(GdbInjector::instance(), &GdbInjector::gdbStarted, []{
+                    // bool status = process->waitForStarted(-1);
+                    qInfo() << "gdb inject start!";
+                });
+                GdbInjector::instance()->attachInject(appPid.toInt());   // QProcess 还未处理
+            }
+        }
+        if (msg.startsWith("Online-status-2")) {
+            QStringList res = msg.split(":");
+            if (res.at(1).toInt()) {
+                qInfo() << "注入成功";
+                exit(0);
+            } else {
+                qInfo() << "注入失败";
+                exit(1);
+            }
+        }
     });
+
+    QObject::connect(client.data(), &EchoClient::loginSuccess, [&]{
+        if (parser.isSet("j")) {
+            // 根据 PID 注入应用。怎么判断是否注入成功？
+            // injectFinished 后查询一下服务端的在线状态。
+            client->sendTextMessage(QString("isOnline-pid-1:%1").arg(parser.value("j")));
+        }
+    });
+
 
     // return instance.singleExec();
     // 加入 quit 的功能

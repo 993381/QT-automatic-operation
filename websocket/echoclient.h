@@ -71,6 +71,7 @@ public:
 
 Q_SIGNALS:
     void closed();
+    void loginSuccess();
 
 private Q_SLOTS:
     void onConnected();

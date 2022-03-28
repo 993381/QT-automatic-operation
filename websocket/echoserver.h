@@ -68,6 +68,7 @@ public:
 
     QWebSocket *getAppSocket(const QString &app, int pid = 0);
     bool isOnline(const QString &app);
+    bool isOnline(const int &appPid);
 
 Q_SIGNALS:
     void closed();
@@ -95,6 +96,8 @@ private:
     QMap<int, QProcess *> m_processMap;
 
     QPair<QString, int> m_currentSelect;  // name pid
+
+    QPair<int, QWebSocket *> injectNotice;
 };
 
 #endif //ECHOSERVER_H

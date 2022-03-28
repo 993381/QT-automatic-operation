@@ -53,6 +53,8 @@
 #include <QtCore/QDebug>
 #include <QCoreApplication>
 #include <QProcess>
+#include <QTimer>
+#include <dlfcn.h>
 
 QT_USE_NAMESPACE
 
@@ -112,19 +114,31 @@ void EchoServer::processTextMessage1(QString message)
     QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
     socket->sendTextMessage("Server recved: " + message);
 
+    int appPid = 0;
     if (message.startsWith("appinfo:")) {
         QStringList info = message.split(":");
-        int pid = info.at(1).toInt();
+        appPid = info.at(1).toInt();
         QString name = info.at(2);
-        if (m_appList.contains(pid)) {
-            m_appList.erase(m_appList.find(pid));
+        if (m_appList.contains(appPid)) {
+            m_appList.erase(m_appList.find(appPid));
         }
-        m_appList.insert(pid, qMakePair<QString, QWebSocket*>(name, socket));
+        m_appList.insert(appPid, qMakePair<QString, QWebSocket*>(name, socket));
 
         m_currentSelect.first = name;
-        m_currentSelect.second = pid;
+        m_currentSelect.second = appPid;
+
+        // 收到登陆消息后，如果发现控制端正在等待注入结果，就发送注入成功的消息
+        if (injectNotice.second && injectNotice.first == appPid) {
+            // 清空，5秒后会再判断，如果还没收到就算超时，发送失败消息
+            auto sock = injectNotice.second;
+            injectNotice.first = 0;
+            injectNotice.second = nullptr;
+            sock->sendTextMessage(QString("Online-status-2:1"));
+        }
+
         return;
     }
+
     if (message.startsWith("Exec-")) {
         for (auto c : m_clients) {
             c->sendTextMessage(message);
@@ -184,6 +198,22 @@ void EchoServer::processTextMessage2(QString message) {
             socket->sendTextMessage(status ? "launch success" : "launch failed" + process->readAll());
         }
     }
+    if (message.startsWith("isOnline-pid-1:")) {
+        int pid = message.split(":").at(1).toInt();
+        socket->sendTextMessage(QString("Online-status-1:%1").arg(isOnline(pid)));
+    }
+    if (message.startsWith("isOnline-pid-2:")) {
+        int pid = message.split(":").at(1).toInt();
+        // socket->sendTextMessage(QString("Online-status-1:%1").arg(isOnline(pid)));
+        injectNotice.first = pid;
+        injectNotice.second = socket;
+        // 5秒后如果还没收到就算超时，发送失败消息
+        QTimer::singleShot(1000*5, [this]{
+            if (injectNotice.second) {
+                injectNotice.second->sendTextMessage("Online-status-2:0");
+            }
+        });
+    }
     if (message.startsWith("execute-script:")) {
         QStringList msg = message.split(":");
         if (!isOnline(m_currentSelect.first)) {
@@ -197,7 +227,7 @@ void EchoServer::processTextMessage2(QString message) {
     if (message.startsWith("execute-function:")) {
         QStringList msg = message.split(":");
         if (!isOnline(m_currentSelect.first)) {
-            socket->sendTextMessage("App-not-online");
+            socket->sendTextMessage("App-not-online: " + m_currentSelect.first);
         } else {
             if (auto appSock = getAppSocket(m_currentSelect.first)) {
                 appSock->sendTextMessage(QString("Exec-function:%1").arg(msg.at(1)));   // TODO: Exec-Reply
@@ -236,6 +266,15 @@ bool EchoServer::isOnline(const QString &app) {
     QMap <int, QPair<QString, QWebSocket*>>::iterator itr = m_appList.begin();
     for (; itr != m_appList.end(); ++itr) {
         if (itr->first == app) {
+            return true;
+        }
+    }
+    return false;
+}
+bool EchoServer::isOnline(const int &appPid) {
+    QMap <int, QPair<QString, QWebSocket*>>::iterator itr = m_appList.begin();
+    for (; itr != m_appList.end(); ++itr) {
+        if (itr.key() == appPid) {
             return true;
         }
     }

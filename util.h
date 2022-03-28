@@ -65,7 +65,7 @@ inline QString showFileDialog(const QFileDialog::AcceptMode &mode) {
 }
 
 // 从全局或给定的obj下面找符合条件的对象
-enum FindType { Unknow, All, ByObjectName, ByAccessibleName, ByClassName, ByItemText, ByButtonText, ByToolTip/*, ByItemIndex*/ };
+enum FindType { Unknow, All, ByObjectName, ByAccessibleName, ByClassName, ByItemText, ByButtonText, ByNoTextButtonIndex, ByToolTip/*, ByItemIndex*/ };
 inline QObjectList findObjects(FindType type, QVariant value, QObject *obj = nullptr) {
     ObjectPathResolver resolver;
     if (type == ByObjectName) {
@@ -112,6 +112,16 @@ inline QObjectList findObjects(FindType type, QVariant value, QObject *obj = nul
         resolver.setValidFilter([value](QObject *obj) -> bool {
             if (auto button = qobject_cast<QAbstractButton *>(obj)) {
                 if (button->isVisible() && button->text() == value.toString()) {
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
+    if (type == ByNoTextButtonIndex) {
+        resolver.setValidFilter([value](QObject *obj) -> bool {
+            if (auto button = qobject_cast<QAbstractButton *>(obj)) {
+                if (button->isVisible() && button->text().isEmpty()) {
                     return true;
                 }
             }
@@ -215,6 +225,23 @@ inline bool clickButtonByButtonText(const QString text, int index = 0) {
         return false;
     }
     if (auto button = qobject_cast<QAbstractButton *>(list.at(index))){
+        if (!button->isEnabled()) {
+            return false;
+        }
+        button->click();
+        return true;
+    }
+    return false;
+}
+inline bool clickNoTextButtonByIndex(int index = 0) {
+    const QObjectList &list = findObjects(ByNoTextButtonIndex, index);
+    if (index >= list.size()) {
+        return false;
+    }
+    if (auto button = qobject_cast<QAbstractButton *>(list.at(index))){
+        if (!button->isEnabled()) {
+            return false;
+        }
         button->click();
         return true;
     }

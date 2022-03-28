@@ -27,6 +27,45 @@ public:
     }
     //! TODO： 从pid启动用 ptrace 的方式实现，是实现跨进程录制的前提
     bool attachInject(const int &pid) {
+        if (m_process && m_process->state() == QProcess::ProcessState::Running) {
+            qInfo() << "process is running";
+            return false;
+        }
+        m_process.reset(new QProcess);
+
+        QObject::connect(this, &GdbInjector::gdbStarted, this, [this, pid]{
+            // 1. 注入
+            execCmds({"set confirm off"});
+            // execCmd(QString("attach %1").arg(pid).toLocal8Bit());
+            // execCmd(QString("set environment %1").arg().toLocal8Bit());
+
+            // qInfo() << "GdbInjector::gdbStarted";
+
+            // 2. 在断点处注入程序并分离退出gdb让程序继续执行
+            const QString &probeFunc("gammaray_probe_attach");
+            execCmds({"sha dl",
+                      QStringLiteral("call (void) dlopen(\"%1\", %2)").arg(INJECTOR_DLL).arg(RTLD_NOW).toUtf8(),
+                      "sha " INJECTOR_DLL,
+                      QStringLiteral("call (void) %1()").arg(probeFunc).toUtf8(),
+                      "detach",             // 子进程分离
+                      // "continue"            // 原本是"quit"，不 quit，继续执行
+                      "quit"
+                     });
+
+            // qInfo() << "GdbInjector::gdbStarted2";
+
+            Q_EMIT injectFinished();
+        });
+
+        // qputenv("EXEC_JS_SCRIPT", "1");
+        // qputenv("LD_PRELOAD", INJECTOR_DLL);
+        // qputenv("EXEC_JS_SCRIPT_PRE", "1");
+        // qputenv("SHOW_UIA_WINDOW_PRE", "1");
+
+        QStringList gdbArgs;
+        gdbArgs << QStringLiteral("-pid");
+        gdbArgs << QStringLiteral("%1").arg(pid);
+        return startDebugger(gdbArgs);
     }
 
     bool launchPreload(const QStringList &programAndArgs, const QProcessEnvironment &env = QProcessEnvironment()) {

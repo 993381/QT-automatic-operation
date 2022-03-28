@@ -62,6 +62,37 @@ public:
         }
         return false;
     }
+    Q_SCRIPTABLE bool clickNoTextButton(QStringList list) {
+        QString clickType = list.at(0);
+        QStringList findTypes = {
+            "ByClassName",
+            "ByObjectName",
+            "ByAccessableName",
+            "ByToolTip",
+            "ByIndex",
+            "ByPath"
+            "ByParentClassName",
+            "ByPathAndSlibingIndex"
+        };
+//        if (clickType.isEmpty() || findTypes.indexOf(clickType) == -1) {
+//            qInfo() << "type error";
+//            return false;
+//        }
+        // 一个参数根据index， 两个参数根据上面的类型
+        if (list.size() == 1) {
+            bool ok;
+            int index = list.first().toInt(&ok);
+            if (!ok) {
+                return false;
+            }
+            return clickNoTextButtonByIndex(index);
+        } else if (list.size() == 2) {
+            //TODO
+            return false;
+            // return clickButtonByButtonText(list.first(), list.last().toInt());
+        }
+        return false;
+    }
     Q_SCRIPTABLE bool setLineEditText(QStringList list) {
         if (list.size() == 1) {
             return setLineEditTextByIndex(list.first());

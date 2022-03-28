@@ -107,8 +107,13 @@ function 选择(item) {
     funcTimedCaller(TestMethod.selectListItem, args);
 }
 
+// 文字按钮
 function 点击(btnText) {
     funcTimedCaller(TestMethod.clickButtonByText, btnText);
+}
+// 图形按钮
+function 点击图形按钮(btnIndex) {
+    funcTimedCaller(TestMethod.clickNoTextButton, btnIndex);
 }
 
 function 输入() {

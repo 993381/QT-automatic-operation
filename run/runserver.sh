@@ -3,7 +3,7 @@
 # pkill deepin-movie #dde-control-cen
 # PROGRAM=/usr/bin/deepin-movie #dde-control-center  # /home/alex/Desktop/gamademo/auto/injector_test_demo
 # ${PROGRAM} &
-cd .. && cmake CMakeLists.txt && make -j8 && cd - || exit 1
+#cd .. && cmake CMakeLists.txt && make -j8 && cd - || exit 1
 
 pkill dde-control-cen
 PROGRAM=/usr/bin/dde-control-center  # /home/alex/Desktop/gamademo/auto/injector_test_demo

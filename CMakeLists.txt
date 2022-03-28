@@ -160,6 +160,9 @@ add_executable(daemon
     ${INSTANCE}
     ${WEBSOKETS}
     # ${LOCAL_SOCKET}
+    gdbinjector/gdb_injector.h
+    #gdbinjector/gdb_injector.cpp
+
 )
 target_link_libraries(daemon Qt5::Core Qt5::DBus Qt5::Network Qt5::WebSockets)
 

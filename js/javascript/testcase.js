@@ -14,11 +14,11 @@ TestMethod.launch = function() {
 // 录制的时候要对控件的唯一性进行检查并提示
 TestMethod.startTest = function() {
     resetConfiguration();
+    设置速度('慢')
     // useTimer = false;
 
-    选择('鼠标')
-    选择('鼠标', 1)
-    选择('通用')
+    选择('帐户')
+    点击图形按钮([1])
     return;
 
     失败后立即停止(1)
