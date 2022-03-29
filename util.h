@@ -65,8 +65,11 @@ inline QString showFileDialog(const QFileDialog::AcceptMode &mode) {
 }
 
 // 从全局或给定的obj下面找符合条件的对象
-enum FindType { Unknow, All, ByObjectName, ByAccessibleName, ByClassName, ByItemText, ByButtonText, ByNoTextButtonIndex, ByToolTip/*, ByItemIndex*/ };
-inline QObjectList findObjects(FindType type, QVariant value, QObject *obj = nullptr) {
+enum FindType { Unknow, All, ByObjectName, ByAccessibleName,
+                ByClassName, ByItemText, ByButtonText,
+                ByButtonInfo,
+                ByNoTextButtonIndex, ByToolTip/*, ByItemIndex*/ };
+inline QObjectList findObjects(FindType type, QVariant value, QObject *rootObj = nullptr) {
     ObjectPathResolver resolver;
     if (type == ByObjectName) {
         resolver.setValidFilter([value](QObject *obj) -> bool {
@@ -76,6 +79,9 @@ inline QObjectList findObjects(FindType type, QVariant value, QObject *obj = nul
     if (type == ByAccessibleName) {
         resolver.setValidFilter([value](QObject *obj) -> bool {
             if (QWidget *widget = qobject_cast<QWidget *>(obj)) {
+                if (auto button = qobject_cast<QAbstractButton *>(widget)) {
+                    qInfo() << "findObjects ByAccessibleName xxxxxxxxxx: " << button;
+                }
                 return widget->accessibleName() == value.toString() && widget->isVisible();
             }
             return false;
@@ -128,6 +134,36 @@ inline QObjectList findObjects(FindType type, QVariant value, QObject *obj = nul
             return false;
         });
     }
+    if (type == ByButtonInfo) {
+        resolver.setValidFilter([value](QObject *obj) -> bool {
+            QString findBtnType = value.toStringList().at(0);
+            QString text = value.toStringList().at(1);
+            if (auto button = qobject_cast<QAbstractButton *>(obj)) {
+                if (!button->isVisible()) {
+                    return false;
+                }
+                if (findBtnType == QStringLiteral("byAccName") && button->accessibleName() == text) {
+                    qInfo() << "ByNoTextButtonInfo setValidFilter " << button << button->isVisible() << button->isEnabled();
+                    return true;
+                }
+                if (findBtnType == QStringLiteral("byObjName") && button->objectName() == text) {
+                    return true;
+                }
+                if (findBtnType == QStringLiteral("byClassName") && button->metaObject()->className() == text) {
+                    return true;
+                }
+                if (findBtnType == QStringLiteral("byToolTip") && button->toolTip() == text) {
+                    return true;
+                }
+                if (button->objectName() == "ActionButton") {
+                    qInfo() << "ByNoTextButtonInfo setValidFilter " << button << button->isVisible() << button->isEnabled();
+                    return true;
+                }
+                // qInfo() << "object not find........................" << button->accessibleName() << button->metaObject()->className() << " " << text;
+            }
+            return false;
+        });
+    }
     if (type == ByToolTip) {
         resolver.setValidFilter([value](QObject *obj) -> bool {
             if (auto button = qobject_cast<QAbstractButton *>(obj)) {
@@ -139,8 +175,8 @@ inline QObjectList findObjects(FindType type, QVariant value, QObject *obj = nul
         });
     }
 
-    if (obj) {
-        resolver.discoverObject(obj);
+    if (rootObj) {
+        resolver.discoverObject(rootObj);
     } else {
         resolver.findExistingObjects();
     }
@@ -247,6 +283,27 @@ inline bool clickNoTextButtonByIndex(int index = 0) {
     }
     return false;
 }
+inline bool clickButtonByInfo(const QStringList &info) {
+    QString type = info.at(0);
+    QString text = info.at(1);
+    int index = info.size() > 2 ? info.at(2).toInt() : 0;
+    const QObjectList &list = findObjects(ByButtonInfo, QStringList{ type, text});
+    qInfo() << "clickNoTextButtonByInfo2: " << text << " size: " << list.size();
+    if (index >= list.size()) {
+        return false;
+    }
+    if (auto button = qobject_cast<QAbstractButton *>(list.at(index))){
+        if (!button->isEnabled()) {
+            return false;
+        }
+        qInfo() << "clickNoTextButtonByInfo3: " << text;
+        button->click();
+        // Q_EMIT button->clicked(true);
+        // Q_EMIT button->clicked(false);
+        return true;
+    }
+    return false;
+}
 inline bool clickButtonByToolTip(const QString text, int index = 0) {
     const QObjectList &list = findObjects(ByToolTip, text);
     if (index >= list.size()) {
@@ -260,6 +317,7 @@ inline bool clickButtonByToolTip(const QString text, int index = 0) {
 }
 inline bool clickButtonByAccessbleName(const QString text, int index = 0) {
     const QObjectList &list = findObjects(ByAccessibleName, text);
+    qInfo() << "clickButtonByAccessbleName: " << list.size();
     if (index >= list.size()) {
         return false;
     }

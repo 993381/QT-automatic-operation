@@ -57,9 +57,12 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
     if (tmpList.contains(caller) && caller != Probe::instance()) {
         const int &method_index = signalIndexToMethodIndex(caller->metaObject(), method_index_in);
         const QString methodSignature = caller->metaObject()->method(method_index).methodSignature();
-        qInfo() << "signal_begin_callback: " <<  caller << caller->metaObject()->className() << " " << caller->metaObject()->method(method_index).methodSignature().data();
 
         QAbstractButton * button = qobject_cast<QAbstractButton *>(caller);
+        qInfo() << "xxxxxxxxxxxxxxxxxxxxx: "
+                <<  caller << " class name: " << caller->metaObject()->className() << " "
+                 << " object name: " << caller->objectName() << " "
+                 << " accessible name: " << button->accessibleName() << " ";
         if (button && methodSignature == "pressed()") {
             ObjectPath path(ObjectPath::parseObjectPath(caller));       // 加入重复对象的检测
             path.dump();

@@ -111,9 +111,34 @@ function 选择(item) {
 function 点击(btnText) {
     funcTimedCaller(TestMethod.clickButtonByText, btnText);
 }
-// 图形按钮
-function 点击图形按钮(btnIndex) {
-    funcTimedCaller(TestMethod.clickNoTextButton, btnIndex);
+
+// 一个参数是根据索引，多个参数是 type+value+index，index 默认为 0
+function 点击按钮() {
+    var args = [];
+    for (var i = 0; i < arguments.length; i++) {
+        args[i] = arguments[i];
+    }
+    funcTimedCaller(TestMethod.clickNoTextButton, args);
+}
+
+function 执行命令(cmds) {
+    var args = [];
+    for (var i = 0; i < arguments.length; i++) {
+        args[i] = arguments[i];
+    }
+    funcTimedCaller(TestMethod.execCmd, args);
+}
+
+// bin or /path/to/bin
+function 清理应用(item) {
+    // bash -c "kill - 9 $(pidof dde-control-center)"
+    var args = [];
+    var cmds = "kill -9 ";
+    for (var i = 0; i < arguments.length; i++) {
+        cmds += "$(pidof " + arguments[i] + ")";
+    }
+    args.unshift("bash", "-c", cmds);
+    funcTimedCaller(TestMethod.execCmd, args);
 }
 
 function 输入() {
@@ -148,7 +173,7 @@ function 设置速度(speed) {
         return
     }
     if (speed === '慢') {
-        inteval = 1500;
+        inteval = 2000;
         return
     }
     if (speed === '中') {
@@ -157,3 +182,4 @@ function 设置速度(speed) {
     }
     // setError(true);
 }
+

@@ -21,10 +21,15 @@ public:
 
     void waitForLoadFinished();
 
-    Q_SCRIPTABLE void startApp(const QStringList &appParameters) {
+    Q_SCRIPTABLE void startApp(QStringList appParameters) {
         qInfo() << "startApp: " << appParameters;
         // GdbInjector::instance()->launchInject(appParameters);
         GdbInjector::instance()->launchPreload(appParameters);
+    }
+
+    Q_SCRIPTABLE void execCmd(QStringList appParameters) {
+        qInfo() << "execCmd: " << appParameters;
+        QProcess::startDetached(appParameters.takeFirst(), appParameters);
     }
     Q_SCRIPTABLE void closeApp() {
         qInfo() << "closeApp";
@@ -86,10 +91,12 @@ public:
                 return false;
             }
             return clickNoTextButtonByIndex(index);
-        } else if (list.size() == 2) {
-            //TODO
-            return false;
-            // return clickButtonByButtonText(list.first(), list.last().toInt());
+        } else if (list.size() >= 2) {
+            if (clickType == "byAccName") {
+                QString accName = list.at(1);
+                return clickButtonByAccessbleName(accName);
+            }
+            return clickButtonByInfo(list);
         }
         return false;
     }
