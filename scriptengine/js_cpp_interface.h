@@ -53,9 +53,17 @@ public:
     }
     Q_SCRIPTABLE bool selectListItem(QStringList value) {
         if (value.size() == 1) {
-            return selectListItemByText(value.first());
+            return selectListItemByText(false, value.first());
         } else if (value.size() == 2) {
-            return selectListItemByText(value.first(), value.last().toInt());
+            return selectListItemByText(false, value.first(), value.last().toInt());
+        }
+        return false;
+    }
+    Q_SCRIPTABLE bool dbClickSelectListItem(QStringList value) {
+        if (value.size() == 1) {
+            return selectListItemByText(true, value.first());
+        } else if (value.size() == 2) {
+            return selectListItemByText(true, value.first(), value.last().toInt());
         }
         return false;
     }

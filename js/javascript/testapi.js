@@ -99,12 +99,20 @@ function execFinished() {
     });
 }
 
-function 选择(item) {
+function 选择() {
     var args = []; // 多参数的存到数组中，对应于 QStringList
     for (var i = 0; i < arguments.length; i++) {
         args[i] = arguments[i];
     }
     funcTimedCaller(TestMethod.selectListItem, args);
+}
+
+function 双击选择(item) {
+    var args = []; // 多参数的存到数组中，对应于 QStringList
+    for (var i = 0; i < arguments.length; i++) {
+        args[i] = arguments[i];
+    }
+    funcTimedCaller(TestMethod.dbClickSelectListItem, args);
 }
 
 // 文字按钮

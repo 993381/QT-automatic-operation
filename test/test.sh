@@ -67,7 +67,7 @@ function TestControlCenter {
     # ${DAEMON_CLIENT} -f `pwd`/2.创建账户确认.js
 }
 
-function TestDDELLauncher {
+function TestDDELLauncherSwitch {
     kill -9 `pidof ${DAEMON_CLIENT}` `pidof dde-launcher`
     sleep 3
     ${DAEMON_CLIENT} -l dde-launcher -- -s
@@ -80,8 +80,41 @@ function TestDDELLauncher {
     sleep 1
 }
 
-# TestDDELLauncher
+function TestDDELLauncherTool {
+    kill -9 `pidof ${DAEMON_CLIENT}` `pidof dde-launcher`
+    sleep 3
+    ${DAEMON_CLIENT} -l dde-launcher -- -s
+    sleep 1
+    ${DAEMON_CLIENT} -f `pwd`/launcher_1.js
+    sleep 1
+    kill -9 `pidof dde-file-manager`
+}
 
-TestControlCenter && TestCreateAccount 
-TestControlCenter && TestRemoveAccount
+function TestAppLunchLaunchStatus {
+    # dde-daemon 搜索 print-reply 就行
+    dbus-send --print-reply --dest=com.deepin.dde.osd /org/freedesktop/Notifications com.deepin.dde.Notification.Toggle
+    dbus-send --print-reply --dest=com.deepin.dde.Launcher /com/deepin/dde/Launcher com.deepin.dde.Launcher.Toggle
+    dbus-send --print-reply --dest=com.deepin.dde.Clipboard /com/deepin/dde/Clipboard com.deepin.dde.Clipboard.Toggle
+    # logout
+    dbus-send --print-reply --dest=com.deepin.dde.shutdownFront /com/deepin/dde/shutdownFront com.deepin.dde.shutdownFront.Show
+    # 锁屏
+    /usr/bin/setxkbmap -option grab:break_actions&&/usr/bin/xdotool key XF86Ungrab&&dbus-send --print-reply --dest=com.deepin.dde.lockFront /com/deepin/dde/lockFront com.deepin.dde.lockFront.Show
+    # 截屏
+    dbus-send --print-reply --dest=com.deepin.ScreenRecorder /com/deepin/ScreenRecorder com.deepin.ScreenRecorder.stopRecord
+    # 控制中心
+    dbus-send --session --dest=com.deepin.dde.ControlCenter  --print-reply /com/deepin/dde/ControlCenter com.deepin.dde.ControlCenter.Show
+
+    # 然后再查询 pid 或者注入即可
+    pidof /usr/bin/dde-clipboard
+}
+
+# TestDDELLauncherSwitch
+TestDDELLauncherTool
+
+# TestControlCenter && TestCreateAccount 
+# TestControlCenter && TestRemoveAccount
+
+# 查询窗口标题：
+# wmctrl -l -p
+
 

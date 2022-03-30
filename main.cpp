@@ -155,7 +155,7 @@ int main(int argc, char *argv[]) {
 //        }
 //    };
 
-    selectListItemByText("yyyyyyyyyyy");
+    selectListItemByText(false, "yyyyyyyyyyy");
     // qInfo() << view.objectName() << view.currentIndex().row() << view.currentIndex().column();
     // qInfo() << "mode name: " << row->metaObject()->className();
 

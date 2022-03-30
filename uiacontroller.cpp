@@ -235,7 +235,7 @@ bool UiaController::nextStep() {
         }
         if (discoverDesc == "FindListItemByText") {
             const QString &text = instance()->m_itr->parameters().parameterValues.first().toString();
-            return selectListItemByText(text, uniq_index == -1? 0 : uniq_index);
+            return selectListItemByText(false, text, uniq_index == -1? 0 : uniq_index);
         }
         if (discoverDesc == "FindListItemByIndex") {
             const int &row = instance()->m_itr->parameters().parameterValues.at(1).toInt();

@@ -188,6 +188,12 @@ inline QObjectList findObjects(FindType type, QVariant value, QObject *rootObj =
     return resolver.validObjects();
 }
 
+inline bool sendEvent() {
+    // QKeyEvent tabKey(QEvent::KeyPress, Qt::Key_Tab, Qt::NoModifier);
+    // QCoreApplication::sendEvent(this, &tabKey);
+}
+
+
 inline QModelIndexList getItemIndexesByText(QObject *obj, const QString &text) {
     QModelIndexList tempList;
     if (auto listview = qobject_cast<QListView *>(obj->parent())) {
@@ -203,7 +209,7 @@ inline QModelIndexList getItemIndexesByText(QObject *obj, const QString &text) {
 }
 
 // 如果text唯一，直接选中，如果不唯一，做更多处理，按照指定的 row、coloum 选中
-inline bool selectListItemByText(const QString &text, int index = 0) {
+inline bool selectListItemByText(bool isDoubleClick, const QString &text, int index = 0) {
     const QObjectList &list = findObjects(ByItemText, text);
     qInfo() << "selectListItemByText size: " << list.size();
 
@@ -224,7 +230,12 @@ inline bool selectListItemByText(const QString &text, int index = 0) {
     auto listview = itemIndexList.at(index).first;
     auto modelIndex = itemIndexList.at(index).second;
     qInfo() << "selectListItemByText will select: " << modelIndex.data().toString() << " row: " << modelIndex.row() << " column: " << modelIndex.column();
-    listview->pressed(modelIndex);
+
+    if (isDoubleClick) {
+        listview->doubleClicked(modelIndex);
+    } else {
+        listview->pressed(modelIndex);
+    }
     Q_EMIT listview->activated(modelIndex);
     listview->selectionModel()->select(modelIndex, QItemSelectionModel::SelectCurrent);
     return true;
