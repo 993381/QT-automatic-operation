@@ -4,6 +4,11 @@
 #include <QMap>
 #include <QFile>
 #include <QDebug>
+#include <QEvent>
+#include <QApplication>
+#include <QWidget>
+#include <QMouseEvent>
+#include <QPoint>
 #include <QString>
 #include <QListView>
 #include <QLineEdit>
@@ -250,7 +255,13 @@ inline bool clickButtonByObjectName(const QString text, int index = 0) {
         return false;
     }
     if (auto button = qobject_cast<QAbstractButton *>(list.at(index))) {
-        button->click();
+        // button->click();
+        QPoint pos(0, 0);
+        QMouseEvent pressEv(QEvent::MouseButtonPress, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QMouseEvent *releaseEv = new QMouseEvent(QEvent::MouseButtonRelease, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(button, &pressEv);
+        QApplication::postEvent(button, releaseEv); // 防止模态窗口阻塞在这里, 配合 qApp->processEvents 进行处理
+        qInfo() << "clickButtonByButtonText end  ...........";
         return true;
     }
     return false;
@@ -264,7 +275,13 @@ inline bool clickButtonByButtonText(const QString text, int index = 0) {
         if (!button->isEnabled()) {
             return false;
         }
-        button->click();
+        // button->click();
+        QPoint pos(0, 0);
+        QMouseEvent pressEv(QEvent::MouseButtonPress, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QMouseEvent *releaseEv = new QMouseEvent(QEvent::MouseButtonRelease, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(button, &pressEv);
+        QApplication::postEvent(button, releaseEv); // 防止模态窗口阻塞在这里, 配合 qApp->processEvents 进行处理
+        qInfo() << "clickButtonByButtonText end  ...........";
         return true;
     }
     return false;
@@ -278,7 +295,13 @@ inline bool clickNoTextButtonByIndex(int index = 0) {
         if (!button->isEnabled()) {
             return false;
         }
-        button->click();
+        // button->click();
+        QPoint pos(0, 0);
+        QMouseEvent pressEv(QEvent::MouseButtonPress, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QMouseEvent *releaseEv = new QMouseEvent(QEvent::MouseButtonRelease, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(button, &pressEv);
+        QApplication::postEvent(button, releaseEv); // 防止模态窗口阻塞在这里, 配合 qApp->processEvents 进行处理
+        qInfo() << "clickButtonByButtonText end  ...........";
         return true;
     }
     return false;
@@ -296,10 +319,14 @@ inline bool clickButtonByInfo(const QStringList &info) {
         if (!button->isEnabled()) {
             return false;
         }
-        qInfo() << "clickNoTextButtonByInfo3: " << text;
-        button->click();
-        // Q_EMIT button->clicked(true);
-        // Q_EMIT button->clicked(false);
+        qInfo() << "clickButtonByButtonText start...........";
+        // Q_EMIT button->clicked();
+        QPoint pos(0, 0);
+        QMouseEvent pressEv(QEvent::MouseButtonPress, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QMouseEvent *releaseEv = new QMouseEvent(QEvent::MouseButtonRelease, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(button, &pressEv);
+        QApplication::postEvent(button, releaseEv); // 防止模态窗口阻塞在这里, 配合 qApp->processEvents 进行处理
+        qInfo() << "clickButtonByButtonText end  ...........";
         return true;
     }
     return false;
@@ -310,7 +337,15 @@ inline bool clickButtonByToolTip(const QString text, int index = 0) {
         return false;
     }
     if (auto button = qobject_cast<QAbstractButton *>(list.at(index))){
-        button->click();
+        // button->click();
+        if (!button->isEnabled()) {
+            return false;
+        }
+        QPoint pos(0, 0);
+        QMouseEvent pressEv(QEvent::MouseButtonPress, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QMouseEvent *releaseEv = new QMouseEvent(QEvent::MouseButtonRelease, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(button, &pressEv);
+        QApplication::postEvent(button, releaseEv); // 防止模态窗口阻塞在这里, 配合 qApp->processEvents 进行处理
         return true;
     }
     return false;
@@ -322,7 +357,15 @@ inline bool clickButtonByAccessbleName(const QString text, int index = 0) {
         return false;
     }
     if (auto button = qobject_cast<QAbstractButton *>(list.at(index))){
-        button->click();
+        // button->click();
+        if (!button->isEnabled()) {
+            return false;
+        }
+        QPoint pos(0, 0);
+        QMouseEvent pressEv(QEvent::MouseButtonPress, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QMouseEvent *releaseEv = new QMouseEvent(QEvent::MouseButtonRelease, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(button, &pressEv);
+        QApplication::postEvent(button, releaseEv); // 防止模态窗口阻塞在这里, 配合 qApp->processEvents 进行处理
         return true;
     }
     return false;
@@ -333,7 +376,15 @@ inline bool clickButtonByButtonIndex(const QString text, int index) {
         return false;
     }
     if (auto button = qobject_cast<QAbstractButton *>(list.at(index))){
-        button->click();
+        // button->click();
+        if (!button->isEnabled()) {
+            return false;
+        }
+        QPoint pos(0, 0);
+        QMouseEvent pressEv(QEvent::MouseButtonPress, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QMouseEvent *releaseEv = new QMouseEvent(QEvent::MouseButtonRelease, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(button, &pressEv);
+        QApplication::postEvent(button, releaseEv); // 防止模态窗口阻塞在这里, 配合 qApp->processEvents 进行处理
         return true;
     }
     return false;

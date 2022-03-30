@@ -1,9 +1,9 @@
 // import "./testapi.js"
 
 TestMethod.launch = function() {
-    // TestMethod.startApp(["/usr/bin/dde-control-center", "-s"]);
+    TestMethod.startApp(["/usr/bin/dde-control-center", "-s"]);
     // TestMethod.startApp("/usr/bin/deepin-calculator");
-    TestMethod.startApp(["/usr/bin/dde-launcher", "-s"]);
+    // TestMethod.startApp(["/usr/bin/dde-launcher", "-s"]);
 }
 
 //var 执行完毕 = function() {
@@ -15,31 +15,38 @@ TestMethod.launch = function() {
 // 录制的时候要对控件的唯一性进行检查并提示
 TestMethod.startTest = function() {
     resetConfiguration();
-    设置速度('慢')
-    // 清理应用('dde-control-center', 'dde-launcher')
-    清理应用('dde-control-center')
-    return
-    // useTimer = false;
-
-    // 选择('帐户')
-    // 点击按钮(1)
-
-    // 点击按钮('byAccName', 'backwardbtn');
-    // 选择('系统监视器');
-    var buttons = [
-                'computerbtn',
-                'documentbtn',
-                'picturebtn',
-                'musicbtn',
-                'videobtn',
-                'downloadbtn'
-            ];
-
-    for(var idx = 0; idx < buttons.length; idx++) {
-        点击按钮('byAccName', buttons[idx]);
-        执行命令("/usr/bin/dde-launcher", "-s")
-    }
+    设置速度('快')
+    选择('帐户')
+    选择('demostrate')
+    点击('删除帐户')
+    点击按钮('byAccName', '删除')
     return;
+
+//    设置速度('慢')
+//    // 清理应用('dde-control-center', 'dde-launcher')
+//    清理应用('dde-control-center')
+//    return
+//    // useTimer = false;
+
+//    // 选择('帐户')
+//    // 点击按钮(1)
+
+//    // 点击按钮('byAccName', 'backwardbtn');
+//    // 选择('系统监视器');
+//    var buttons = [
+//                'computerbtn',
+//                'documentbtn',
+//                'picturebtn',
+//                'musicbtn',
+//                'videobtn',
+//                'downloadbtn'
+//            ];
+
+//    for(var idx = 0; idx < buttons.length; idx++) {
+//        点击按钮('byAccName', buttons[idx]);
+//        执行命令("/usr/bin/dde-launcher", "-s")
+//    }
+//    return;
 
     失败后立即停止(1)
     设置速度('快')

@@ -20,21 +20,27 @@ function TestModifyPasswd {
 }
 
 function TestCreateAccount {
-    ${DAEMON_CLIENT} -f `pwd`/2.创建账户.js
+    ${DAEMON_CLIENT} -f `pwd`/create_account.js
     ${DAEMON_CLIENT} -j `pidof dde-polkit-agent`
     sleep 1
-    ${DAEMON_CLIENT} -f `pwd`/2.创建账户确认.js
+    ${DAEMON_CLIENT} -f `pwd`/confirm.js
 }
 
 function TestRemoveAccount {
     ${DAEMON_CLIENT} -j `pidof dde-control-center`
-    ${DAEMON_CLIENT} -c "选择('帐户')"
-    ${DAEMON_CLIENT} -c "选择('demostrate')"
-    ${DAEMON_CLIENT} -c "点击('删除帐户')"
-    ${DAEMON_CLIENT} -c "点击按钮('byAccName', '删除')"
-    ${DAEMON_CLIENT} -j `pidof dde-polkit-agent`
     sleep 1
-    ${DAEMON_CLIENT} -f `pwd`/2.创建账户确认.js
+    ${DAEMON_CLIENT} -c "选择('帐户')"
+    sleep 1
+    ${DAEMON_CLIENT} -c "选择('demostrate')"
+    sleep 1
+    ${DAEMON_CLIENT} -c "点击('删除帐户')"
+    sleep 1
+    ${DAEMON_CLIENT} -c "点击按钮('byAccName', '删除')"
+    sleep 2
+    ${DAEMON_CLIENT} -j `pidof dde-polkit-agent`
+    sleep 2
+    ${DAEMON_CLIENT} -c "输入('a')"
+    ${DAEMON_CLIENT} -c "点击('确 定')"
 }
 
 function TestControlCenter {
@@ -76,6 +82,6 @@ function TestDDELLauncher {
 
 # TestDDELLauncher
 
-# TestControlCenter TestCreateAccount 
-# TestControlCenter && TestRemoveAccount
+TestControlCenter && TestCreateAccount 
+TestControlCenter && TestRemoveAccount
 
