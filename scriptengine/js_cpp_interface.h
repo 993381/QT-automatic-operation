@@ -6,6 +6,7 @@
 #include "../gdbinjector/gdb_injector.h"
 
 #include <QDebug>
+#include <QJSValue>
 
 class JsCppInterface : public QObject {
 Q_OBJECT
@@ -41,7 +42,7 @@ public:
         qInfo() << "JSLoadFinished";
         Q_EMIT Qt2JsMessage({"ssssss", "xxxxxxxxx"});
     }
-    Q_SCRIPTABLE void jsExecFinished(QVariant result) {
+    Q_SCRIPTABLE void jsExecFinished(QJSValue result) {
         // 可以用一个随机字符标识每次的执行
         // m_jsLoadFinished = true;
         // qInfo() << "JSLoadFinished";
@@ -113,7 +114,7 @@ Q_SIGNALS:
     void startTest(const QString &str);
     void Qt2JsMessage(const QStringList &message);
     void Js2QtMessage(const QStringList &message);  //! TODO
-    void execFinished(const QVariant &result);
+    void execFinished(const QJSValue &QJSValue);
 
 private:
     bool loadFinished () {

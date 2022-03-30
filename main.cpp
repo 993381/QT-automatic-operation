@@ -68,8 +68,8 @@ int main(int argc, char *argv[]) {
     QObject::connect(button, &QPushButton::clicked, [] {
         QByteArray testCase;
         if (fileReadWrite(TESTCASE_JS, testCase, true)) {
-            auto result = ScriptEngine::instance()->syncRunJavaScript(testCase);
-            if (!result.first) {
+            auto result = ScriptEngine::instance()->runScript(testCase);
+            if (result.isError()) {
                 qInfo() << "error when load TESTER_JS";
             }
             ScriptEngine::instance()->runScript("TestMethod.launch();");

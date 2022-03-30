@@ -5,7 +5,12 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 # sudo apt install libqt5websockets5-dev qtwebengine5-dev
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets WebEngineWidgets WebChannel DBus Network WebSockets)
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets WebEngineWidgets WebChannel DBus Network WebSockets
+    Qml
+    Quick
+    Script
+)
+find_package(Threads)
 set(QT_LIBS
     Qt5::Core
     Qt5::CorePrivate
@@ -17,6 +22,12 @@ set(QT_LIBS
     Qt5::DBus
     Qt5::Network
     Qt5::WebSockets
+
+    Qt5::Script
+    Qt5::Qml
+    Qt5::Quick
+
+    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x040800)
@@ -128,7 +139,7 @@ add_definitions(
     # -DINDEX_HTML="${PROJECT_SOURCE_DIR}/js/index.html"
     -DTESTBASE_JS=":/javascript/testbase.js"
     -DTESTCASE_JS=":/javascript/testcase.js"       # 改成动态加载，用户手动指定比较好
-    -DCHANNEL_JS=":/javascript/qwebchannel.js"
+    # -DCHANNEL_JS=":/javascript/qwebchannel.js"
     -DTESTAPI_JS=":/javascript/testapi.js"
     -DINJECTOR_DLL="${CMAKE_BINARY_DIR}/libinjector.so"
 )

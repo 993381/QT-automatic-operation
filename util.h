@@ -4,6 +4,11 @@
 #include <QMap>
 #include <QFile>
 #include <QDebug>
+#include <QEvent>
+#include <QApplication>
+#include <QWidget>
+#include <QMouseEvent>
+#include <QPoint>
 #include <QString>
 #include <QListView>
 #include <QLineEdit>
@@ -264,7 +269,18 @@ inline bool clickButtonByButtonText(const QString text, int index = 0) {
         if (!button->isEnabled()) {
             return false;
         }
-        button->click();
+        qInfo() << "clickButtonByButtonText start...........";
+        // Q_EMIT button->clicked();
+        QPoint pos;
+        pos.setX(0);
+        pos.setY(0);
+        QMouseEvent *mEvnPress;
+        QMouseEvent *mEvnRelease;
+        mEvnPress = new QMouseEvent(QEvent::MouseButtonPress, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(button, mEvnPress);
+        mEvnRelease = new QMouseEvent(QEvent::MouseButtonRelease, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::postEvent(button, mEvnRelease);
+        qInfo() << "clickButtonByButtonText end  ...........";
         return true;
     }
     return false;

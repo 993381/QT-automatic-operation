@@ -6,6 +6,9 @@
 #include <QtWebEngineWidgets/QWebEngineSettings>
 #include <QtWebEngineWidgets/QtWebEngineWidgets>
 
+#include <QJSValue>
+#include <QJSEngine>
+
 class JsCppInterface;
 
 class ScriptEngine : public QObject {
@@ -17,14 +20,12 @@ public:
     JsCppInterface *interface() {
         return m_interface;
     }
-    QWidget *widget() {
-        return m_webViewEngine.get();
-    }
-    void runScript (const QString &string);
-    QPair<bool, QVariant> syncRunJavaScript(const QString &javascript, int msec = 0);
+    QJSValue runScript (const QString &string);
+    // QPair<bool, QVariant> syncRunJavaScript(const QString &javascript, int msec = 0);
+    void execTest(const QStringList &string);
 
 private:
-    QScopedPointer<QWebEngineView> m_webViewEngine;
+    QScopedPointer<QJSEngine> m_jsEngine;
     JsCppInterface *m_interface;
 };
 

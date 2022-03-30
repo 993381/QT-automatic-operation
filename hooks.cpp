@@ -50,14 +50,14 @@ static void gammaray_pre_routine()
             UiaController::instance()->initOperationSequence();
         }
         if (QString(getenv("EXEC_JS_SCRIPT_PRE")) == "1") {
-            QByteArray testCase;
-            if (fileReadWrite(TESTCASE_JS, testCase, true)) {
-                auto result = ScriptEngine::instance()->syncRunJavaScript(testCase);
-                if (!result.first) {
-                    qInfo() << "error when load TESTER_JS";
-                }
-                ScriptEngine::instance()->syncRunJavaScript("TestMethod.startTest();");
-            }
+            // QByteArray testCase;
+            // if (fileReadWrite(TESTCASE_JS, testCase, true)) {
+            //     auto result = ScriptEngine::instance()->runScript(testCase);
+            //     if (!result.first) {
+            //         qInfo() << "error when load TESTER_JS";
+            //     }
+            //     ScriptEngine::instance()->syncRunJavaScript("TestMethod.startTest();");
+            // }
         }
         // DbusRegister::instance()->create();
 
@@ -65,11 +65,12 @@ static void gammaray_pre_routine()
 
         //! TODO: 未启动服务端则弹窗警告
         static QScopedPointer <EchoClient> client(new EchoClient(QUrl(QStringLiteral("ws://localhost:45535")), {QString("appinfo:%1:%2").arg(std::to_string(getpid()).c_str()).arg(qAppName())}, true));
-        QObject::connect(ScriptEngine::instance()->interface(), &JsCppInterface::execFinished, client.data(), [&](QVariant res){
-            if (res.toBool()) {
-                client->sendTextMessage(QString("Exec-all-finished-success"));
+        // 应该用函数通知每一步的,用返回值判断总体的
+        QObject::connect(ScriptEngine::instance()->interface(), &JsCppInterface::execFinished, client.data(), [&](QJSValue result){
+            if(result.toBool()) {
+                client->sendTextMessage("Exec-c-success");
             } else {
-                client->sendTextMessage(QString("Exec-all-finished-failed"));
+                client->sendTextMessage("Exec-c-failed");
             }
         }, Qt::ConnectionType::UniqueConnection);
 
@@ -81,32 +82,48 @@ static void gammaray_pre_routine()
 
             QStringList res = msg.split(":");
 
-            // useTimer，执行脚本要设置定时器，执行命令不用设置定时器
-            QString execInit = ";resetConfiguration();useTimer = %1;";
-            QString execFinished = ";execFinished();";
             if (msg.startsWith("Exec-script:")) {
-                QByteArray userCode;
-                if (fileReadWrite(res.at(1), userCode, true)) {
-                    // ScriptEngine::instance()->runScript("resetConfiguration();" + userCode + execFinished);
-                    auto result = ScriptEngine::instance()->syncRunJavaScript(execInit.arg("true") + userCode + execFinished);
-                    if (!result.first) {
-                        client->sendTextMessage("Exec-s-failed: " + result.second.toString().toLocal8Bit());
-                    } else {
-                        client->sendTextMessage("Exec-s-success");
-                    }
-                } else {
-                    client->sendTextMessage("Exec-file--read-error");
-                }
+                // QByteArray userCode;
+                // if (fileReadWrite(res.at(1), userCode, true)) {
+                //     // 分两步，获取错误码、获取执行结果
+                //     auto result = ScriptEngine::instance()->runScript(userCode);
+                //     if (result.toBool()) {
+                //         client->sendTextMessage("Exec-s-success");
+                //     } else {
+                //         //! client->sendTextMessage("Exec-s-failed: " + result.second.toString().toLocal8Bit());
+                //     }
+                // } else {
+                //     client->sendTextMessage("Exec-file--read-error");
+                // }
             }
             if (msg.startsWith("Exec-function:")) {
                 QString userCode = res.at(1);
-                // ScriptEngine::instance()->runScript("useTimer = false;" + userCode + ";execFinished()");
-
-                auto result = ScriptEngine::instance()->syncRunJavaScript(execInit.arg("false") + userCode + execFinished);
-                if (!result.first) {
-                    client->sendTextMessage("Exec-c-failed: " + result.second.toString().toLocal8Bit());
+                QJSValue result;
+                qInfo() << "runScript start ...............";
+                if (userCode.startsWith("test")) {
+                    if (userCode == "test1") {
+                        ScriptEngine::instance()->execTest({"删除帐户"});
+                    } else if (userCode == "test2") {
+                        ScriptEngine::instance()->execTest({"byAccName", "删除"});
+                    }
+                    qInfo() << "sendTextMessage start ...............";
+                    client->sendTextMessage(QString("Exec-all-finished-success"));
+                    qApp->processEvents();
+                    qInfo() << "sendTextMessage end ...............";
+                    return;
                 } else {
-                    client->sendTextMessage("Exec-c-success " + result.second.toString().toLocal8Bit());
+                    result = ScriptEngine::instance()->runScript(userCode);
+                }
+
+                qInfo() << "runScript end .................";
+                if (result.isError()) {
+                    client->sendTextMessage(QString("Exec-all-finished-failed: ") + result.property("name").toString() + " " + result.property("message").toString());
+                } else {
+                    if (result.toBool()) {
+                        client->sendTextMessage(QString("Exec-all-finished-success"));
+                    } else {
+                        client->sendTextMessage(QString("Exec-all-finished-failed: false"));
+                    }
                 }
             }
         });
@@ -180,19 +197,7 @@ extern "C" Q_DECL_EXPORT void gammaray_probe_attach()
                      ProbeCreator::FindExistingObjects |
                      ProbeCreator::ResendServerAddress);
 
-    QTimer::singleShot(1000, []{
-        if (QString(getenv("EXEC_JS_SCRIPT")) == "1") {
-            QByteArray testCase;
-            if (fileReadWrite(TESTCASE_JS, testCase, true)) {
-                auto result = ScriptEngine::instance()->syncRunJavaScript(testCase);
-                if (!result.first) {
-                    qInfo() << "error when load TESTER_JS";
-                }
-                ScriptEngine::instance()->syncRunJavaScript("TestMethod.startTest();");
-            }
-        }
-        qInfo() << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx singleShot2";
-    });
+    // 可以在这里实现注入后执行。但是有socket了就不用了
 }
 
 #undef IF_NONNULL_EXEC
