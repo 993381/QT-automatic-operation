@@ -9,8 +9,10 @@ CONTROL_CENTER=/usr/bin/dde-control-center
 read -s -p "请输入root用户密码： " ROOT_PASSWD
 ROOT_NEW_PASSWD='b'
 
+echo ${ROOT_PASSWD} | sudo -S tee /proc/sys/kernel/yama/ptrace_scope <<< "0"
+
 function 控制中心::启动初始化 {
-    kill -9 `pidof dde-control-center`
+    ${TEST_CLIENT} -q dde-control-center
     ${TEST_CLIENT} -l dde-control-center -- -s
     sleep 4
 }
@@ -127,7 +129,7 @@ function 锁屏界面::自动解锁 {
 }
 
 function 启动器::全屏切换 {
-    kill -9 `pidof  /usr/bin/dde-launcher`
+    ${TEST_CLIENT} -q dde-launcher
     sleep 3
     ${TEST_CLIENT} -l dde-launcher -- -s
     sleep 1
@@ -147,7 +149,7 @@ function 启动器::全屏切换 {
 }
 
 function 启动器::点击左侧工具 {
-    kill -9 `pidof  /usr/bin/dde-launcher`
+    ${TEST_CLIENT} -q dde-launcher
     sleep 3
     ${TEST_CLIENT} -l dde-launcher -- -s
     sleep 2
@@ -171,11 +173,11 @@ then
     控制中心::删除账户
 else
     控制中心::创建账户 && 控制中心::重设密码 passwd2 && 控制中心::删除账户 && echo "ALL FINISHED, SUCCESS"
-    killall dde-control-center && sleep 1
+    ${TEST_CLIENT} -q dde-control-center
 fi
 
 启动器::全屏切换
 
 # kill 掉 dde-lock 的 logout 界面后就会进入锁屏解密，直接解锁
-启动器::点击左侧工具 && killall dde-lock && sleep 1 && 锁屏界面::自动解锁
+启动器::点击左侧工具 && ${TEST_CLIENT} -q dde-lock && 锁屏界面::自动解锁
 

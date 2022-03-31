@@ -1,3 +1,6 @@
+程序控制依赖于 gdb 的调试功能，首次使用，调试功能需要打开：
+echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+
 可以直接运行 ./run.sh，执行最简单的测试用例
 还可以将 libinjector.so 和 test-cli 拷贝到 test_case 目录下运行 ./test.sh
 
