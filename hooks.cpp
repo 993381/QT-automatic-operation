@@ -71,6 +71,7 @@ static void gammaray_pre_routine()
             } else {
                 client->sendTextMessage(QString("Exec-all-finished-failed"));
             }
+            qApp->processEvents();
         }, Qt::ConnectionType::UniqueConnection);
 
         client->handleMessage([](QString msg){
@@ -94,6 +95,7 @@ static void gammaray_pre_routine()
                     } else {
                         client->sendTextMessage("Exec-s-success");
                     }
+                    qApp->processEvents();
                 } else {
                     client->sendTextMessage("Exec-file--read-error");
                 }
@@ -108,6 +110,7 @@ static void gammaray_pre_routine()
                 } else {
                     client->sendTextMessage("Exec-c-success " + result.second.toString().toLocal8Bit());
                 }
+                qApp->processEvents();
             }
         });
 

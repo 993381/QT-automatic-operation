@@ -17,6 +17,7 @@
 #include <QAbstractButton>
 #include <QStandardItemModel>
 #include <qitemselectionmodel.h>
+#include <QThread>
 
 #include "objectpath.h"
 #include "objectlistmanager.h"
@@ -232,9 +233,9 @@ inline bool selectListItemByText(bool isDoubleClick, const QString &text, int in
     qInfo() << "selectListItemByText will select: " << modelIndex.data().toString() << " row: " << modelIndex.row() << " column: " << modelIndex.column();
 
     if (isDoubleClick) {
-        listview->doubleClicked(modelIndex);
+        Q_EMIT listview->doubleClicked(modelIndex);
     } else {
-        listview->pressed(modelIndex);
+        Q_EMIT listview->clicked(modelIndex);
     }
     Q_EMIT listview->activated(modelIndex);
     listview->selectionModel()->select(modelIndex, QItemSelectionModel::SelectCurrent);
@@ -286,13 +287,13 @@ inline bool clickButtonByButtonText(const QString text, int index = 0) {
         if (!button->isEnabled()) {
             return false;
         }
-        // button->click();
-        QPoint pos(0, 0);
-        QMouseEvent pressEv(QEvent::MouseButtonPress, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QPoint pos(5, 5);
+        QMouseEvent *pressEv = new QMouseEvent(QEvent::MouseButtonPress, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
         QMouseEvent *releaseEv = new QMouseEvent(QEvent::MouseButtonRelease, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-        QApplication::sendEvent(button, &pressEv);
+        QApplication::sendEvent(button, pressEv);
         QApplication::postEvent(button, releaseEv); // 防止模态窗口阻塞在这里, 配合 qApp->processEvents 进行处理
-        qInfo() << "clickButtonByButtonText end  ...........";
+        // qInfo() << "clickButtonByButtonText end  ...........";
+        // Q_EMIT button->clicked();
         return true;
     }
     return false;

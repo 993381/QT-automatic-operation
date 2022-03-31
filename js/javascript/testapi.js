@@ -99,7 +99,7 @@ function execFinished() {
     });
 }
 
-function 选择() {
+function 选择(text) {
     var args = []; // 多参数的存到数组中，对应于 QStringList
     for (var i = 0; i < arguments.length; i++) {
         args[i] = arguments[i];
@@ -128,7 +128,10 @@ function 点击按钮() {
     }
     funcTimedCaller(TestMethod.clickNoTextButton, args);
 }
-
+// 根据索引点击按钮
+function 点击图形按钮(index) {
+    funcTimedCaller(TestMethod.clickButtonByIndex, index);
+}
 function 执行命令(cmds) {
     var args = [];
     for (var i = 0; i < arguments.length; i++) {

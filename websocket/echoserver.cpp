@@ -201,6 +201,11 @@ void EchoServer::processTextMessage2(QString message) {
     if (message.startsWith("isOnline-pid-1:")) {
         int pid = message.split(":").at(1).toInt();
         socket->sendTextMessage(QString("Online-status-1:%1").arg(isOnline(pid)));
+        if (isOnline(pid)) {
+            auto sock = m_appList.find(pid);
+            m_currentSelect.first =  sock.value().first;
+            m_currentSelect.second = pid;
+        }
     }
     if (message.startsWith("isOnline-pid-2:")) {
         int pid = message.split(":").at(1).toInt();

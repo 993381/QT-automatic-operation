@@ -75,6 +75,9 @@ public:
         }
         return false;
     }
+    Q_SCRIPTABLE bool clickButtonByIndex(int index) {
+        return clickNoTextButtonByIndex(index);
+    }
     Q_SCRIPTABLE bool clickNoTextButton(QStringList list) {
         QString clickType = list.at(0);
         QStringList findTypes = {
