@@ -11,7 +11,7 @@ ROOT_NEW_PASSWD='b'
 
 echo ${ROOT_PASSWD} | sudo -S tee /proc/sys/kernel/yama/ptrace_scope <<< "0"
 
-rm -f ./log/*
+rm -f ./log/* && mkdir ./log
 # 将成功、失败的结果分别显示到终端并记录到文件
 function logRecordP {
     echo -e "\033[42;30mPASS\033[0m      $*"
