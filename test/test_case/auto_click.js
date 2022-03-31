@@ -1,4 +1,4 @@
-useTimer = false;
+//useTimer = false;
 
 设置速度('快')
 

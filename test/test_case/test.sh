@@ -11,6 +11,17 @@ ROOT_NEW_PASSWD='b'
 
 echo ${ROOT_PASSWD} | sudo -S tee /proc/sys/kernel/yama/ptrace_scope <<< "0"
 
+rm -f ./log/*
+# 将成功、失败的结果分别显示到终端并记录到文件
+function logRecordP {
+    echo -e "\033[42;30mPASS\033[0m      $*"
+    echo "PASS    $*" >> ./log/test-result.log
+}
+function logRecordF {
+    echo -e "\e[41;30mFAILED\e[0m    $*"
+    echo "FAILED  $*" >> ./log/test-result.log
+}
+
 function 控制中心::启动初始化 {
     ${TEST_CLIENT} -q dde-control-center
     ${TEST_CLIENT} -l dde-control-center -- -s
@@ -18,7 +29,14 @@ function 控制中心::启动初始化 {
 }
 
 function 控制中心::一二级菜单 {
-    ${TEST_CLIENT} -f `pwd`/auto_click.js
+    if ${TEST_CLIENT} -f `pwd`/auto_click.js 
+    then
+        logRecordP "点击一二级菜单成功"
+        return 0
+    else
+        logRecordF "点击一二级菜单失败"
+        return 1
+    fi
 }
 
 function 控制中心::修改密码 {
@@ -42,9 +60,12 @@ function 控制中心::修改密码 {
     # 验证结果
     if ${TEST_CLIENT} -c "点击('保存')"
     then
+        logRecordF "控制中心-账户-修改密码失败"
         return 1
+    else
+        logRecordP "控制中心-账户-修改密码成功"
+        return 0
     fi
-    return 0
 }
 
 function 控制中心::重设密码 {
@@ -70,9 +91,12 @@ function 控制中心::重设密码 {
     # 验证结果
     if ${TEST_CLIENT} -c "点击('保存')"  
     then
+        logRecordF "控制中心-账户-重设密码失败"
         return 1
+    else
+        logRecordP "控制中心-账户-重设密码成功"
+        return 0
     fi
-    return 0
 }
 
 function 控制中心::创建账户 {
@@ -83,8 +107,8 @@ function 控制中心::创建账户 {
     sleep 2      # 等待注入成功，App 登陆服务端
 
     # 这里要输入密码所以不要放在 js 脚本中
-    ${TEST_CLIENT} -c "输入('${ROOT_PASSWD}')"
-    ${TEST_CLIENT} -c "点击('确 定')"
+    ${TEST_CLIENT} -c "输入('${ROOT_PASSWD}')" || logRecordF "控制中心-创建账户鉴权失败"
+    ${TEST_CLIENT} -c "点击('确 定')" || logRecordF "控制中心-创建账户鉴权失败"
 }
 
 function 控制中心::查询账户 {
@@ -111,8 +135,17 @@ function 控制中心::删除账户 {
     then
         ${TEST_CLIENT} -j `pidof dde-polkit-agent`
         sleep 2
-        ${TEST_CLIENT} -c "输入('${ROOT_PASSWD}')"
-        ${TEST_CLIENT} -c "点击('确 定')"
+        ${TEST_CLIENT} -c "输入('${ROOT_PASSWD}')" || logRecordF "控制中心-删除账户鉴权失败"
+        ${TEST_CLIENT} -c "点击('确 定')" || logRecordF "控制中心-删除账户鉴权失败"
+        # 再次查询如果还能查到说明删除失败
+        if 控制中心::查询账户
+        then
+            logRecordF "控制中心-删除账户失败"
+            return 1
+        else
+            logRecordP "控制中心-删除账户成功"
+            return 0
+        fi
     fi
 }
 
@@ -122,9 +155,21 @@ function 锁屏界面::自动解锁 {
     # 注入
     ${TEST_CLIENT} -j `pidof dde-lock`
     sleep 1
-    ${TEST_CLIENT} -c "输入('${ROOT_PASSWD}')" || return 1
+    if ${TEST_CLIENT} -c "输入('${ROOT_PASSWD}')"
+    then 
+        logRecordP "锁屏界面-自动解锁-密码输入成功"
+    else
+        logRecordF "锁屏界面-自动解锁-密码输入失败"
+    fi
     sleep 1
-    ${TEST_CLIENT} -c "点击图形按钮(1)"
+    if ${TEST_CLIENT} -c "点击图形按钮(1)" 
+    then 
+        logRecordP "锁屏界面-自动解锁成功"
+        return 0;
+    else
+        logRecordF "锁屏界面-自动解锁失败"
+        return 1;
+    fi 
     sleep 1
 }
 
@@ -137,13 +182,13 @@ function 启动器::全屏切换 {
     sleep 1
     dde-launcher -s
     sleep 1
-    ${TEST_CLIENT} -c "点击按钮('byAccName', 'modeToggleBtn')"
+    ${TEST_CLIENT} -c "点击按钮('byAccName', 'modeToggleBtn')" || { logRecordF "启动器-切换全屏失败" && return 1; }
     sleep 1
-    ${TEST_CLIENT} -c "选择('音乐')"
+    ${TEST_CLIENT} -c "选择('音乐')" || { logRecordF "启动器-应用启动失败" && return 1; }
     sleep 1
     dde-launcher -s
     sleep 1
-    ${TEST_CLIENT} -c "点击按钮('byAccName', 'Btn-ToggleMode')"
+    ${TEST_CLIENT} -c "点击按钮('byAccName', 'Btn-ToggleMode')" || { logRecordF "启动器-切换失败" && return 1; }
     sleep 1
     kill -9 `pidof deepin-music deepin-calculator`
 }
@@ -153,7 +198,7 @@ function 启动器::点击左侧工具 {
     sleep 3
     ${TEST_CLIENT} -l dde-launcher -- -s
     sleep 2
-    ${TEST_CLIENT} -f `pwd`/launcher.js
+    ${TEST_CLIENT} -f `pwd`/launcher.js || { logRecordF "启动器-工具栏点击失败" && return 1; }
     sleep 1
     kill -9 `pidof dde-file-manager dde-control-center`
 }
@@ -179,5 +224,8 @@ fi
 启动器::全屏切换
 
 # kill 掉 dde-lock 的 logout 界面后就会进入锁屏解密，直接解锁
-启动器::点击左侧工具 && ${TEST_CLIENT} -q dde-lock && 锁屏界面::自动解锁
+启动器::点击左侧工具 
+
+pidof dde-lock && ${TEST_CLIENT} -j `pidof dde-lock` 
+${TEST_CLIENT} -q dde-lock && 锁屏界面::自动解锁
 
