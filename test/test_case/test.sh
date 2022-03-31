@@ -1,7 +1,8 @@
 #!/bin/bash
 #set -e
 
-TEST_CLIENT=/home/alex/Desktop/gamademo/build-auto-unknown-Default/test-cli
+export INJECTOR_PATH=`pwd`/libinjector.so
+TEST_CLIENT=`pwd`/test-cli
 CONTROL_CENTER=/usr/bin/dde-control-center
 
 # root账户修改密码，改完再改回去
@@ -21,14 +22,21 @@ function 控制中心::一二级菜单 {
 function 控制中心::修改密码 {
     local PSWD_OLD=$1
     local PSWD_NEW=$2
-    ${TEST_CLIENT} -c "设置速度('慢')"
+    sleep 1
     ${TEST_CLIENT} -c "选择('帐户')"
+    sleep 1
     ${TEST_CLIENT} -c "点击('修改密码')"
+    sleep 1
     ${TEST_CLIENT} -c "输入('${PSWD_OLD}',1)"
+    sleep 1
     ${TEST_CLIENT} -c "输入('${PSWD_NEW}',2)"
+    sleep 1
     ${TEST_CLIENT} -c "输入('${PSWD_NEW}',3)"
+    sleep 1
     ${TEST_CLIENT} -c "输入('tips', 4)"
+    sleep 1
     ${TEST_CLIENT} -c "点击('保存')"
+    sleep 1
     # 验证结果
     if ${TEST_CLIENT} -c "点击('保存')"
     then
@@ -43,14 +51,20 @@ function 控制中心::重设密码 {
     sleep 2
 
     local PSWD_NEW=$1
-    ${TEST_CLIENT} -c "设置速度('快')"
+    sleep 1
     ${TEST_CLIENT} -c "选择('帐户')"
+    sleep 1
     ${TEST_CLIENT} -c "选择('demostrate')"
+    sleep 1
     ${TEST_CLIENT} -c "点击('重设密码')"
+    sleep 1
     ${TEST_CLIENT} -c "输入('${PSWD_NEW}',1)"
+    sleep 1
     ${TEST_CLIENT} -c "输入('${PSWD_NEW}',2)"
+    sleep 1
     # ${TEST_CLIENT} -c "输入('xxxxxxx',3)"
     ${TEST_CLIENT} -c "点击('保存')"
+    sleep 1
     # 验证结果
     if ${TEST_CLIENT} -c "点击('保存')"  
     then

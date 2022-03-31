@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export INJECTOR_PATH=/home/alex/Desktop/gamademo/build-auto-unknown-Default/libinjector.so
-TEST_CLIENT=/home/alex/Desktop/gamademo/build-auto-unknown-Default/test-cli
+export INJECTOR_PATH=`pwd`/libinjector.so
+TEST_CLIENT=`pwd`/test-cli
 
 # 清除客户端进程，为确保能够正常启动反复确认
 for i in `seq 5`
