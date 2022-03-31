@@ -1,1 +1,5 @@
 *.user
+test/libinjector.so
+test/test-cli
+test/test_case/libinjector.so
+test/test_case/test-cli

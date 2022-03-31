@@ -219,13 +219,46 @@ void EchoServer::processTextMessage2(QString message) {
             }
         });
     }
+    if (message.startsWith("onlineStateQuery")) {
+        QString appName = message.split(":").at(1);
+        socket->sendTextMessage(QString("OnlineStateReply-%1").arg(isOnline(appName)? "Off" : "On"));
+    }
+    // 等待直到应用完全退出
+    if (message.startsWith("quitApplication")) {
+        QString appName = message.split(":").at(1);
+        if (appName.isEmpty()) {
+            // 如果未指定要退出的程序名，退出当前选中的程序
+            appName = m_currentSelect.first;
+            m_currentSelect.first.clear();
+            m_currentSelect.second = 0;
+        }
+        if (appName.isEmpty()) {
+            socket->sendTextMessage(QString("AppExited"));
+            return;
+        }
+        QEventLoop loop;
+        QScopedPointer<QTimer> timer(new QTimer);
+        connect(timer.data(), &QTimer::timeout, [&]{
+            if (!isOnline(appName)) {
+                socket->sendTextMessage(QString("AppExited"));
+                timer->stop();
+                loop.exit();
+            } else {
+                if (auto sock = getAppSocket(appName)) {
+                    sock->sendTextMessage("Exit-now");
+                }
+            }
+        });
+        timer->start(200);
+        loop.exec();
+    }
     if (message.startsWith("execute-script:")) {
         QStringList msg = message.split(":");
         if (!isOnline(m_currentSelect.first)) {
             socket->sendTextMessage("App-not-online");
         } else {
             if (auto appSock = getAppSocket(m_currentSelect.first)) {
-                appSock->sendTextMessage(QString("Exec-script:%1").arg(msg.at(1)));   // TODO: Exec-Reply
+                appSock->sendTextMessage(QString("Exec-script:%1").arg(msg.at(1)));
             }
         }
     }
@@ -235,7 +268,7 @@ void EchoServer::processTextMessage2(QString message) {
             socket->sendTextMessage("App-not-online: " + m_currentSelect.first);
         } else {
             if (auto appSock = getAppSocket(m_currentSelect.first)) {
-                appSock->sendTextMessage(QString("Exec-function:%1").arg(msg.at(1)));   // TODO: Exec-Reply
+                appSock->sendTextMessage(QString("Exec-function:%1").arg(msg.at(1)));
             }
         }
     }

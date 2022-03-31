@@ -1,13 +1,13 @@
 // import "./testapi.js"
 
 TestMethod.launch = function() {
-    // TestMethod.startApp(["/usr/bin/dde-control-center", "-s"]);
+    TestMethod.startApp(["/usr/bin/dde-control-center", "-s"]);
     // TestMethod.startApp("/usr/bin/deepin-calculator");
     // 清理应用("dde-launcher")
     // TestMethod.startApp(["/usr/bin/dde-launcher", "-s"]);
     // 执行命令("/usr/bin/dde-launcher", "-s")
 
-    TestMethod.startApp(["/usr/bin/dde-lock", "-s"]);
+    // TestMethod.startApp(["/usr/bin/dde-lock", "-s"]);
 }
 
 //var 执行完毕 = function() {
@@ -53,7 +53,7 @@ TestMethod.startTest = function() {
 //    }
 //    执行命令("/usr/bin/dde-launcher", "-s")
     // 清理应用("/usr/bin/dde-launcher")
-    return;
+//    return;
 
     失败后立即停止(1)
     设置速度('快')

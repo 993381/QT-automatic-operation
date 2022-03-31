@@ -75,6 +75,10 @@ static void gammaray_pre_routine()
         }, Qt::ConnectionType::UniqueConnection);
 
         client->handleMessage([](QString msg){
+            if (msg == "Exit-now") {
+                qApp->exit();
+                exit(0);
+            }
             qInfo() << "----------- " << msg;
             // if (msg == "loginOn") {
             //     client->sendTextMessage("isOnline?dde-control-center");

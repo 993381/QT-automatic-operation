@@ -12,7 +12,7 @@ ROOT_NEW_PASSWD='b'
 function 控制中心::启动初始化 {
     kill -9 `pidof dde-control-center`
     ${TEST_CLIENT} -l dde-control-center -- -s
-    sleep 2
+    sleep 4
 }
 
 function 控制中心::一二级菜单 {

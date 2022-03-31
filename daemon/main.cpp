@@ -15,13 +15,14 @@ int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
 
+    //!TODO 增加区分大小写
     QCommandLineParser parser;
     // 守护进程的启动、重启、状态
     QCommandLineOption daemon_opt({"d", "daemon"}, "Start daemons only.");
     // 显示程序状态，在线程序、守护进程状态
     QCommandLineOption info_opt({"i", "info"}, "Show applications infomation.");
-    // 选中一个在线程序进行操作
-    QCommandLineOption select_opt({"s", "select"}, "Select an application.");
+    //!TODO 选中一个控件进行操作
+    QCommandLineOption select_opt({"s", "select"}, "Select a object.");
     // 启动待执行的程序
     QCommandLineOption launch_opt({"l", "launch"}, "Launch application.", "/path/to/app");
     // 启动待执行的程序
@@ -30,6 +31,10 @@ int main(int argc, char *argv[]) {
     QCommandLineOption exec_opt({"c", "code"}, "Execute script command.", "js script code");
     // 执行指定的脚本文件
     QCommandLineOption script_opt({"f", "file"}, "Execute script file.", "/path/to/javascript");
+    // 查询在线状态
+    QCommandLineOption state_opt({"o", "online"}, "Query appliction online state.", "appName:pid.", "none");
+    // 阻塞退出指定的程序，不指定pid则退出所有
+    QCommandLineOption quit_opt({"q", "quit"}, "Quit appliction.", "appName:pid.", "none");
     // QCommandLineOption app_opt({"a", "app"}, "Name of the app you want to launch.");
     parser.setApplicationDescription("DTK automatic test software.");
     parser.addHelpOption();
@@ -41,6 +46,9 @@ int main(int argc, char *argv[]) {
     parser.addOption(exec_opt);
     parser.addOption(script_opt);
     // parser.addOption(app_opt);
+    // 在线返回 0, 不在线返回 1
+    parser.addOption(state_opt);
+    parser.addOption(quit_opt);
     parser.addPositionalArgument("args", "The args pass to process.");
     parser.process(app);
     // qDebug() << "app: " << parser.value("app");
@@ -59,6 +67,16 @@ int main(int argc, char *argv[]) {
         if (msg == "loginOn") {
             Q_EMIT client->loginSuccess();
 
+            if (parser.isSet("o")) {
+                QStringList list = parser.value("o").split(":");  // -o "appname:pid", 可以没有pid
+                QString param = QString("onlineStateQuery:%1").arg(list.at(0));
+                client->sendTextMessage(param);
+            }
+            if (parser.isSet("q")) {
+                QStringList list = parser.value("q").split(":");  // -o "appname:pid", 可以没有pid
+                QString param = QString("quitApplication:%1").arg(list.at(0));
+                client->sendTextMessage(param);
+            }
             if (parser.isSet("l")) {
                 // 启动应用，可能带有参数
                 const QString &appName = parser.value("l");
@@ -78,6 +96,16 @@ int main(int argc, char *argv[]) {
             } else if (parser.isSet("c")) {
                 client->sendTextMessage(QString("execute-function:%1").arg(parser.value("c")));
             }
+        }
+        if (msg.startsWith("OnlineStateReply")) {
+            if (msg == "OnlineStateReply-Off") {
+                exit(0);
+            } else {
+                exit(1);
+            }
+        }
+        if (msg == "AppExited") {
+            exit(0);
         }
         // handle reply
         // 注意这里不能用qApp->exit，只能退出嵌套，还会往下执行
