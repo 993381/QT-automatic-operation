@@ -1,5 +1,10 @@
 #include "objectpathresolver.h"
-#include "scopeguard.h"
+
+#if QT_VERSION > QT_VERSION_CHECK(5, 11, 3)
+# include <qscopeguard.h>
+#else
+# include "scopeguard.h"
+#endif
 
 #include <QMutex>
 #include <QWindow>

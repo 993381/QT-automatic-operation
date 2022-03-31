@@ -6,7 +6,7 @@ TEST_CLIENT=`pwd`/test-cli
 CONTROL_CENTER=/usr/bin/dde-control-center
 
 # root账户修改密码，改完再改回去
-ROOT_PASSWD='a'
+read -s -p "请输入root用户密码： " ROOT_PASSWD
 ROOT_NEW_PASSWD='b'
 
 function 控制中心::启动初始化 {
@@ -147,7 +147,7 @@ function 启动器::全屏切换 {
 }
 
 function 启动器::点击左侧工具 {
-    kill -9 `pidof ${TEST_CLIENT}` `pidof dde-launcher`
+    kill -9 `pidof  /usr/bin/dde-launcher`
     sleep 3
     ${TEST_CLIENT} -l dde-launcher -- -s
     sleep 2

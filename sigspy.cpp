@@ -29,14 +29,25 @@ static void executeSignalCallback(const Func &func)
 {
     static SignalSpyCallbackSet m_previousSignalSpyCallbackSet;
     if (m_previousSignalSpyCallbackSet.isNull()) {
+#if QT_VERSION > QT_VERSION_CHECK(5, 11, 3)
         m_previousSignalSpyCallbackSet.signalBeginCallback
-                = qt_signal_spy_callback_set.signal_begin_callback;
+                = qt_signal_spy_callback_set.load()->signal_begin_callback;//.signal_begin_callback;
+        m_previousSignalSpyCallbackSet.signalEndCallback
+                = qt_signal_spy_callback_set.load()->signal_end_callback;
+        m_previousSignalSpyCallbackSet.slotBeginCallback
+                = qt_signal_spy_callback_set.load()->slot_begin_callback;
+        m_previousSignalSpyCallbackSet.slotEndCallback
+                = qt_signal_spy_callback_set.load()->slot_end_callback;
+#else
+        m_previousSignalSpyCallbackSet.signalBeginCallback
+                = qt_signal_spy_callback_set.signal_begin_callback;//.signal_begin_callback;
         m_previousSignalSpyCallbackSet.signalEndCallback
                 = qt_signal_spy_callback_set.signal_end_callback;
         m_previousSignalSpyCallbackSet.slotBeginCallback
                 = qt_signal_spy_callback_set.slot_begin_callback;
         m_previousSignalSpyCallbackSet.slotEndCallback
                 = qt_signal_spy_callback_set.slot_end_callback;
+#endif
     }
     func(m_previousSignalSpyCallbackSet);
 }

@@ -40,12 +40,13 @@ public:
             // execCmd(QString("set environment %1").arg().toLocal8Bit());
 
             // qInfo() << "GdbInjector::gdbStarted";
+            QString injector = qgetenv("INJECTOR_PATH").isEmpty() ? INJECTOR_DLL : qgetenv("INJECTOR_PATH");
 
             // 2. 在断点处注入程序并分离退出gdb让程序继续执行
             const QString &probeFunc("gammaray_probe_attach");
             execCmds({"sha dl",
-                      QStringLiteral("call (void) dlopen(\"%1\", %2)").arg(INJECTOR_DLL).arg(RTLD_NOW).toUtf8(),
-                      "sha " INJECTOR_DLL,
+                      QStringLiteral("call (void) dlopen(\"%1\", %2)").arg(injector).arg(RTLD_NOW).toUtf8(),
+                      QStringLiteral("sha %1").arg(injector).toUtf8(),
                       QStringLiteral("call (void) %1()").arg(probeFunc).toUtf8(),
                       "detach",             // 子进程分离
                       // "continue"            // 原本是"quit"，不 quit，继续执行

@@ -3,7 +3,13 @@
 #include "operationmanager.h"
 #include "objectpathresolver.h"
 #include "objectpath.h"
-#include "scopeguard.h"
+
+#if QT_VERSION > QT_VERSION_CHECK(5, 11, 3)
+# include <qscopeguard.h>
+#else
+# include "scopeguard.h"
+#endif
+
 #include "gdbinjector/gdb_injector.h"
 #include "scriptengine/scriptengine.h"
 #include "util.h"
@@ -107,13 +113,23 @@ void UiaController::startSigslotMonitoring() {
     // register sigslot callback
     QSignalSpyCallbackSet cbs = { nullptr, nullptr, nullptr, nullptr };
     cbs.signal_begin_callback = signal_begin_callback;
+
+
+#if QT_VERSION > QT_VERSION_CHECK(5, 11, 3)
+    qt_register_signal_spy_callbacks(&cbs);
+#else
     qt_register_signal_spy_callbacks(cbs);
+#endif
 }
 
 void UiaController::stopSigslotMonitoring() {
     // unregister sigslot callback
     QSignalSpyCallbackSet cbs = { nullptr, nullptr, nullptr, nullptr };
+#if QT_VERSION > QT_VERSION_CHECK(5, 11, 3)
+    qt_register_signal_spy_callbacks(&cbs);
+#else
     qt_register_signal_spy_callbacks(cbs);
+#endif
 
 }
 

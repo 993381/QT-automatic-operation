@@ -212,8 +212,8 @@ void EchoServer::processTextMessage2(QString message) {
         // socket->sendTextMessage(QString("Online-status-1:%1").arg(isOnline(pid)));
         injectNotice.first = pid;
         injectNotice.second = socket;
-        // 5秒后如果还没收到就算超时，发送失败消息
-        QTimer::singleShot(1000*5, [this]{
+        // 30 秒后如果还没收到就算超时，发送失败消息
+        QTimer::singleShot(1000*30, [this]{
             if (injectNotice.second) {
                 injectNotice.second->sendTextMessage("Online-status-2:0");
             }

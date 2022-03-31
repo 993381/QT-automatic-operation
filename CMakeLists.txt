@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.13)
 
+project(auto-test)
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 # sudo apt install libqt5websockets5-dev qtwebengine5-dev
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets WebEngineWidgets WebChannel DBus Network WebSockets)
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets WebEngineWidgets WebChannel DBus Network WebSockets Test)
 set(QT_LIBS
     Qt5::Core
     Qt5::CorePrivate
@@ -17,6 +19,7 @@ set(QT_LIBS
     Qt5::DBus
     Qt5::Network
     Qt5::WebSockets
+    Qt5::Test
 )
 
 add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x040800)
@@ -79,7 +82,7 @@ set(SOURCES          # ${LOCAL_SOCKET}
         sigspy.h
         sigspy.cpp
 
-        scopeguard.h
+        # scopeguard.h
 
         objectpath.h
         objectpath.cpp
@@ -149,8 +152,6 @@ target_link_libraries(injector ${QT_LIBS})
 add_executable(injector_test_demo main.cpp ${SOURCES} ${INSTANCE})
 target_link_libraries(injector_test_demo ${QT_LIBS})
 
-
-
 add_executable(test-cli
     daemon/main.cpp
     daemon/client_d.h
@@ -165,3 +166,14 @@ add_executable(test-cli
 )
 target_link_libraries(test-cli Qt5::Core Qt5::DBus Qt5::Network Qt5::WebSockets)
 
+add_custom_command(TARGET injector
+    POST_BUILD
+    COMMAND cp -f ${CMAKE_BINARY_DIR}/libinjector.so ${CMAKE_CURRENT_LIST_DIR}/test/test_case
+    COMMAND cp -f ${CMAKE_BINARY_DIR}/libinjector.so ${CMAKE_CURRENT_LIST_DIR}/test
+)
+
+add_custom_command(TARGET test-cli
+    POST_BUILD
+    COMMAND cp -f ${CMAKE_BINARY_DIR}/test-cli ${CMAKE_CURRENT_LIST_DIR}/test/test_case
+    COMMAND cp -f ${CMAKE_BINARY_DIR}/test-cli ${CMAKE_CURRENT_LIST_DIR}/test
+)
