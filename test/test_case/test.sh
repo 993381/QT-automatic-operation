@@ -67,7 +67,8 @@ function 控制中心::创建账户 {
     sleep 2      # 等待注入成功，App 登陆服务端
 
     # 这里要输入密码所以不要放在 js 脚本中
-    ${TEST_CLIENT} -f `pwd`/confirm.js
+    ${TEST_CLIENT} -c "输入('${ROOT_PASSWD}')"
+    ${TEST_CLIENT} -c "点击('确 定')"
 }
 
 function 控制中心::查询账户 {
@@ -136,7 +137,7 @@ function 启动器::点击左侧工具 {
     sleep 3
     ${TEST_CLIENT} -l dde-launcher -- -s
     sleep 2
-    ${TEST_CLIENT} -f `pwd`/launcher_1.js
+    ${TEST_CLIENT} -f `pwd`/launcher.js
     sleep 1
     kill -9 `pidof dde-file-manager dde-control-center`
 }

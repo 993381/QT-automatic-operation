@@ -1,0 +1,18 @@
+可以直接运行 ./run.sh，执行最简单的测试用例
+还可以将 libinjector.so 和 test-cli 拷贝到 test_case 目录下运行 ./test.sh
+
+test-cli是个命令行工具，使用该工具连接到待测试程序，连接方式有两种：
+1. 启动时连接
+	./test-cli -l dde-control-center -- -s
+
+2. 启动后连接
+	./test-cli -j `pidof dde-control-center`
+	给它传入pid参数，就会自动链接，连接成功会有提示，失败返回 1
+	也可以用该命令测试应用程序是否能正常启动以及切换待测试程序，比如控制中心弹出鉴权窗口后要切换到 dde-polkit-agent 的窗口去输入密码
+
+3. 执行命令
+	启动后就可以用 -c 命令直接执行命令：
+	./test-cli -c "选择('生物认证')"
+	还可以用 -f 命令传入 js 脚本文件，让应用程序直接执行
+	./test-cli -f /path/to/test.js
+	以上命令，返回值为 0 表示执行成功，返回值为 1 表示执行失败
