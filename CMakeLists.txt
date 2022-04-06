@@ -163,6 +163,9 @@ add_executable(test-cli
     # ${LOCAL_SOCKET}
     gdbinjector/gdb_injector.h
     #gdbinjector/gdb_injector.cpp
+
+    daemon/gui/mainwindow.h
+    daemon/gui/mainwindow.cpp
 )
 target_link_libraries(test-cli Qt5::Core Qt5::DBus Qt5::Network Qt5::WebSockets)
 

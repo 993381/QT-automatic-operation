@@ -75,6 +75,11 @@ static void gammaray_pre_routine()
         }, Qt::ConnectionType::UniqueConnection);
 
         client->handleMessage([](QString msg){
+            if (msg == "showRecordGui") {
+                UiaController::instance()->createUiaWidget();
+                UiaController::instance()->initOperationSequence();\
+                client->sendTextMessage("Show-Gui-Finished");
+            }
             if (msg == "Exit-now") {
                 qApp->exit();
                 exit(0);

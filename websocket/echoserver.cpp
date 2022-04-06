@@ -139,7 +139,7 @@ void EchoServer::processTextMessage1(QString message)
         return;
     }
 
-    if (message.startsWith("Exec-")) {
+    if (message.startsWith("Exec-") || message == "Show-Gui-Finished") {
         for (auto c : m_clients) {
             c->sendTextMessage(message);
         }
@@ -169,6 +169,15 @@ void EchoServer::processTextMessage2(QString message) {
         }
         socket->sendTextMessage("false");
         return;
+    }
+    if (message == "showRecordGui") {
+        if (!isOnline(m_currentSelect.first)) {
+            socket->sendTextMessage("App-not-online");
+        } else {
+            if (auto appSock = getAppSocket(m_currentSelect.first)) {
+                appSock->sendTextMessage("showRecordGui");
+            }
+        }
     }
     // 程序启动
     if (message.startsWith("launch:")) {

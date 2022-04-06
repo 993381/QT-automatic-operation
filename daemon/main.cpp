@@ -17,6 +17,8 @@ int main(int argc, char *argv[]) {
 
     //!TODO 增加区分大小写
     QCommandLineParser parser;
+    // 显示界面进行录制
+    QCommandLineOption record_opt({"r", "record"}, "录制操作步骤.");
     // 守护进程的启动、重启、状态
     QCommandLineOption daemon_opt({"d", "daemon"}, "Start daemons only.");
     // 显示程序状态，在线程序、守护进程状态
@@ -40,6 +42,7 @@ int main(int argc, char *argv[]) {
     parser.addHelpOption();
     parser.addVersionOption();
     //    parser.addOption(daemon_opt);
+    parser.addOption(record_opt);
     parser.addOption(launch_opt);
     parser.addOption(inject_opt);
     //    parser.addOption(arg_opt);
@@ -67,6 +70,9 @@ int main(int argc, char *argv[]) {
         if (msg == "loginOn") {
             Q_EMIT client->loginSuccess();
 
+            if (parser.isSet("r")) {
+                client->sendTextMessage("showRecordGui");
+            }
             if (parser.isSet("o")) {
                 QStringList list = parser.value("o").split(":");  // -o "appname:pid", 可以没有pid
                 QString param = QString("onlineStateQuery:%1").arg(list.at(0));
@@ -96,6 +102,9 @@ int main(int argc, char *argv[]) {
             } else if (parser.isSet("c")) {
                 client->sendTextMessage(QString("execute-function:%1").arg(parser.value("c")));
             }
+        }
+        if (msg == "Show-Gui-Finished") {
+            exit(0);
         }
         if (msg.startsWith("OnlineStateReply")) {
             if (msg == "OnlineStateReply-Off") {

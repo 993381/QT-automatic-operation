@@ -4,3 +4,6 @@ test/test-cli
 test/test_case/libinjector.so
 test/test_case/test-cli
 test/test_case/log/
+test/result.log
+CMakeLists.txt.user.22
+CMakeLists.txt.user.*
