@@ -84,6 +84,9 @@ set(SOURCES          # ${LOCAL_SOCKET}
 
         # scopeguard.h
 
+        steprecord.h
+        # steprecord.cpp
+
         objectpath.h
         objectpath.cpp
 

@@ -47,9 +47,9 @@ inline QString showFileDialog(const QFileDialog::AcceptMode &mode) {
 
     QStringList filters;
 
-    filters.append("Text File (*.json)");
+    filters.append("Text File (*.js)");
     filters.append("All Files (*)");
-    filters.append("Config Files (*.json)");
+    filters.append("Config Files (*.js)");
 
     dialog.setWindowTitle(mode == QFileDialog::AcceptOpen ? "录制" : "保存");
     dialog.setAcceptMode(mode);                 // 打开模式

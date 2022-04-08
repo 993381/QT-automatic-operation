@@ -15,6 +15,7 @@
 #include "util.h"
 #include "probe.h"
 #include "sigspy.h"
+#include "steprecord.h"
 
 #include <QEvent>
 #include <QWidget>
@@ -26,6 +27,7 @@
 #include <QJsonObject>
 #include <QSizePolicy>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QJsonDocument>
 #include <QtCore/private/qobject_p.h>  // qt_register_signal_spy_callbacks
 
@@ -292,7 +294,9 @@ bool UiaController::createUiaWidget() {
 
     widget->setWindowTitle("Uia Controller");
 
-    QHBoxLayout *layout  = new QHBoxLayout(widget);
+    QVBoxLayout *vboxLayout  = new QVBoxLayout(widget);
+    QHBoxLayout *layout  = new QHBoxLayout;
+    vboxLayout->addLayout(layout);
     QPushButton *button1 = new QPushButton("record");
     QPushButton *button2 = new QPushButton("play");
     QPushButton *button3 = new QPushButton("save");
@@ -316,6 +320,14 @@ bool UiaController::createUiaWidget() {
     layout->addWidget(button9);
     layout->addWidget(label);
 
+
+    // 显示执行步骤
+    QTextEdit *edit = new QTextEdit;
+    vboxLayout->addWidget(edit);
+    QObject::connect(StepRecord::instance(), &StepRecord::stepAppend, [edit](QString step){
+        edit->append(step);
+    });
+
     // for (auto window : qApp->allWidgets()) {
     //     QLabel *windowLabel = new QLabel(window->window()->topLevelWidget()->windowTitle());
     //     layout->addWidget(windowLabel);
@@ -334,7 +346,7 @@ bool UiaController::createUiaWidget() {
     QObject::connect(button7, &QPushButton::clicked, [](bool checked){
         OperationManager::instance()->stop();
     });
-    QObject::connect(button6, &QPushButton::clicked, [](bool checked){
+    QObject::connect(button6, &QPushButton::clicked, [edit](bool checked){
         QString openFileName = showFileDialog(QFileDialog::AcceptOpen);
         if (openFileName.isEmpty()) return;
 
@@ -343,15 +355,7 @@ bool UiaController::createUiaWidget() {
             qInfo() << "read error: " << openFileName;
             return;
         }
-
-        QJsonParseError json_error;
-        QJsonDocument jsonDoc(QJsonDocument::fromJson(allData, &json_error));
-        if(json_error.error != QJsonParseError::NoError) {
-            qInfo() << "json parser error! " << json_error.errorString();
-            return;
-        }
-        QJsonObject rootObj = jsonDoc.object();
-        ObjectPathManager::instance()->readFromJson(rootObj);
+        edit->setText(allData);
     });
     QObject::connect(button1, &QPushButton::clicked, [](bool checked){
         OperationManager::instance()->startRecording();
@@ -359,7 +363,7 @@ bool UiaController::createUiaWidget() {
     QObject::connect(button2, &QPushButton::clicked, [](bool checked){
         OperationManager::instance()->startPlaying();
     });
-    QObject::connect(button3, &QPushButton::clicked, [](bool checked){
+    QObject::connect(button3, &QPushButton::clicked, [edit](bool checked){
         if (OperationManager::instance()->state() != OperationManager::Recording) {
             qInfo() << "不在录制状态!";
             return;
@@ -368,22 +372,17 @@ bool UiaController::createUiaWidget() {
         QString saveFileName = showFileDialog(QFileDialog::AcceptSave);
         if (saveFileName.isEmpty()) return;
         qInfo() << "Save json file to: " << saveFileName;
-
-        // 录制完毕转 Json 保存
-        QVector<ObjectPath> paths = ObjectPathManager::instance()->paths();
-        qInfo() << "paths size: " << paths.size();
-        QJsonObject json = ObjectPathManager::convertToJson(paths);
-        QJsonDocument doc;
-        doc.setObject(json);
-        QByteArray byte = doc.toJson(QJsonDocument::Indented);
+        QByteArray byte = edit->toPlainText().toUtf8();
         bool res = fileReadWrite(saveFileName, byte, false);
-        qInfo() << res << doc;
+        if (res) {
+            qInfo() << "save success";
+        }
     });
     QObject::connect(button4, &QPushButton::clicked, [](bool checked){
         qApp->exit();
     });
 
-    widget->setFixedSize(widget->sizeHint());
+    widget->setFixedSize(QSize(widget->sizeHint().width(), widget->sizeHint().height() + 200));
     widget->show();
 }
 

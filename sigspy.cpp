@@ -18,6 +18,14 @@
 #include "objectpath.h"
 #include "util.h"
 
+#if QT_VERSION > QT_VERSION_CHECK(5, 11, 3)
+#include <QScopeGuard>
+#else
+#include "scopeguard.h"
+#endif
+
+#include "steprecord.h"
+
 using namespace GammaRay;
 
 int signalIndexToMethodIndex(const QMetaObject *metaObject, int signalIndex) {
@@ -68,12 +76,14 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
         const int &method_index = signalIndexToMethodIndex(caller->metaObject(), method_index_in);
         const QString methodSignature = caller->metaObject()->method(method_index).methodSignature();
 
+        QString finalCmd; // 最终生产的可执行的 Js 文本
+
         QAbstractButton * button = qobject_cast<QAbstractButton *>(caller);
         if (button && methodSignature == "released()") {
             ObjInfo info = findUniqInfo(caller, button->text());
             if (info.index != -1) {
                 qInfo() << "find method: " << type2Str[info.type] << info.value.toString();
-                qInfo() << ((info.index == 0) ? QString("点击('%1')").arg(info.value.toString()) : QString("点击('%1', '%2')").arg(info.value.toString()).arg(info.index));
+                finalCmd = ((info.index == 0) ? QString("点击('%1')").arg(info.value.toString()) : QString("点击('%1', '%2')").arg(info.value.toString()).arg(info.index));
             }
         }
         QAbstractItemView *listView = qobject_cast<QAbstractItemView *>(caller);
@@ -90,7 +100,7 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
                     if (info.index != -1) {
                         qInfo() << "index: " << info.index << " find method: " << type2Str[info.type];
                         // 查找项(text, index) && 选中(text, index)  查询就返回找到结果的个数
-                        qInfo() << ((info.index == 0) ? QString("选择('%1')").arg(info.value.toString()) : QString("选择('%1', '%2')").arg(info.value.toString()).arg(info.index));
+                        finalCmd = ((info.index == 0) ? QString("选择('%1')").arg(info.value.toString()) : QString("选择('%1', '%2')").arg(info.value.toString()).arg(info.index));
                     }
                 }
             }
@@ -126,9 +136,10 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
                     cmdParam += ", ";
                 }
             }
-            qInfo() << QString("输入('%1', %2)").arg(lineEdit->text()).arg(cmdParam);
-            // qInfo() << ((info.index == 0) ? QString("输入('%1')").arg(lineEdit->text()) : QString("输入('%1', '%2')").arg(lineEdit->text()).arg(info.index));
+            finalCmd = QString("输入('%1', %2)").arg(lineEdit->text()).arg(cmdParam);
         }
+        if (!finalCmd.isEmpty())
+            StepRecord::instance()->append(finalCmd);
     }
 }
 
