@@ -73,6 +73,7 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
             ObjInfo info = findUniqInfo(caller, button->text());
             if (info.index != -1) {
                 qInfo() << "find method: " << type2Str[info.type] << info.value.toString();
+                qInfo() << ((info.index == 0) ? QString("点击('%1')").arg(info.value.toString()) : QString("点击('%1', '%2')").arg(info.value.toString()).arg(info.index));
             }
         }
         QAbstractItemView *listView = qobject_cast<QAbstractItemView *>(caller);
@@ -89,9 +90,44 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
                     if (info.index != -1) {
                         qInfo() << "index: " << info.index << " find method: " << type2Str[info.type];
                         // 查找项(text, index) && 选中(text, index)  查询就返回找到结果的个数
+                        qInfo() << ((info.index == 0) ? QString("选择('%1')").arg(info.value.toString()) : QString("选择('%1', '%2')").arg(info.value.toString()).arg(info.index));
                     }
                 }
             }
+        }
+        QLineEdit *lineEdit = qobject_cast<QLineEdit *>(caller);
+        if (lineEdit && methodSignature == "editingFinished()") {
+            qInfo() << "editingFinished ..........................";
+            ObjInfo info = findUniqInfo(caller);
+            qInfo() << "index: " << info.index << " find method: " << type2Str[info.type];
+            QStringList params;
+            if (info.type == byAccName) {
+                params << "'byAcc'" << QString("'%1'").arg(lineEdit->accessibleName());
+            }
+            if (info.type == byObjName) {
+                params << "'byObj'" << QString("'%1'").arg(lineEdit->objectName());
+            }
+            if (info.type == byClassName) {
+                params << "'byClass'" << QString("'%1'").arg(lineEdit->metaObject()->className());
+            }
+            if ((info.type == byAccName || info.type == byObjName) && !params.isEmpty()) {
+                if (info.index != 0) {
+                    qInfo() << "Error, 标记过的控件不唯一: " << params;
+                }
+            }
+            if (info.index != 0) {
+                params << QString("%1").arg(info.index);
+            }
+
+            QString cmdParam;
+            for (int i = 0; i < params.size(); ++i) {
+                cmdParam += params.at(i);
+                if (i != params.size() - 1) {
+                    cmdParam += ", ";
+                }
+            }
+            qInfo() << QString("输入('%1', %2)").arg(lineEdit->text()).arg(cmdParam);
+            // qInfo() << ((info.index == 0) ? QString("输入('%1')").arg(lineEdit->text()) : QString("输入('%1', '%2')").arg(lineEdit->text()).arg(info.index));
         }
     }
 }

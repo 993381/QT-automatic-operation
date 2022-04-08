@@ -538,6 +538,7 @@ inline ObjInfo findUniqInfo(QObject *object, QVariant value = {}) {
         if (!button->text().isEmpty()) {
             findTypes << QPair<LocationType, QString>{ byButtonText, button->text() };
         } else {
+            // 最终记录 button 的 index + 类名
             findTypes << QPair<LocationType, QString>{ byButtonIndex, QString() };
         }
     }
@@ -696,6 +697,7 @@ inline ObjInfo findUniqInfo(QObject *object, QVariant value = {}) {
         }
         if (minimium == -2) {
             minimium = info.index;
+            miniIdx = i;
         }
         if (minimium > info.index) {
             minimium = info.index;
