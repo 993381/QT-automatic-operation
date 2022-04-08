@@ -54,6 +54,50 @@ static void executeSignalCallback(const Func &func)
 
 void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
 {
+    if (!Probe::instance()) {
+        return;
+    }
+    if (!Probe::instance()->focusObjects().contains(caller) || ObjectListManager::instance()->isInBlackList(caller, true)) {
+        return;
+    }
+    if (caller->metaObject()->className() == QByteArrayLiteral("QWidgetLineControl")) {
+        return;
+    }
+    QObjectList tmpList = Probe::instance()->focusObjects();
+    if (tmpList.contains(caller) && caller != Probe::instance()) {
+        const int &method_index = signalIndexToMethodIndex(caller->metaObject(), method_index_in);
+        const QString methodSignature = caller->metaObject()->method(method_index).methodSignature();
+
+        QAbstractButton * button = qobject_cast<QAbstractButton *>(caller);
+        if (button && methodSignature == "released()") {
+            ObjInfo info = findUniqInfo(caller, button->text());
+            if (info.index != -1) {
+                qInfo() << "find method: " << type2Str[info.type] << info.value.toString();
+            }
+        }
+        QAbstractItemView *listView = qobject_cast<QAbstractItemView *>(caller);
+        if (listView && methodSignature == "pressed(QModelIndex)") {
+            for (int j = 0; j < caller->metaObject()->method(method_index).parameterCount(); ++j) {
+                const QByteArray parameterType = caller->metaObject()->method(method_index).parameterTypes().at(j);
+                qInfo() << "listView objectName: " << listView->objectName()  // 空的
+                        << "parameterTypes: " << caller->metaObject()->method(method_index).parameterTypes()
+                        << "parameterNames: " << caller->metaObject()->method(method_index).parameterNames()
+                        << "parameterType: " << caller->metaObject()->method(method_index).parameterType(j);
+                if (parameterType == "QModelIndex") {
+                    QModelIndex *modelIndex = (QModelIndex *)argv[j+1];
+                    ObjInfo info = findUniqInfo(caller, *modelIndex);
+                    if (info.index != -1) {
+                        qInfo() << "index: " << info.index << " find method: " << type2Str[info.type];
+                        // 查找项(text, index) && 选中(text, index)  查询就返回找到结果的个数
+                    }
+                }
+            }
+        }
+    }
+}
+
+void signal_begin_callback2(QObject *caller, int method_index_in, void **argv)
+{
 #if 1
     if (!Probe::instance()) {
         return;

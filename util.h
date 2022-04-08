@@ -214,22 +214,33 @@ inline bool selectListItemByText(bool isDoubleClick, const QString &text, int in
     const QObjectList &list = findObjects(ByItemText, text);
     qInfo() << "selectListItemByText size: " << list.size();
 
-    // 从整个页面中发现有相同的itemText的ListView就都存起来，再看ListView里面还有没有相同的
-    QVector<QPair<QListView*, QModelIndex>> itemIndexList;
-    for (QObject *obj : list) {
-        if (auto listview = qobject_cast<QListView *>(obj->parent())) {
-            for (auto idx : getItemIndexesByText(obj, text)) {
-                itemIndexList.push_back({listview, idx});
+    // 查找每个 viewport 里面是否有重复的，将 listview 与 modexIndex 对应起来
+    using ItemViewMap2Index = QVector<QPair<QAbstractItemView*, QModelIndex>>;
+    auto getAllItemIndexesByText = [](QObject *obj, const QString &text) {
+        ItemViewMap2Index itemIndexList;
+        if (auto itemview = qobject_cast<QAbstractItemView *>(obj->parent())) {
+            for (int r = 0; r < itemview->model()->rowCount(); ++r) {
+                for (int c = 0; c < itemview->model()->columnCount(); ++c) {
+                    if (itemview->model()->index(r, c).data().toString() == text) {
+                        itemIndexList.push_back({ itemview, itemview->model()->index(r, c) });
+                    }
+                }
             }
         }
+        return itemIndexList;
+    };
+    // 2. 再获取所有的 modex index, 找到符合条件的
+    ItemViewMap2Index unfoldMap;
+    for (QObject *obj : list) {
+        unfoldMap << getAllItemIndexesByText(obj, text);
     }
-    if (index >= itemIndexList.size()) {
+    if (index >= unfoldMap.size()) {
         qInfo() << "selectListItemByText index too big! " << index;
         return false;
     }
 
-    auto listview = itemIndexList.at(index).first;
-    auto modelIndex = itemIndexList.at(index).second;
+    auto listview = unfoldMap.at(index).first;
+    auto modelIndex = unfoldMap.at(index).second;
     qInfo() << "selectListItemByText will select: " << modelIndex.data().toString() << " row: " << modelIndex.row() << " column: " << modelIndex.column();
 
     if (isDoubleClick) {
@@ -452,6 +463,251 @@ inline bool setLineEditTextByItemIndex(const QString &lineEditClassName,
 //        return true;
 //    }
     return false;
+}
+
+// 按以下几种查找方式，直到确定该对象是唯一的
+// byAccessableName、byClassName、byIndex
+// value 用于传递 item text 等信息
+
+enum LocationType {
+    unknow,
+
+    // 控件的三种基本信息,如果唯一,则只根据这三种信息查找
+    byAccName,      // 优先级1
+
+    byObjName,      // 优先级2
+    byClassName,    // 优先级3
+
+    byItemText,     // 优先级2 item view 有文字则优先使用文字查找
+    byItemViewInfo, // 根据以上四种信息查找
+
+    byButtonText,   // 优先级2
+    byButtonIndex
+};
+inline static const QMap<LocationType, QString> type2Str {
+    { byAccName, "byAccName" },
+    { byObjName, "byObjName" },
+    { byClassName, "byClassName" },
+    { byItemText, "byItemText" },
+    { byItemViewInfo, "byItemViewInfo" },
+    { byButtonText, "byButtonText" },
+    { byButtonIndex, "byButtonIndex" },
+};
+
+struct ObjInfo {
+    bool isValid() {
+        return index!= -1 && type!= unknow;
+    }
+    int index = -1;
+    LocationType type = unknow;
+    QVariant value;
+};
+
+// 如果是 QAbstractItemView 等, value 要传 ModexIndex 进来
+// 选中项(文本)  选中列表(列表信息) 选中项(行,列)
+// 查询列表(列表信息) 返回全部/指定的列表
+// 查询列表项(列表信息) 每一项都有文本则返回每项的文本, 没有文本则返回range
+// 选择项视图(className, index)
+// 查找文本项(text, item-view-info-list) 按文字从列表中找. 返回找到的结果列表
+// 选择项(row, col) 按照行列数直接选中列表中的项
+//!TODO: 应该首先从活动窗口里面找, 活动窗口中找到的结果要优先一些
+inline ObjInfo findUniqInfo(QObject *object, QVariant value = {}) {
+    ObjectPathResolver resolver;
+    resolver.findExistingObjects();
+
+    QVector<QPair<LocationType, QVariant>> findTypes;
+    QString accessableName;
+
+    //! 根据各自具体信息查找
+    // byItemText        abstract view item 只有一两种找的方式有意义, text 和 index
+    // if (object->objectName() == "qt_scrollarea_viewport" && object->parent()) {
+    if (auto itemview = qobject_cast<QAbstractItemView *>(object)) {
+        //!TODO: 首先还是要提示用户对列表进行标记
+        //! 如果每项都有文字就根据文字查找, 没有文字根据标记和index找并提示用户进行标记
+        QString itemText = value.toModelIndex().data().toString();
+        if (!itemText.isEmpty()) {
+            // qInfo() << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
+            findTypes << QPair<LocationType, QString>{ byItemText, itemText };
+            goto FIND_OBJECTS;
+        } else {
+            //! findTypes << QPair<LocationType, QVariant>{ byItemText,  value };
+        }
+    }
+    // byButtonText      button可以有多种找的方式. 根据索引查找就要在相同 className 中查找
+    if (auto button = qobject_cast<QAbstractButton *>(object)) {
+        if (!button->text().isEmpty()) {
+            findTypes << QPair<LocationType, QString>{ byButtonText, button->text() };
+        } else {
+            findTypes << QPair<LocationType, QString>{ byButtonIndex, QString() };
+        }
+    }
+
+    //! 根据三种基本信息查找
+    // byAccName
+    if (QWidget *widget = qobject_cast<QWidget *>(object)) {
+        // 只有 widget 或继承自 widget 的有 accessableName
+        accessableName = widget->accessibleName();
+        if (!widget->accessibleName().isEmpty()) {
+            findTypes << QPair<LocationType, QString>{ byAccName, accessableName };
+        }
+    }
+    // byObjName
+    if (!object->objectName().isEmpty()) {
+        findTypes << QPair<LocationType, QString>{ byObjName, object->objectName() };
+    }
+    // byClassName   把这种方式放到最后,因为不是最佳的方式
+    findTypes << QPair<LocationType, QString>{ byClassName, object->metaObject()->className() };
+
+    FIND_OBJECTS:
+
+    // 如果没有发现任何唯一信息,就按照优先级从 byAccName byObjName byClassName 三个中选一个记录 index 信息
+    // 最终如果都没有发现唯一的, 就返回一个 index 最小的
+    QVector<ObjInfo> result;
+    for (auto findType : findTypes) {
+        if (findType.first == byAccName) {
+            resolver.setValidFilter([&](QObject *obj) -> bool {
+                QWidget *widget = qobject_cast<QWidget *>(obj);
+                return widget && widget->accessibleName() == accessableName;
+            });
+            QObjectList list = resolver.validObjects();
+            ObjInfo info = { list.indexOf(object), findType.first, findType.second.toString() };
+            if (list.size() == 1) {
+                return info;
+            }
+            if (list.size()) {
+                result << info;
+            }
+            continue;
+        }
+        if (findType.first == byObjName) {
+            resolver.setValidFilter([&](QObject *obj) -> bool {
+                return obj->objectName() == findType.second.toString();
+            });
+            QObjectList list = resolver.validObjects();
+            ObjInfo info = { list.indexOf(object), findType.first, findType.second.toString() };
+            if (list.size() == 1) {
+                return info;
+            }
+            if (list.size()) {
+                result << info;
+            }
+            continue;
+        }
+        if (findType.first == byClassName) {
+            // 只有 widget 或继承自 widget 的有 accessableName
+            resolver.setValidFilter([&](QObject *obj) -> bool {
+                return obj->metaObject()->className() == findType.second.toString();
+            });
+            QObjectList list = resolver.validObjects();
+            ObjInfo info = { list.indexOf(object), findType.first, findType.second.toString() };
+            if (list.size() == 1) {
+                return info;
+            }
+            if (list.size()) {
+                result << info;
+            }
+            continue;
+        }
+        if (findType.first == byItemText) {
+            resolver.setValidFilter([&](QObject *obj) -> bool {
+                 if (obj->objectName() != "qt_scrollarea_viewport") {
+                     return false;
+                 }
+                // 找到所有包含该文本的 listview
+                if (auto itemview = qobject_cast<QAbstractItemView *>(obj->parent())) {
+                    if (!itemview->isVisible()) {
+                        return false;
+                    }
+                    qInfo() << "found item view";
+                    for (int r = 0; r < itemview->model()->rowCount(); ++r) {
+                        for (int c = 0; c < itemview->model()->columnCount(); ++c) {
+                            if (itemview->model()->index(r, c).data().toString() == findType.second.toString()) {
+                                qInfo() << "found... " << findType.second.toString() << itemview->objectName() << itemview->metaObject()->className();
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            });
+            //! TODO 增加查找选中某类对象的功能, 再从该对象的孩子里面找符合条件的 selectObjByClass(className, index)
+            // 1. 获取到了所有包含该文本的 listview 的子对象 qt_scrollarea_viewport
+            QObjectList list = resolver.validObjects();
+
+            // 查找每个 viewport 里面是否有重复的，将 listview 与 modexIndex 对应起来
+            using ItemViewMap2Index = QVector<QPair<QAbstractItemView*, QModelIndex>>;
+            auto getAllItemIndexesByText = [](QObject *obj, const QString &text) {
+                ItemViewMap2Index itemIndexList;
+                if (auto itemview = qobject_cast<QAbstractItemView *>(obj->parent())) {
+                    for (int r = 0; r < itemview->model()->rowCount(); ++r) {
+                        for (int c = 0; c < itemview->model()->columnCount(); ++c) {
+                            if (itemview->model()->index(r, c).data().toString() == text) {
+                                itemIndexList.push_back({ itemview, itemview->model()->index(r, c) });
+                            }
+                        }
+                    }
+                }
+                return itemIndexList;
+            };
+            // 2. 再获取所有的 modex index, 找到符合条件的
+            ItemViewMap2Index unfoldMap;
+            for (QObject *obj : list) {
+                unfoldMap << getAllItemIndexesByText(obj, findType.second.toString());
+            }
+            // 4. 从 itemview 与 index 的集合中找到符合row\count的索引
+            if (auto itemview = qobject_cast<QAbstractItemView *>(object)) {
+                for (int index = 0; index < unfoldMap.size(); ++index) {
+                    auto itemIndex = unfoldMap.at(index);
+                    if (itemIndex.first == itemview && itemIndex.second == value.toModelIndex()) {
+                        // 把找到的索引和文本以及解析出来的行\列返回, 最重要的是索引
+                        return { index, findType.first, value.toModelIndex().data().toString() };
+                    }
+                }
+            }
+            // 走到这里就错了,至少包含它自身这一项
+            qInfo() << "list item by text not uniq in current window";
+            return {};
+        }
+        if (findType.first == byButtonText) {
+            resolver.setValidFilter([&](QObject *obj) -> bool {
+                auto button = qobject_cast<QAbstractButton *>(obj);
+                return button &&  button->text() == findType.second.toString();
+            });
+            QObjectList list = resolver.validObjects();
+            ObjInfo info = { list.indexOf(object), findType.first, findType.second.toString() };
+            if (list.size() == 1) {
+                return info;
+            }
+            if (list.size()) {
+                result << info;
+            }
+            continue;
+        }
+    }
+
+    // 如果没有找到唯一标记信息,返回 index 最小的信息
+    int minimium = -2;
+    int miniIdx = -1;
+    for (int i = 0; i < result.size(); ++i) {
+        auto info = result.at(i);
+        if (info.index == -1) {
+            // 通常不可能是-1,如果是的话就错了
+            continue;
+        }
+        if (minimium == -2) {
+            minimium = info.index;
+        }
+        if (minimium > info.index) {
+            minimium = info.index;
+            miniIdx = i;
+        }
+    }
+    if (miniIdx != -1) {
+        return result.at(miniIdx);
+    }
+    //!TODO: 在图形界面中提示。最后根据 index 找的控件都要提示一下。index 只是一种 workaround
+    qInfo() << "Error, xxxxxxxxxxxx 控件不唯一, 请标记... " << object->metaObject();
+    return {};
 }
 
 #endif//UTIL_H

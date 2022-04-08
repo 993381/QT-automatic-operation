@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     // QApplication::notify();   用functionOverride重写一下就能获取到所有的了。
-#if 1
+#if 0
     QMainWindow window;
     QPushButton *button = new QPushButton("Launch", &window);
     QObject::connect(button, &QPushButton::clicked, [] {
@@ -138,8 +138,10 @@ int main(int argc, char *argv[]) {
     // QAbstractItemModel *model2 = qobject_cast<QAbstractItemModel *>(&model);
     auto row1 = new QStandardItem("xxxxxxxxxxx");
     auto row2 = new QStandardItem("yyyyyyyyyyy");
+    auto row3 = new QStandardItem("xxxxxxxxxxx");
     model.appendRow(row1);
     model.appendRow(row2);
+    model.appendRow(row3);
     view.resize(120, 50);
     view.move(200,200);
     QModelIndex qindex = model.index(1, 0);   //默认选中 index
@@ -355,6 +357,7 @@ int main2(int argc, char *argv[]) {
     return app.exec();
 }
 #endif
+
 
 
 
