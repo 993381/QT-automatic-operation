@@ -332,3 +332,7 @@ No appenders assotiated with category dtk.dsg.config
 2022-04-11, 11:20:11.956 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 248 function: updateConnection Message: start..........
 2022-04-11, 11:20:11.956 [Debug  ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 264 function: updateConnection Message: "new wifi: "
 2022-04-11, 11:20:11.982 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 540 function: updateDeviceHotpot Message: start
+2022-04-11, 11:27:35.780 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:29:37.348 [Debug  ] [  ] app item clicked, name: "控制中心" id: "e4T62538827" my-id: "e4T62538827" icon: "preferences-system"
+2022-04-11, 11:30:45.972 [Debug  ] [  ] app item clicked, name: "控制中心" id: "e4T62538827" my-id: "e4T62538827" icon: "preferences-system"
+2022-04-11, 11:30:58.908 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"

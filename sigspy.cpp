@@ -116,7 +116,7 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
                 qInfo() << "find method: " << type2Str[info.type] << info.value.toString();
                 if (info.type == byButtonText) {
                     // 根据文本找对象
-                    finalCmd = ((info.index == 0) ? QString("点击(%1)").arg(info.value.toString()) : QString("点击(%1, %2)").arg(info.value.toString()).arg(info.index));
+                    finalCmd = ((info.index == 0) ? QString("点击('%1')").arg(info.value.toString()) : QString("点击('%1', %2)").arg(info.value.toString()).arg(info.index));
                 } else {
                     // 文本不唯一或不存在根据 acc、obj、class 名称找对象
                     QString cmdParam = paramGenerate(info, button);
