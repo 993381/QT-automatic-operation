@@ -67,57 +67,11 @@ public:
         }
         return false;
     }
-    Q_SCRIPTABLE bool clickButtonByText(QStringList list) {
-        if (list.size() == 1) {
-            return clickButtonByButtonText(list.first());
-        } else if (list.size() == 2) {
-            return clickButtonByButtonText(list.first(), list.last().toInt());
-        }
-        return false;
-    }
-    Q_SCRIPTABLE bool clickButtonByIndex(int index) {
-        return clickNoTextButtonByIndex(index);
-    }
-    Q_SCRIPTABLE bool clickNoTextButton(QStringList list) {
-        QString clickType = list.at(0);
-        QStringList findTypes = {
-            "ByClassName",
-            "ByObjectName",
-            "ByAccessableName",
-            "ByToolTip",
-            "ByIndex",
-            "ByPath"
-            "ByParentClassName",
-            "ByPathAndSlibingIndex"
-        };
-//        if (clickType.isEmpty() || findTypes.indexOf(clickType) == -1) {
-//            qInfo() << "type error";
-//            return false;
-//        }
-        // 一个参数根据index， 两个参数根据上面的类型
-        if (list.size() == 1) {
-            bool ok;
-            int index = list.first().toInt(&ok);
-            if (!ok) {
-                return false;
-            }
-            return clickNoTextButtonByIndex(index);
-        } else if (list.size() >= 2) {
-            if (clickType == "byAccName") {
-                QString accName = list.at(1);
-                return clickButtonByAccessbleName(accName);
-            }
-            return clickButtonByInfo(list);
-        }
-        return false;
+    Q_SCRIPTABLE bool clickButton(QStringList list) {
+        return clickButtonByButtonInfo(list);
     }
     Q_SCRIPTABLE bool setLineEditText(QStringList list) {
-        if (list.size() == 1) {
-            return setLineEditTextByIndex(list.first());
-        } else if (list.size() == 2) {
-            return setLineEditTextByIndex(list.first(), list.last().toInt());
-        }
-        return false;
+        return setLineEditTextByInfo(list);
     }
 
 Q_SIGNALS:

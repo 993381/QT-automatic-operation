@@ -1,0 +1,334 @@
+Warning: force enable D_DXCB_FORCE_NO_TITLEBAR now!
+true
+QSocketNotifier: Can only be used with threads started with QThread
+primary screen info: "VGA-1-DELL P2418HT/PP746156A2AL" QRect(0,0 1536x864)
+2022-04-08, 17:28:58.263 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+2022-04-08, 17:28:58.264 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+2022-04-08, 17:28:58.264 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+2022-04-08, 17:28:58.264 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+2022-04-08, 17:28:58.265 [Info   ] [  ] init dock screen:  "Screen37"
+2022-04-08, 17:28:58.269 [Info   ] [  ] hidestate change: 0 1
+2022-04-08, 17:28:58.269 [Debug  ] [  ] dock real geometry: QRect(0,1030 1920x50)
+2022-04-08, 17:28:58.269 [Debug  ] [  ] screen width: 1920 , height: 1080
+2022-04-08, 17:28:58.270 [Warning] [  ] QMetaObject::invokeMethod: No such method deepin_platform_plugin::DNoTitlebarWlWindowHelper::updateEnableBlurWindowFromProperty()
+2022-04-08, 17:28:58.270 [Warning] [  ] Failed to update property: "updateEnableBlurWindowFromProperty"
+2022-04-08, 17:28:58.270 [Warning] [  ] QMetaObject::invokeMethod: No such method deepin_platform_plugin::DNoTitlebarWlWindowHelper::updateTranslucentBackgroundFromProperty()
+2022-04-08, 17:28:58.270 [Warning] [  ] Failed to update property: "updateTranslucentBackgroundFromProperty"
+2022-04-08, 17:28:58.270 [Warning] [  ] QMetaObject::invokeMethod: No such method deepin_platform_plugin::DNoTitlebarWlWindowHelper::updateShadowOffsetFromProperty()
+2022-04-08, 17:28:58.270 [Warning] [  ] Failed to update property: "updateShadowOffsetFromProperty"
+2022-04-08, 17:28:58.270 [Warning] [  ] QMetaObject::invokeMethod: No such method deepin_platform_plugin::DNoTitlebarWlWindowHelper::updateShadowColorFromProperty()
+2022-04-08, 17:28:58.270 [Warning] [  ] Failed to update property: "updateShadowColorFromProperty"
+2022-04-08, 17:28:58.270 [Warning] [  ] QMetaObject::invokeMethod: No such method deepin_platform_plugin::DNoTitlebarWlWindowHelper::updateBorderColorFromProperty()
+2022-04-08, 17:28:58.270 [Warning] [  ] Failed to update property: "updateBorderColorFromProperty"
+2022-04-08, 17:28:58.270 [Warning] [  ] Connecting to deprecated signal QDBusConnectionInterface::serviceOwnerChanged(QString,QString,QString)
+2022-04-08, 17:28:58.291 [Warning] [  ] QMetaObject::invokeMethod: No such method deepin_platform_plugin::DNoTitlebarWlWindowHelper::updateBorderWidthFromProperty()
+2022-04-08, 17:28:58.291 [Warning] [  ] Failed to update property: "updateBorderWidthFromProperty"
+2022-04-08, 17:28:58.343 [Warning] [  ] setWindowProperty shellSurface not created
+2022-04-08, 17:28:58.343 [Warning] [  ] QMetaObject::invokeMethod: No such method deepin_platform_plugin::DNoTitlebarWlWindowHelper::updateWindowRadiusFromProperty()
+2022-04-08, 17:28:58.343 [Warning] [  ] Failed to update property: "updateWindowRadiusFromProperty"
+2022-04-08, 17:28:58.377 [Warning] [  ] setWindowProperty shellSurface not created
+2022-04-08, 17:28:58.377 [Warning] [  ] QMetaObject::invokeMethod: No such method deepin_platform_plugin::DNoTitlebarWlWindowHelper::updateEnableBlurWindowFromProperty()
+2022-04-08, 17:28:58.377 [Warning] [  ] Failed to update property: "updateEnableBlurWindowFromProperty"
+2022-04-08, 17:28:58.377 [Warning] [  ] setWindowProperty shellSurface not created
+2022-04-08, 17:28:58.377 [Warning] [  ] QMetaObject::invokeMethod: No such method deepin_platform_plugin::DNoTitlebarWlWindowHelper::updateWindowBlurAreasFromProperty()
+2022-04-08, 17:28:58.377 [Warning] [  ] Failed to update property: "updateWindowBlurAreasFromProperty"
+2022-04-08, 17:28:58.377 [Warning] [  ] setWindowProperty shellSurface not created
+2022-04-08, 17:28:58.377 [Warning] [  ] QMetaObject::invokeMethod: No such method deepin_platform_plugin::DNoTitlebarWlWindowHelper::updateEnableBlurWindowFromProperty()
+2022-04-08, 17:28:58.377 [Warning] [  ] Failed to update property: "updateEnableBlurWindowFromProperty"
+2022-04-08, 17:28:58.380 [Debug  ] [  ] using dock plugins dir: "/usr/lib/dde-dock/plugins"
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+2022-04-08, 17:28:58.439 [Warning] [  ] QMetaObject::invokeMethod: No such method deepin_platform_plugin::DNoTitlebarWlWindowHelper::updateWindowRadiusFromProperty()
+2022-04-08, 17:28:58.439 [Warning] [  ] Failed to update property: "updateWindowRadiusFromProperty"
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+2022-04-08, 17:28:58.639 [Debug  ] [  ] "DockPlugin" init plugin:  "AiAssistant"
+2022-04-08, 17:28:58.639 [Debug  ] [  ] load plugins item:  "AiAssistant" "AiAssistant" PluginWidget(0x109a510)
+2022-04-08, 17:28:58.639 [Debug  ] [  ] AiAssistantPlugin init PluginWidget(0x109a510, name="AiAssistant-centralwidget")
+2022-04-08, 17:28:58.640 [Debug  ] [  ] "DockPlugin" init plugin finished:  "AiAssistant"
+2022-04-08, 17:28:58.640 [Debug  ] [  ] "DockPlugin" init plugin:  "datetime"
+2022-04-08, 17:28:58.640 [Debug  ] [  ] load plugins item:  "datetime" "datetime" DatetimeWidget(0x10648e0)
+2022-04-08, 17:28:58.642 [Debug  ] [  ] "DockPlugin" init plugin finished:  "datetime"
+2022-04-08, 17:28:58.642 [Debug  ] [  ] "DockPlugin" init plugin:  "deepin-screen-recorder-plugin"
+2022-04-08, 17:28:58.642 [Debug  ] [  ] dbus service registration failed!
+2022-04-08, 17:28:58.642 [Debug  ] [  ] "DockPlugin" init plugin finished:  "deepin-screen-recorder-plugin"
+2022-04-08, 17:28:58.642 [Debug  ] [  ] "DockPlugin" init plugin:  "system-monitor"
+2022-04-08, 17:28:58.642 [Debug  ] [  ] load plugins item:  "system-monitor" "system-monitor" MonitorPluginButtonWidget(0x769350)
+2022-04-08, 17:28:58.642 [Debug  ] [  ] "DockPlugin" init plugin finished:  "system-monitor"
+2022-04-08, 17:28:58.642 [Debug  ] [  ] "DockPlugin" init plugin:  "notifications"
+2022-04-08, 17:28:58.643 [Debug  ] [  ] load plugins item:  "notifications" "notifications" NotificationsWidget(0x1011910)
+2022-04-08, 17:28:58.643 [Debug  ] [  ] "DockPlugin" init plugin finished:  "notifications"
+2022-04-08, 17:28:58.643 [Debug  ] [  ] "DockPlugin" init plugin:  "onboard"
+2022-04-08, 17:28:58.643 [Debug  ] [  ] load plugins item:  "onboard" "onboard" OnboardItem(0x1054660)
+2022-04-08, 17:28:58.643 [Debug  ] [  ] "DockPlugin" init plugin finished:  "onboard"
+2022-04-08, 17:28:58.643 [Debug  ] [  ] "DockPlugin" init plugin:  "overlay-warning"
+2022-04-08, 17:28:58.643 [Debug  ] [  ] "DockPlugin" init plugin finished:  "overlay-warning"
+2022-04-08, 17:28:58.643 [Debug  ] [  ] "DockPlugin" init plugin:  "show-desktop"
+2022-04-08, 17:28:58.643 [Debug  ] [  ] load plugins item:  "show-desktop" "show-desktop" ShowDesktopWidget(0x12438c0)
+2022-04-08, 17:28:58.643 [Debug  ] [  ] "DockPlugin" init plugin finished:  "show-desktop"
+2022-04-08, 17:28:58.644 [Debug  ] [  ] "DockPlugin" init plugin:  "shutdown"
+2022-04-08, 17:28:58.644 [Debug  ] [  ] load plugins item:  "shutdown" "shutdown" ShutdownWidget(0x1043a80)
+2022-04-08, 17:28:58.644 [Debug  ] [  ] "DockPlugin" init plugin finished:  "shutdown"
+2022-04-08, 17:28:58.644 [Debug  ] [  ] "DockPlugin" init plugin:  "trash"
+2022-04-08, 17:28:58.644 [Debug  ] [  ] true
+2022-04-08, 17:28:58.645 [Debug  ] [  ] load plugins item:  "trash" "trash" TrashWidget(0x1244e30)
+2022-04-08, 17:28:58.645 [Debug  ] [  ] "DockPlugin" init plugin finished:  "trash"
+2022-04-08, 17:28:58.701 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+2022-04-08, 17:28:58.701 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+2022-04-08, 17:28:58.702 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+2022-04-08, 17:28:58.702 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+2022-04-08, 17:28:58.702 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+2022-04-08, 17:28:58.703 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+2022-04-08, 17:28:58.703 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+2022-04-08, 17:28:58.703 [Debug  ] [  ] "DockPlugin" init plugin:  "tray"
+2022-04-08, 17:28:58.705 [Debug  ] [  ] "DockPlugin" init plugin finished:  "tray"
+2022-04-08, 17:28:58.705 [Warning] [  ] "accessibleFactory()Class: PluginWidget cannot access"
+2022-04-08, 17:28:58.708 [Warning] [  ] "accessibleFactory()Class: MonitorPluginButtonWidget cannot access"
+2022-04-08, 17:28:58.710 [Debug  ] [  ] init Fashion mode tray plugin item
+2022-04-08, 17:28:58.711 [Debug  ] [  ] delay load 0 "keybord_layout" IndicatorTray(0x124f4d0)
+2022-04-08, 17:28:58.711 [Debug  ] [  ] delay load 15000 "license" IndicatorTray(0x1010c40)
+2022-04-08, 17:28:58.711 [Debug  ] [  ] using system tray plugins dir: "/usr/lib/dde-dock/plugins/system-trays"
+2022-04-08, 17:28:58.733 [Debug  ] [  ] load plugins item:  "tray" "fashion-mode-item" FashionTrayItem(0x11c0f80)
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+/usr/bin/ldd: 第 119 行：printf: 写错误: 断开的管道
+2022-04-08, 17:28:58.922 [Debug  ] [diskmountplugin.cpp  DiskMountPlugin::DiskMountPlugin    45] ===============init=============
+2022-04-08, 17:28:58.926 [Debug  ] [  ] "SystemTray" init plugin:  "airplane-mode"
+2022-04-08, 17:28:58.926 [Debug  ] [  ] load tray plugins item:  "airplane-mode" "airplane-mode-key" AirplaneModeItem(0x102d790)
+2022-04-08, 17:28:58.927 [Debug  ] [  ] "SystemTray" init plugin finished:  "airplane-mode"
+2022-04-08, 17:28:58.927 [Debug  ] [  ] "SystemTray" init plugin:  "bluetooth"
+2022-04-08, 17:28:58.930 [Debug  ] [  ] "SystemTray" init plugin finished:  "bluetooth"
+2022-04-08, 17:28:58.930 [Debug  ] [  ] "SystemTray" init plugin:  "disk-mount"
+2022-04-08, 17:28:58.930 [Debug  ] [diskmountplugin.cpp  DiskMountPlugin::init               83] true
+2022-04-08, 17:28:58.930 [Debug  ] [diskmountplugin.cpp  DiskMountPlugin::init               86] ===============init==proxyInter===========
+2022-04-08, 17:28:58.940 [Warning] [  ] QDBusAbstractInterface: type QByteArrayList must be registered with Qt D-Bus before it can be used to read property org.freedesktop.UDisks2.Filesystem.MountPoints
+2022-04-08, 17:28:58.941 [Warning] [  ] QDBusAbstractInterface: type QByteArrayList must be registered with Qt D-Bus before it can be used to read property org.freedesktop.UDisks2.Filesystem.MountPoints
+2022-04-08, 17:28:58.942 [Debug  ] [mountutils.cpp       MountUtils::isSecurityEnhanceOpen   72] start get se status;
+2022-04-08, 17:28:58.942 [Debug  ] [mountutils.cpp       MountUtils::isSecurityEnhanceOpen   78] end get se status;
+2022-04-08, 17:28:58.942 [Info   ] [mountutils.cpp       MountUtils::getSeLinuxMountParam    42] SE status is not open
+2022-04-08, 17:28:58.948 [Warning] [  ] QDBusAbstractInterface: type QByteArrayList must be registered with Qt D-Bus before it can be used to read property org.freedesktop.UDisks2.Filesystem.MountPoints
+2022-04-08, 17:28:58.948 [Warning] [  ] QDBusAbstractInterface: type QByteArrayList must be registered with Qt D-Bus before it can be used to read property org.freedesktop.UDisks2.Filesystem.MountPoints
+2022-04-08, 17:28:58.949 [Debug  ] [mountutils.cpp       MountUtils::isSecurityEnhanceOpen   72] start get se status;
+2022-04-08, 17:28:58.949 [Debug  ] [mountutils.cpp       MountUtils::isSecurityEnhanceOpen   78] end get se status;
+2022-04-08, 17:28:58.949 [Info   ] [mountutils.cpp       MountUtils::getSeLinuxMountParam    42] SE status is not open
+2022-04-08, 17:28:58.959 [Debug  ] [diskmountplugin.cpp  DiskMountPlugin::diskCountChanged   203] 0 false
+2022-04-08, 17:28:58.960 [Debug  ] [  ] "SystemTray" init plugin finished:  "disk-mount"
+2022-04-08, 17:28:58.960 [Debug  ] [  ] "SystemTray" init plugin:  "network"
+2022-04-08, 17:28:58.961 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 346 function: onActiveConnectionsChanged Message: Active Connections Changed
+2022-04-08, 17:28:58.961 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 485 function: activeInfoChanged Message: active info changed
+2022-04-08, 17:28:58.961 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 472 function: asyncActiveConnectionInfo Message: start
+2022-04-08, 17:28:58.961 [Debug  ] [  ] load tray plugins item:  "network" "network-item-key" dde::networkplugin::TrayIcon(0x11b4710)
+2022-04-08, 17:28:58.962 [Debug  ] [  ] "SystemTray" init plugin finished:  "network"
+2022-04-08, 17:28:58.962 [Debug  ] [  ] "SystemTray" init plugin:  "mobile-assistant"
+2022-04-08, 17:28:58.988 [Warning] [  ] "accessibleFactory()Class: Dtk::Widget::DLabel cannot access"
+2022-04-08, 17:28:58.988 [Warning] [  ] "accessibleFactory()Class: Dtk::Widget::DLabel cannot access"
+2022-04-08, 17:28:58.988 [Info   ] [  ] 数据库名为  "/home/alex/.local/share/deepin/deepin-mobile-assistant/mobile_assistant_transmission_record.db"
+2022-04-08, 17:28:58.989 [Info   ] [  ] checkColumnName true "mobile_assistant_record"
+2022-04-08, 17:28:58.990 [Debug  ] [  ] Cannot find gsettings, schema_id: "com.deepin.dde.dock.module.mobile-assistant"
+2022-04-08, 17:28:58.990 [Debug  ] [  ] load tray plugins item:  "mobile-assistant" "mobile-assistant" MobileAssistantWidget(0x125ad40)
+2022-04-08, 17:28:58.990 [Debug  ] [  ] Cannot find gsettings, schema_id: "com.deepin.dde.dock.module.mobile-assistant"
+2022-04-08, 17:28:58.990 [Debug  ] [  ] Cannot find gsettings, schema_id: "com.deepin.dde.dock.module.mobile-assistant"  path: ""  key: "enable" Use fallback value: QVariant(bool, true)
+2022-04-08, 17:28:58.990 [Debug  ] [  ] "SystemTray" init plugin finished:  "mobile-assistant"
+2022-04-08, 17:28:58.992 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 142 function: onDevicesChanged Message: device Changed
+2022-04-08, 17:28:58.992 [Debug  ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 187 function: onDevicesChanged Message: "new Wired Device: eno1"
+2022-04-08, 17:28:58.992 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 346 function: onActiveConnectionsChanged Message: Active Connections Changed
+2022-04-08, 17:28:58.992 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 485 function: activeInfoChanged Message: active info changed
+2022-04-08, 17:28:58.992 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 472 function: asyncActiveConnectionInfo Message: start
+2022-04-08, 17:28:58.992 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 540 function: updateDeviceHotpot Message: start
+2022-04-08, 17:28:58.993 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 439 function: onConnectivityChanged Message: "conectivity:4"
+2022-04-08, 17:28:58.994 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 346 function: onActiveConnectionsChanged Message: Active Connections Changed
+2022-04-08, 17:28:58.994 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 485 function: activeInfoChanged Message: active info changed
+2022-04-08, 17:28:58.994 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 331 function: updateActiveInfo Message: start
+2022-04-08, 17:28:58.994 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 472 function: asyncActiveConnectionInfo Message: start
+2022-04-08, 17:28:58.994 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 322 function: onConnectionListChanged Message: start
+2022-04-08, 17:28:58.994 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 248 function: updateConnection Message: start..........
+2022-04-08, 17:28:58.994 [Debug  ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 264 function: updateConnection Message: "new wifi: "
+2022-04-08, 17:28:58.994 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 540 function: updateDeviceHotpot Message: start
+2022-04-08, 17:28:58.995 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 478 function: operator() Message: receive value
+2022-04-08, 17:28:58.995 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 149 function: updateActiveConnectionInfo Message: receive Ip Data
+2022-04-08, 17:28:58.995 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 574 function: updateNetworkDetails Message: start
+2022-04-08, 17:28:58.995 [Warning] [  ] "accessibleFactory()Class: MobileAssistantWidget cannot access"
+2022-04-08, 17:28:59.000 [Debug  ] [  ] "SystemTray" init plugin:  "power"
+2022-04-08, 17:28:59.002 [Debug  ] [  ] "SystemTray" init plugin finished:  "power"
+2022-04-08, 17:28:59.002 [Debug  ] [  ] "SystemTray" init plugin:  "sound"
+2022-04-08, 17:28:59.003 [Debug  ] [  ] Cannot find gsettings, schema_id: "com.deepin.dde.dock.module.sound"  path: ""  key: "Enabled" Use fallback value: QVariant(Invalid)
+2022-04-08, 17:28:59.206 [Debug  ] [  ] load tray plugins item:  "sound" "sound-item-key" SoundItem(0x7f97f0017f00)
+2022-04-08, 17:28:59.207 [Debug  ] [  ] "SystemTray" init plugin finished:  "sound"
+2022-04-08, 17:28:59.209 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 478 function: operator() Message: receive value
+2022-04-08, 17:28:59.209 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 149 function: updateActiveConnectionInfo Message: receive Ip Data
+2022-04-08, 17:28:59.209 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 574 function: updateNetworkDetails Message: start
+2022-04-08, 17:28:59.209 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 478 function: operator() Message: receive value
+2022-04-08, 17:28:59.209 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 149 function: updateActiveConnectionInfo Message: receive Ip Data
+2022-04-08, 17:28:59.209 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 574 function: updateNetworkDetails Message: start
+2022-04-08, 17:28:59.411 [Info   ] [  ] currentStatusCallback: 1 "pv=13&host=69acaa2cc70146bb9f7e40def28f7e2a&code=wtfk3WErHFsP5oQS&ip=10.20.43.145"
+2022-04-08, 17:28:59.411 [Info   ] [  ] currentStatusFinish ok
+2022-04-08, 17:30:22.536 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T624fa5ec" my-id: "e11T624fa5ec" icon: "QtProject-qtcreator"
+2022-04-08, 17:31:19.608 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-08, 17:33:08.712 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-08, 17:34:25.656 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-08, 17:35:06.929 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-08, 17:35:24.952 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-08, 17:35:42.992 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-08, 17:35:45.048 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-08, 17:37:51.137 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T624fa5ec" my-id: "e11T624fa5ec" icon: "QtProject-qtcreator"
+2022-04-08, 17:50:32.787 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-08, 17:50:48.771 [Debug  ] [  ] app item clicked, name: "Google Chrome" id: "e10T624fa5ec" my-id: "e10T624fa5ec" icon: "google-chrome"
+2022-04-08, 17:50:59.645 [Warning] [  ] requestActivate() called for  QWidgetWindow(0x6e21d0, name="apppopupWindow")  which has Qt::WindowDoesNotAcceptFocus set.
+2022-04-08, 17:53:22.187 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-08, 17:54:43.612 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-08, 17:55:33.828 [Debug  ] [  ] app item clicked, name: "控制中心" id: "e4T624fa5ec" my-id: "e4T624fa5ec" icon: "preferences-system"
+2022-04-08, 17:57:07.428 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-08, 17:57:29.492 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-08, 18:00:06.965 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-08, 18:00:21.581 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-08, 18:00:30.637 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 09:22:01.645 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T624fa5ec" my-id: "e11T624fa5ec" icon: "QtProject-qtcreator"
+2022-04-11, 09:22:48.389 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 09:22:58.757 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 09:28:19.262 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 09:37:48.429 [Debug  ] [diskmountplugin.cpp  DiskMountPlugin::diskCountChanged   203] 0 false
+2022-04-11, 09:37:50.799 [Debug  ] [diskmountplugin.cpp  DiskMountPlugin::diskCountChanged   203] 0 false
+2022-04-11, 09:37:54.179 [Debug  ] [  ] Cannot find gsettings, schema_id: "com.deepin.dde.dock.module.deepin-screen-recorder-plugin"
+2022-04-11, 09:37:54.179 [Debug  ] [  ] Cannot find gsettings, schema_id: "com.deepin.dde.dock.module.deepin-screen-recorder-plugin"  path: ""  key: "enable" Use fallback value: QVariant(bool, true)
+2022-04-11, 09:38:10.264 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 423 function: onDeviceEnableChanged Message: "Device enabled:0"
+2022-04-11, 09:38:10.299 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 142 function: onDevicesChanged Message: device Changed
+2022-04-11, 09:38:10.351 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 346 function: onActiveConnectionsChanged Message: Active Connections Changed
+2022-04-11, 09:38:10.351 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 485 function: activeInfoChanged Message: active info changed
+2022-04-11, 09:38:10.351 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 331 function: updateActiveInfo Message: start
+2022-04-11, 09:38:10.351 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 472 function: asyncActiveConnectionInfo Message: start
+2022-04-11, 09:38:10.358 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 142 function: onDevicesChanged Message: device Changed
+2022-04-11, 09:38:10.360 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 478 function: operator() Message: receive value
+2022-04-11, 09:38:10.360 [Debug  ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 389 function: activeConnInfoChanged Message: "receive error connection value: null"
+2022-04-11, 09:38:10.360 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 574 function: updateNetworkDetails Message: start
+2022-04-11, 09:38:10.360 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 346 function: onActiveConnectionsChanged Message: Active Connections Changed
+2022-04-11, 09:38:10.360 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 485 function: activeInfoChanged Message: active info changed
+2022-04-11, 09:38:10.360 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 331 function: updateActiveInfo Message: start
+2022-04-11, 09:38:10.360 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 472 function: asyncActiveConnectionInfo Message: start
+2022-04-11, 09:38:10.361 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 346 function: onActiveConnectionsChanged Message: Active Connections Changed
+2022-04-11, 09:38:10.361 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 485 function: activeInfoChanged Message: active info changed
+2022-04-11, 09:38:10.361 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 472 function: asyncActiveConnectionInfo Message: start
+2022-04-11, 09:38:10.364 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 478 function: operator() Message: receive value
+2022-04-11, 09:38:10.364 [Debug  ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 389 function: activeConnInfoChanged Message: "receive error connection value: null"
+2022-04-11, 09:38:10.364 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 574 function: updateNetworkDetails Message: start
+2022-04-11, 09:38:10.365 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 478 function: operator() Message: receive value
+2022-04-11, 09:38:10.365 [Debug  ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 389 function: activeConnInfoChanged Message: "receive error connection value: null"
+2022-04-11, 09:38:10.365 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 574 function: updateNetworkDetails Message: start
+2022-04-11, 09:38:13.648 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 423 function: onDeviceEnableChanged Message: "Device enabled:1"
+2022-04-11, 09:38:13.687 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 423 function: onDeviceEnableChanged Message: "Device enabled:1"
+2022-04-11, 09:38:13.688 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 346 function: onActiveConnectionsChanged Message: Active Connections Changed
+2022-04-11, 09:38:13.688 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 485 function: activeInfoChanged Message: active info changed
+2022-04-11, 09:38:13.688 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 331 function: updateActiveInfo Message: start
+2022-04-11, 09:38:13.688 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 472 function: asyncActiveConnectionInfo Message: start
+2022-04-11, 09:38:13.688 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 142 function: onDevicesChanged Message: device Changed
+2022-04-11, 09:38:13.720 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 142 function: onDevicesChanged Message: device Changed
+2022-04-11, 09:38:13.720 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 142 function: onDevicesChanged Message: device Changed
+2022-04-11, 09:38:13.721 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 142 function: onDevicesChanged Message: device Changed
+2022-04-11, 09:38:13.721 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 142 function: onDevicesChanged Message: device Changed
+2022-04-11, 09:38:13.721 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 478 function: operator() Message: receive value
+2022-04-11, 09:38:13.721 [Debug  ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 389 function: activeConnInfoChanged Message: "receive error connection value: null"
+2022-04-11, 09:38:13.721 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 574 function: updateNetworkDetails Message: start
+2022-04-11, 09:38:16.022 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 142 function: onDevicesChanged Message: device Changed
+2022-04-11, 09:38:16.205 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 142 function: onDevicesChanged Message: device Changed
+2022-04-11, 09:38:16.206 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 142 function: onDevicesChanged Message: device Changed
+2022-04-11, 09:38:16.210 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 142 function: onDevicesChanged Message: device Changed
+2022-04-11, 09:38:16.210 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 346 function: onActiveConnectionsChanged Message: Active Connections Changed
+2022-04-11, 09:38:16.210 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 485 function: activeInfoChanged Message: active info changed
+2022-04-11, 09:38:16.210 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 331 function: updateActiveInfo Message: start
+2022-04-11, 09:38:16.210 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 472 function: asyncActiveConnectionInfo Message: start
+2022-04-11, 09:38:16.220 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 478 function: operator() Message: receive value
+2022-04-11, 09:38:16.220 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 149 function: updateActiveConnectionInfo Message: receive Ip Data
+2022-04-11, 09:38:16.220 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 574 function: updateNetworkDetails Message: start
+2022-04-11, 09:38:33.791 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T624fa5ec" my-id: "e11T624fa5ec" icon: "QtProject-qtcreator"
+2022-04-11, 09:39:11.191 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 09:39:23.272 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 09:41:21.463 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T624fa5ec" my-id: "e9T624fa5ec" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 09:43:59.315 [Debug  ] [  ] Cannot find gsettings, schema_id: "com.deepin.dde.dock.module.deepin-screen-recorder-plugin"
+2022-04-11, 09:43:59.315 [Debug  ] [  ] Cannot find gsettings, schema_id: "com.deepin.dde.dock.module.deepin-screen-recorder-plugin"  path: ""  key: "enable" Use fallback value: QVariant(bool, true)
+2022-04-11, 09:45:11.724 [Debug  ] [  ] org.kde.StatusNotifierWatcher SNI watcher daemon started, register dock to watcher as SNI Host
+2022-04-11, 09:45:11.777 [Info   ] [  ] hidestate change: 0 1
+2022-04-11, 09:45:14.895 [Debug  ] [  ] load plugins item:  "AiAssistant" "AiAssistant" PluginWidget(0x109a510, name="AiAssistant-centralwidget")
+2022-04-11, 09:45:14.896 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+No appenders assotiated with category dtk.dsg.config
+[Warning] <Dtk::Core::{anonymous}::DBusBackend::load> dbus path="/org_deepin_dde_dock/org_deepin_dde_dock/1000"
+2022-04-11, 09:46:01.772 [Debug  ] [  ] windowsID: 56623107
+2022-04-11, 09:46:01.797 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_AysCcC.jpg"
+2022-04-11, 09:46:01.798 [Warning] [  ] requestActivate() called for  QWidgetWindow(0x6e21d0, name="apppopupWindow")  which has Qt::WindowDoesNotAcceptFocus set.
+2022-04-11, 09:46:01.801 [Debug  ] [  ] windowsID: 56623107
+2022-04-11, 09:46:01.829 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_oivspK.jpg"
+2022-04-11, 09:46:02.327 [Warning] [  ] requestActivate() called for  QWidgetWindow(0x6e21d0, name="apppopupWindow")  which has Qt::WindowDoesNotAcceptFocus set.
+2022-04-11, 09:46:04.024 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 09:52:24.107 [Debug  ] [diskcontrolwidget.cpp DiskControlWidget::onMountAdded     471] changed from mount_add
+2022-04-11, 09:52:24.122 [Debug  ] [diskmountplugin.cpp  DiskMountPlugin::diskCountChanged   203] 0 false
+2022-04-11, 09:53:20.345 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 09:53:54.228 [Debug  ] [diskcontrolwidget.cpp DiskControlWidget::onMountRemoved   478] changed from mount_remove: "/org/freedesktop/UDisks2/block_devices/nvme0n1p4"
+2022-04-11, 09:53:54.328 [Debug  ] [diskcontrolwidget.cpp DiskControlWidget::onMountRemoved   488] unmounted, "/deepin-ab-recovery-backup\x00"
+2022-04-11, 09:53:54.339 [Debug  ] [diskmountplugin.cpp  DiskMountPlugin::diskCountChanged   203] 0 false
+2022-04-11, 09:54:20.937 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T62538827" my-id: "e9T62538827" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 09:56:03.241 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 09:59:55.914 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T62538827" my-id: "e9T62538827" icon: "com.qq.weixin.work.deepin"
+No appenders assotiated with category dtk.dsg.config
+[Warning] <Dtk::Core::{anonymous}::DBusBackend::load> dbus path="/org_deepin_dde_dock/org_deepin_dde_dock/1000"
+2022-04-11, 10:04:17.339 [Debug  ] [  ] windowsID: 786453
+2022-04-11, 10:04:17.368 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_feeCkh.jpg"
+2022-04-11, 10:04:17.368 [Warning] [  ] requestActivate() called for  QWidgetWindow(0x6e21d0, name="apppopupWindow")  which has Qt::WindowDoesNotAcceptFocus set.
+2022-04-11, 10:04:17.375 [Debug  ] [  ] windowsID: 786453
+2022-04-11, 10:04:17.400 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_tTtZec.jpg"
+2022-04-11, 10:05:32.378 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T62538827" my-id: "e9T62538827" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 10:05:39.650 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 10:12:19.500 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T62538827" my-id: "e9T62538827" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 10:13:45.283 [Debug  ] [  ] windowsID: 720916
+2022-04-11, 10:13:45.315 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_wZEwnA.jpg"
+2022-04-11, 10:13:45.317 [Debug  ] [  ] windowsID: 720934
+2022-04-11, 10:13:45.336 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_HXUbML.jpg"
+2022-04-11, 10:14:28.972 [Debug  ] [  ] windowsID: 720916
+2022-04-11, 10:14:29.019 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_wElaoF.jpg"
+2022-04-11, 10:14:29.021 [Debug  ] [  ] windowsID: 720934
+2022-04-11, 10:14:29.049 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_QHhnTg.jpg"
+No appenders assotiated with category dtk.dsg.config
+[Warning] <Dtk::Core::{anonymous}::DBusBackend::load> dbus path="/org_deepin_dde_dock/org_deepin_dde_dock/1000"
+2022-04-11, 10:15:27.479 [Debug  ] [  ] windowsID: 56623107
+2022-04-11, 10:15:27.504 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_Yqlkqk.jpg"
+2022-04-11, 10:15:27.505 [Warning] [  ] requestActivate() called for  QWidgetWindow(0x6e21d0, name="apppopupWindow")  which has Qt::WindowDoesNotAcceptFocus set.
+2022-04-11, 10:15:27.506 [Debug  ] [  ] windowsID: 720916
+2022-04-11, 10:15:27.521 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_lQmVVo.jpg"
+2022-04-11, 10:15:27.524 [Debug  ] [  ] windowsID: 56623107
+2022-04-11, 10:15:27.550 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_USRzqv.jpg"
+2022-04-11, 10:15:27.846 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T62538827" my-id: "e9T62538827" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 10:33:16.514 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T62538827" my-id: "e9T62538827" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 10:33:31.330 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 10:34:20.563 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T62538827" my-id: "e9T62538827" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 10:44:58.245 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T62538827" my-id: "e9T62538827" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 10:53:48.255 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 10:59:21.547 [Debug  ] [  ] Cannot find gsettings, schema_id: "com.deepin.dde.dock.module.deepin-screen-recorder-plugin"
+2022-04-11, 10:59:21.547 [Debug  ] [  ] Cannot find gsettings, schema_id: "com.deepin.dde.dock.module.deepin-screen-recorder-plugin"  path: ""  key: "enable" Use fallback value: QVariant(bool, true)
+2022-04-11, 10:59:28.067 [Debug  ] [  ] Cannot find gsettings, schema_id: "com.deepin.dde.dock.module.deepin-screen-recorder-plugin"
+2022-04-11, 10:59:28.067 [Debug  ] [  ] Cannot find gsettings, schema_id: "com.deepin.dde.dock.module.deepin-screen-recorder-plugin"  path: ""  key: "enable" Use fallback value: QVariant(bool, true)
+No appenders assotiated with category dtk.dsg.config
+[Warning] <Dtk::Core::{anonymous}::DBusBackend::load> dbus path="/org_deepin_dde_dock/org_deepin_dde_dock/1000"
+2022-04-11, 11:03:02.018 [Debug  ] [  ] windowsID: 786453
+2022-04-11, 11:03:02.046 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_lnopxY.jpg"
+2022-04-11, 11:03:02.047 [Warning] [  ] requestActivate() called for  QWidgetWindow(0x6e21d0, name="apppopupWindow")  which has Qt::WindowDoesNotAcceptFocus set.
+2022-04-11, 11:03:02.051 [Debug  ] [  ] windowsID: 786453
+2022-04-11, 11:03:02.080 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_hGWyLE.jpg"
+2022-04-11, 11:03:02.168 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:03:25.136 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:03:48.544 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:03:52.568 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:04:22.504 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:05:09.673 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:05:26.513 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T62538827" my-id: "e9T62538827" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 11:10:17.546 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:20:11.956 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 322 function: onConnectionListChanged Message: start
+2022-04-11, 11:20:11.956 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 248 function: updateConnection Message: start..........
+2022-04-11, 11:20:11.956 [Debug  ] [  ] /build/dde-network-core-1.0.7/src/realize/deviceinterrealize.cpp line: 264 function: updateConnection Message: "new wifi: "
+2022-04-11, 11:20:11.982 [Info   ] [  ] /build/dde-network-core-1.0.7/src/realize/networkinterprocesser.cpp line: 540 function: updateDeviceHotpot Message: start

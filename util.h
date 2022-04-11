@@ -393,6 +393,7 @@ inline bool clickButtonByAccessbleName(const QString text, int index = 0) {
     }
     return false;
 }
+#if 0
 inline bool clickButtonByButtonIndex(const QString text, int index) {
     const QObjectList &list = findObjects(ByClassName, text);
     if (index >= list.size()) {
@@ -412,58 +413,7 @@ inline bool clickButtonByButtonIndex(const QString text, int index) {
     }
     return false;
 }
-
-inline bool setLineEditTextByIndex(const QString &lineEditContent,
-                                   int index = 0) {
-    ObjectPathResolver resolver;
-    resolver.setValidFilter([](QObject *obj) -> bool {
-        if (auto edit = qobject_cast<QLineEdit *>(obj)) {
-            return edit->isVisible();
-        }
-        return false;
-    });
-    resolver.findExistingObjects();
-
-    QObjectList list = resolver.validObjects();
-    if (index >= list.size()) {
-        return false;
-    }
-    auto lineEdit = qobject_cast<QLineEdit *>(list.at(index));
-    lineEdit->setText(lineEditContent);
-    Q_EMIT lineEdit->editingFinished();
-    return true;
-}
-
-inline bool setLineEditTextByItemIndex(const QString &lineEditClassName,
-                                       const QString &lineEditContent,
-                                       const int &layer,
-                                       const int &index,
-                                       const QVector<ObjectPath>::iterator &itr) {
-    QObjectList list = findObjects(ByClassName, lineEditClassName);
-    // qInfo() << "setLineEditTextByItemIndex: " << list.size() << " layer " << layer << " index " << index;
-    if (index >= list.size()) {
-        return false;
-    }
-    for (auto edit : list) {
-        auto path = ObjectPath::parseObjectPath(edit);
-        ObjectPath tempPath(path);
-        if (*itr == tempPath) {
-            auto lineEdit = qobject_cast<QLineEdit *>(edit);
-            lineEdit->setText(lineEditContent);
-            Q_EMIT lineEdit->editingFinished();
-            return true;
-        }
-    }
-//    if (auto lineEdit = qobject_cast<QLineEdit *>(list[index < 0 ? 0 : index])){
-//        // if (ObjectPath::getLayerCount(lineEdit) != layer || ObjectPath::getSiblingIndex(lineEdit) != index) {
-//        //     return false;
-//        // }
-//        lineEdit->setText(lineEditContent);
-//        Q_EMIT lineEdit->editingFinished();
-//        return true;
-//    }
-    return false;
-}
+#endif
 
 // 按以下几种查找方式，直到确定该对象是唯一的
 // byAccessableName、byClassName、byIndex
@@ -482,7 +432,7 @@ enum LocationType {
     byItemViewInfo, // 根据以上四种信息查找
 
     byButtonText,   // 优先级2
-    byButtonIndex
+    // byButtonIndex  根据索引找就是同类的索引，最后带上类名和索引
 };
 inline static const QMap<LocationType, QString> type2Str {
     { byAccName, "byAccName" },
@@ -491,7 +441,7 @@ inline static const QMap<LocationType, QString> type2Str {
     { byItemText, "byItemText" },
     { byItemViewInfo, "byItemViewInfo" },
     { byButtonText, "byButtonText" },
-    { byButtonIndex, "byButtonIndex" },
+    // { byButtonIndex, "byButtonIndex" },
 };
 
 struct ObjInfo {
@@ -539,7 +489,8 @@ inline ObjInfo findUniqInfo(QObject *object, QVariant value = {}) {
             findTypes << QPair<LocationType, QString>{ byButtonText, button->text() };
         } else {
             // 最终记录 button 的 index + 类名
-            findTypes << QPair<LocationType, QString>{ byButtonIndex, QString() };
+            // noTextButton又叫图形按钮，生成代码的时候找没有文字的
+            // findTypes << QPair<LocationType, QString>{ byClassName, button->metaObject()->className() };
         }
     }
 
@@ -711,5 +662,104 @@ inline ObjInfo findUniqInfo(QObject *object, QVariant value = {}) {
     qInfo() << "Error, xxxxxxxxxxxx 控件不唯一, 请标记... " << object->metaObject();
     return {};
 }
+
+
+inline bool setLineEditTextByInfo(const QStringList &lineEditInfo) {
+    ObjectPathResolver resolver;
+    QStringList editInfo = lineEditInfo;
+    QString text, method, methodType;
+    text = editInfo.takeFirst();
+    method = editInfo.takeFirst();
+    methodType = editInfo.takeFirst();
+    int index = 0;
+    if (editInfo.size()) {
+        index = editInfo.takeFirst().toInt();
+    }
+
+    resolver.setValidFilter([method, methodType](QObject *obj) -> bool {
+        if (auto edit = qobject_cast<QLineEdit *>(obj)) {
+            if (method == "byAcc") {
+                return edit->accessibleName() == methodType;
+            }
+            if (method == "byObj") {
+                return edit->objectName() == methodType;
+            }
+            if (method == "byClass") {
+                return edit->metaObject()->className() == methodType;
+            }
+            qInfo() << "edit type error!!! " << method;
+            return false;
+        }
+        return false;
+    });
+    resolver.findExistingObjects();
+
+    QObjectList list = resolver.validObjects();
+    if (index >= list.size()) {
+        return false;
+    }
+    auto lineEdit = qobject_cast<QLineEdit *>(list.at(index));
+    lineEdit->setText(text);
+    Q_EMIT lineEdit->editingFinished();
+    return true;
+}
+
+inline bool clickButtonByButtonInfo(const QStringList &buttonInfo) {
+    ObjectPathResolver resolver;
+    QStringList btnInfo = buttonInfo;
+    QString text;
+    QString method, methodType;
+    bool isFindByText = btnInfo.size() == 1;
+    int index = 0;
+    if (isFindByText) {
+        text = btnInfo.takeFirst();
+    } else {
+        method = btnInfo.takeFirst();
+        methodType = btnInfo.takeFirst();
+        if (btnInfo.size()) {
+            index = btnInfo.takeFirst().toInt();
+        }
+    }
+    resolver.setValidFilter([=](QObject *obj) -> bool {
+        if (auto button = qobject_cast<QAbstractButton *>(obj)){
+            if (isFindByText) {
+                return button->text() == text;
+            } else {
+                if (method == "byAcc") {
+                    return button->accessibleName() == methodType;
+                }
+                if (method == "byObj") {
+                    return button->objectName() == methodType;
+                }
+                if (method == "byClass") {
+                    return button->metaObject()->className() == methodType;
+                }
+                qInfo() << "button type error!!! " << method;
+                return false;
+            }
+        }
+        return false;
+    });
+    resolver.findExistingObjects();
+
+    QObjectList list = resolver.validObjects();
+    if (index >= list.size()) {
+        return false;
+    }
+    if (auto button = qobject_cast<QAbstractButton *>(list.at(index))){
+        // button->click();
+        if (!button->isEnabled()) {
+            return false;
+        }
+        QPoint pos(0, 0);
+        QMouseEvent pressEv(QEvent::MouseButtonPress, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QMouseEvent *releaseEv = new QMouseEvent(QEvent::MouseButtonRelease, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QApplication::sendEvent(button, &pressEv);
+        QApplication::postEvent(button, releaseEv); // 防止模态窗口阻塞在这里, 配合 qApp->processEvents 进行处理
+        return true;
+    }
+    return false;
+}
+
 
 #endif//UTIL_H

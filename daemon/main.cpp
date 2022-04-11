@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
             if (parser.isSet("f")) {
                 client->sendTextMessage(QString("execute-script:%1").arg(parser.value("f")));
             } else if (parser.isSet("c")) {
-                client->sendTextMessage(QString("execute-function:%1").arg(parser.value("c")));
+                client->sendTextMessage(QString("execute-function@%1").arg(parser.value("c")));
             }
         }
         if (msg == "Show-Gui-Finished") {

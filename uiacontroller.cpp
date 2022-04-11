@@ -234,6 +234,7 @@ bool UiaController::nextStep() {
     auto guard = qScopeGuard([]{
         instance()->m_itr++;
     });
+#if 0
     if (instance()->m_itr->parameters().parameterCount) {
         const int &uniq_index = instance()->m_itr->parameters().uniqIndex;
         const QString &playMethod = instance()->m_itr->parameters().playMethod;
@@ -284,6 +285,7 @@ bool UiaController::nextStep() {
             return setLineEditTextByItemIndex(text, content, layer, index, instance()->m_itr);
         }
     }
+#endif
     return false;
 }
 

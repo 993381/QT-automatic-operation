@@ -115,9 +115,13 @@ function 双击选择(item) {
     funcTimedCaller(TestMethod.dbClickSelectListItem, args);
 }
 
-// 文字按钮
+// 一个参数根据文本点击，多个参数根据基本信息点击
 function 点击(btnText) {
-    funcTimedCaller(TestMethod.clickButtonByText, btnText);
+    var args = [];
+    for (var i = 0; i < arguments.length; i++) {
+        args[i] = arguments[i];
+    }
+    funcTimedCaller(TestMethod.clickButton, args);
 }
 
 // 一个参数是根据索引，多个参数是 type+value+index，index 默认为 0

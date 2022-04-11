@@ -109,8 +109,8 @@ static void gammaray_pre_routine()
                     client->sendTextMessage("Exec-file--read-error");
                 }
             }
-            if (msg.startsWith("Exec-function:")) {
-                QString userCode = res.at(1);
+            if (msg.startsWith("Exec-function@")) {
+                QString userCode = msg.split("@").at(1);
                 // ScriptEngine::instance()->runScript("useTimer = false;" + userCode + ";execFinished()");
 
                 auto result = ScriptEngine::instance()->syncRunJavaScript(execInit.arg("false") + userCode + execFinished);

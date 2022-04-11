@@ -60,6 +60,37 @@ static void executeSignalCallback(const Func &func)
     func(m_previousSignalSpyCallbackSet);
 }
 
+QString paramGenerate(const ObjInfo &info, QWidget *widget) {
+    qInfo() << "index: " << info.index << " find method: " << type2Str[info.type];
+    QStringList params;
+    if (info.type == byAccName) {
+        params << "'byAcc'" << QString("'%1'").arg(widget->accessibleName());
+    }
+    if (info.type == byObjName) {
+        params << "'byObj'" << QString("'%1'").arg(widget->objectName());
+    }
+    if (info.type == byClassName) {
+        params << "'byClass'" << QString("'%1'").arg(widget->metaObject()->className());
+    }
+    if ((info.type == byAccName || info.type == byObjName) && !params.isEmpty()) {
+        if (info.index != 0) {
+            qInfo() << "Error, 标记过的控件不唯一: " << params;
+        }
+    }
+    if (info.index != 0) {
+        params << QString("%1").arg(info.index);
+    }
+
+    QString cmdParam;
+    for (int i = 0; i < params.size(); ++i) {
+        cmdParam += params.at(i);
+        if (i != params.size() - 1) {
+            cmdParam += ", ";
+        }
+    }
+    return cmdParam;
+}
+
 void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
 {
     if (!Probe::instance()) {
@@ -76,14 +107,21 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
         const int &method_index = signalIndexToMethodIndex(caller->metaObject(), method_index_in);
         const QString methodSignature = caller->metaObject()->method(method_index).methodSignature();
 
-        QString finalCmd; // 最终生产的可执行的 Js 文本
+        QString finalCmd; // 最终生成的可执行的 Js 文本
 
-        QAbstractButton * button = qobject_cast<QAbstractButton *>(caller);
+        QAbstractButton *button = qobject_cast<QAbstractButton *>(caller);
         if (button && methodSignature == "released()") {
             ObjInfo info = findUniqInfo(caller, button->text());
             if (info.index != -1) {
                 qInfo() << "find method: " << type2Str[info.type] << info.value.toString();
-                finalCmd = ((info.index == 0) ? QString("点击('%1')").arg(info.value.toString()) : QString("点击('%1', '%2')").arg(info.value.toString()).arg(info.index));
+                if (info.type == byButtonText) {
+                    // 根据文本找对象
+                    finalCmd = ((info.index == 0) ? QString("点击(%1)").arg(info.value.toString()) : QString("点击(%1, %2)").arg(info.value.toString()).arg(info.index));
+                } else {
+                    // 文本不唯一或不存在根据 acc、obj、class 名称找对象
+                    QString cmdParam = paramGenerate(info, button);
+                    finalCmd = QString("点击('%1')").arg(cmdParam);
+                }
             }
         }
         QAbstractItemView *listView = qobject_cast<QAbstractItemView *>(caller);
@@ -100,7 +138,8 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
                     if (info.index != -1) {
                         qInfo() << "index: " << info.index << " find method: " << type2Str[info.type];
                         // 查找项(text, index) && 选中(text, index)  查询就返回找到结果的个数
-                        finalCmd = ((info.index == 0) ? QString("选择('%1')").arg(info.value.toString()) : QString("选择('%1', '%2')").arg(info.value.toString()).arg(info.index));
+                        // 选择(text, index) or 选择(text, byAcc, accName, index)
+                        finalCmd = ((info.index == 0) ? QString("选择('%1')").arg(info.value.toString()) : QString("选择('%1', %2)").arg(info.value.toString()).arg(info.index));
                     }
                 }
             }
@@ -109,35 +148,11 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
         if (lineEdit && methodSignature == "editingFinished()") {
             qInfo() << "editingFinished ..........................";
             ObjInfo info = findUniqInfo(caller);
-            qInfo() << "index: " << info.index << " find method: " << type2Str[info.type];
-            QStringList params;
-            if (info.type == byAccName) {
-                params << "'byAcc'" << QString("'%1'").arg(lineEdit->accessibleName());
-            }
-            if (info.type == byObjName) {
-                params << "'byObj'" << QString("'%1'").arg(lineEdit->objectName());
-            }
-            if (info.type == byClassName) {
-                params << "'byClass'" << QString("'%1'").arg(lineEdit->metaObject()->className());
-            }
-            if ((info.type == byAccName || info.type == byObjName) && !params.isEmpty()) {
-                if (info.index != 0) {
-                    qInfo() << "Error, 标记过的控件不唯一: " << params;
-                }
-            }
-            if (info.index != 0) {
-                params << QString("%1").arg(info.index);
-            }
-
-            QString cmdParam;
-            for (int i = 0; i < params.size(); ++i) {
-                cmdParam += params.at(i);
-                if (i != params.size() - 1) {
-                    cmdParam += ", ";
-                }
-            }
+            QString cmdParam = paramGenerate(info, lineEdit);
             finalCmd = QString("输入('%1', %2)").arg(lineEdit->text()).arg(cmdParam);
         }
+
+        // 追加显示生产的执行命令
         if (!finalCmd.isEmpty())
             StepRecord::instance()->append(finalCmd);
     }
