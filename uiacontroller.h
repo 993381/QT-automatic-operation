@@ -5,9 +5,9 @@
 #include <QWidget>
 #include <QProcess>
 #include <QApplication>
-#include "objectpath.h"
 
 class EventFilter;
+class QTextEdit;
 class UiaController {
     Q_DISABLE_COPY(UiaController)
     UiaController();
@@ -37,11 +37,8 @@ public:
 private:
     QScopedPointer<EventFilter> m_filter;
 
+    QTextEdit *m_edit = nullptr;
     bool nextStep();
-    QVector<ObjectPath> m_paths;
-    QVector<ObjectPath>::iterator m_itr;
-
-    QScopedPointer<QProcess> m_process;
 };
 
 #endif//UIACONTROLLER_H

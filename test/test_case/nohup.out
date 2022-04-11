@@ -336,3 +336,54 @@ No appenders assotiated with category dtk.dsg.config
 2022-04-11, 11:29:37.348 [Debug  ] [  ] app item clicked, name: "控制中心" id: "e4T62538827" my-id: "e4T62538827" icon: "preferences-system"
 2022-04-11, 11:30:45.972 [Debug  ] [  ] app item clicked, name: "控制中心" id: "e4T62538827" my-id: "e4T62538827" icon: "preferences-system"
 2022-04-11, 11:30:58.908 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+No appenders assotiated with category dtk.dsg.config
+[Warning] <Dtk::Core::{anonymous}::DBusBackend::load> dbus path="/org_deepin_dde_dock/org_deepin_dde_dock/1000"
+2022-04-11, 11:33:34.462 [Debug  ] [  ] windowsID: 786453
+2022-04-11, 11:33:34.488 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_rvHSTQ.jpg"
+2022-04-11, 11:33:34.488 [Warning] [  ] requestActivate() called for  QWidgetWindow(0x6e21d0, name="apppopupWindow")  which has Qt::WindowDoesNotAcceptFocus set.
+2022-04-11, 11:33:34.492 [Debug  ] [  ] windowsID: 786453
+2022-04-11, 11:33:34.517 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_twyjxD.jpg"
+2022-04-11, 11:33:41.493 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:35:50.413 [Debug  ] [  ] load plugins item:  "notifications" "notifications" NotificationsWidget(0x1011910, name="notifications-centralwidget")
+2022-04-11, 11:35:50.413 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+2022-04-11, 11:36:00.885 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:36:26.821 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:36:52.525 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+No appenders assotiated with category dtk.dsg.config
+[Warning] <Dtk::Core::{anonymous}::DBusBackend::load> dbus path="/org_deepin_dde_dock/org_deepin_dde_dock/1000"
+2022-04-11, 11:37:30.256 [Debug  ] [  ] windowsID: 786453
+2022-04-11, 11:37:30.281 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_GazYwt.jpg"
+2022-04-11, 11:37:30.281 [Warning] [  ] requestActivate() called for  QWidgetWindow(0x6e21d0, name="apppopupWindow")  which has Qt::WindowDoesNotAcceptFocus set.
+2022-04-11, 11:37:30.285 [Debug  ] [  ] windowsID: 786453
+2022-04-11, 11:37:30.298 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_bnhKHl.jpg"
+2022-04-11, 11:37:30.665 [Debug  ] [  ] windowsID: 786453
+2022-04-11, 11:37:30.680 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_aSvqPk.jpg"
+No appenders assotiated with category dtk.dsg.config
+[Warning] <Dtk::Core::{anonymous}::DBusBackend::load> dbus path="/org_deepin_dde_dock/org_deepin_dde_dock/1000"
+2022-04-11, 11:37:32.495 [Debug  ] [  ] windowsID: 720914
+2022-04-11, 11:37:32.508 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_lOsZaz.jpg"
+2022-04-11, 11:37:32.508 [Debug  ] [  ] windowsID: 720938
+2022-04-11, 11:37:32.526 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_xhAESu.jpg"
+2022-04-11, 11:37:32.527 [Warning] [  ] requestActivate() called for  QWidgetWindow(0x6e21d0, name="apppopupWindow")  which has Qt::WindowDoesNotAcceptFocus set.
+2022-04-11, 11:37:32.532 [Debug  ] [  ] windowsID: 720914
+2022-04-11, 11:37:32.545 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_hgGIkN.jpg"
+2022-04-11, 11:37:32.545 [Debug  ] [  ] windowsID: 720938
+2022-04-11, 11:37:32.560 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_sQxdiq.jpg"
+2022-04-11, 11:37:32.881 [Debug  ] [  ] windowsID: 720938
+2022-04-11, 11:37:32.894 [Debug  ] [  ] reply:  "/tmp/kwin_screenshot_fVsnRO.jpg"
+2022-04-11, 11:38:00.901 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:39:05.405 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:39:40.141 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:40:35.214 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:41:15.566 [Debug  ] [  ] load plugins item:  "notifications" "notifications" NotificationsWidget(0x1011910, name="notifications-centralwidget")
+2022-04-11, 11:41:15.566 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+2022-04-11, 11:41:16.966 [Debug  ] [  ] load plugins item:  "notifications" "notifications" NotificationsWidget(0x1011910, name="notifications-centralwidget")
+2022-04-11, 11:41:16.966 [Warning] [  ] QLayout: Attempting to add QLayout "" to MainPanelControl "", which already has a layout
+2022-04-11, 11:45:49.823 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T62538827" my-id: "e9T62538827" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 11:45:54.313 [Warning] [  ] requestActivate() called for  QWidgetWindow(0x6e21d0, name="apppopupWindow")  which has Qt::WindowDoesNotAcceptFocus set.
+2022-04-11, 11:45:54.927 [Debug  ] [  ] app item clicked, name: "控制中心" id: "e4T62538827" my-id: "e4T62538827" icon: "preferences-system"
+2022-04-11, 11:47:15.671 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T62538827" my-id: "e9T62538827" icon: "com.qq.weixin.work.deepin"
+2022-04-11, 11:48:02.543 [Debug  ] [  ] app item clicked, name: "Qt Creator" id: "e11T62538827" my-id: "e11T62538827" icon: "QtProject-qtcreator"
+2022-04-11, 11:50:13.367 [Debug  ] [  ] app item clicked, name: "Google Chrome" id: "e10T62538827" my-id: "e10T62538827" icon: "google-chrome"
+2022-04-11, 11:52:22.584 [Debug  ] [  ] app item clicked, name: "企业微信" id: "e9T62538827" my-id: "e9T62538827" icon: "com.qq.weixin.work.deepin"
+method return time=1649653346.946531 sender=:1.296 -> destination=:1.903 serial=853 reply_serial=2

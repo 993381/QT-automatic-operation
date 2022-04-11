@@ -87,8 +87,8 @@ set(SOURCES          # ${LOCAL_SOCKET}
         steprecord.h
         # steprecord.cpp
 
-        objectpath.h
-        objectpath.cpp
+        # objectpath.h
+        # objectpath.cpp
 
         probeguard.h
         probeguard.cpp

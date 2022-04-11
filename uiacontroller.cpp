@@ -2,7 +2,6 @@
 #include "objectlistmanager.h"
 #include "operationmanager.h"
 #include "objectpathresolver.h"
-#include "objectpath.h"
 
 #if QT_VERSION > QT_VERSION_CHECK(5, 11, 3)
 # include <qscopeguard.h>
@@ -83,7 +82,6 @@ protected:
 
 UiaController::UiaController()
     : m_filter (new EventFilter)
-    , m_itr (m_paths.begin())
 {
 }
 
@@ -146,75 +144,19 @@ void UiaController::stopAllMonitoring() {
 }
 
 bool UiaController::initOperationSequence() {
-    QObject::connect(OperationManager::instance(), &OperationManager::Start, [](OperationManager::State state){
+    QObject::connect(OperationManager::instance(), &OperationManager::Start, [this](OperationManager::State state){
         if (state == OperationManager::State::Playing) {        // start playing
             UiaController::instance()->stopAllMonitoring();
-            UiaController::instance()->m_paths.clear();
-            const QVector<ObjectPath> &paths = ObjectPathManager::instance()->loadPaths();
-            instance()->m_paths = paths;
-            instance()->m_itr = UiaController::instance()->m_paths.begin();
-
-#if 0
-            qInfo() << "xxxxxxxxxxxxxxxxxxxxxxxxx " << paths.size();
-            for (auto path : paths) {                           // ObjectPathManager::instance()->loadPaths()) {
-                if (path.parameters().parameterCount) {
-                    const int &uniq_index = path.parameters().uniqIndex;
-                    const QString &method = path.parameters().playMethod;
-                    const QString &text = path.parameters().parameterValues.first().toString();
-                    qInfo() << "method selectListItemByText: "
-                            << method << " uniq_index: " << uniq_index
-                            << path.parameters().parameterCount
-                            << path.parameters().parameterValues.first();
-                    if (uniq_index == -1) {
-                         qInfo() << "uniq_index error";
-                         exit(0);
-                    }
-                    static int inteval = 0;
-                    if (method == "selectListItemByText") {
-                        QTimer::singleShot(1000 * inteval, [path, text, uniq_index] {
-                            // qInfo() << "selectListItemByText: " << text;
-                            selectListItemByText(text, uniq_index == -1? 0 : uniq_index);
-                        });
-                        continue;
-                    }
-                    inteval+=5;
-                }
-
-
-#if 0
-                ObjectPathResolver resolver;
-                resolver.setDiscoverCallback([path](QObject *obj) -> bool {
-                    ObjectPath::NodeInfo info1 = ObjectPath::parseObjectInfo(obj);
-                    if (/*info1.depth<0 || */info1.depth>path.path().size()) return false;              // 对象路径的长度应该和输入的路径长度一致
-                    ObjectPath::NodeInfo info2 = path.path().at(info1.depth-1);
-                    qInfo() << "------------ " << obj << " depth: " << info1.depth << (info1 == info2);
-                    return info1 == info2;
-                });
-
-                resolver.findExistingObjects();
-                // 从符合层级关系的对象中找出符合路径关系的对象
-                QObjectList objects = resolver.objects();
-                qInfo() << "objects size........... " << objects.size() << objects[0];
-                // static int inteval = 0;
-                for (QObject *obj : objects) {
-                    ObjectPath obj_path(ObjectPath::parseObjectPath(obj));
-
-                    if (obj_path == path) {
-                        obj_path.dump();
-                        path.dump();
-
-                        int index2 = obj->metaObject()->indexOfSignal("pressed()");
-                        if (index2 < 0) continue;
-                        QTimer::singleShot(1000*inteval, [path, obj, index2] {
-                            qInfo() << "target obj found: " << obj;
-                            // obj->metaObject()->method(index2).invoke(obj, Qt::ConnectionType::DirectConnection);    // 信号的调用和槽的调用几乎是一样的
-                        });
-                        // inteval+=5;
-                    }
-                }
-#endif
-            }
-#endif
+            QByteArray jsCode = m_edit->toPlainText().toUtf8();
+            QString execInit = ";resetConfiguration();useTimer = %1;";
+            // QString execFinished = ";execFinished();";
+            auto result = ScriptEngine::instance()->syncRunJavaScript(execInit.arg("true") + jsCode /* + execFinished*/);
+            // if (!result.first) {
+            //     client->sendTextMessage("Exec-c-failed: " + result.second.toString().toLocal8Bit());
+            // } else {
+            //     client->sendTextMessage("Exec-c-success " + result.second.toString().toLocal8Bit());
+            // }
+            qApp->processEvents();
         }
         if (state == OperationManager::State::Recording) {      // start recording
             UiaController::instance()->startAllMonitoring();
@@ -227,65 +169,8 @@ bool UiaController::initOperationSequence() {
 }
 
 bool UiaController::nextStep() {
-    if (instance()->m_itr == instance()->m_paths.end()) {
-        qInfo() << "UiaController::nextStep end";
-        return false;
-    }
     auto guard = qScopeGuard([]{
-        instance()->m_itr++;
     });
-#if 0
-    if (instance()->m_itr->parameters().parameterCount) {
-        const int &uniq_index = instance()->m_itr->parameters().uniqIndex;
-        const QString &playMethod = instance()->m_itr->parameters().playMethod;
-        const QString &recordMethod = instance()->m_itr->parameters().recordMethod;
-        const QString &discoverDesc = instance()->m_itr->parameters().discoverDesc;
-        const QString &text = instance()->m_itr->parameters().parameterValues.first().toString();
-
-        qInfo() << " playMethod: " << playMethod
-                << " recordMethod: " << recordMethod
-                << " discoverDesc: " << discoverDesc
-                << " uniq_index: " << uniq_index
-                << instance()->m_itr->parameters().parameterCount
-                << instance()->m_itr->parameters().parameterValues.first();
-        if (uniq_index == -1) {
-             qInfo() << "uniq_index error: " << -1;
-             // exit(0);
-        }
-        if (discoverDesc == "FindListItemByText") {
-            const QString &text = instance()->m_itr->parameters().parameterValues.first().toString();
-            return selectListItemByText(false, text, uniq_index == -1? 0 : uniq_index);
-        }
-        if (discoverDesc == "FindListItemByIndex") {
-            const int &row = instance()->m_itr->parameters().parameterValues.at(1).toInt();
-            const int &coloum = instance()->m_itr->parameters().parameterValues.at(2).toInt();
-            return selectListItemByIndex(text, uniq_index == -1? 0 : uniq_index, row, coloum);
-        }
-
-        if (discoverDesc == "FindButtonByObjectName") {
-            return clickButtonByObjectName(text, uniq_index == -1? 0 : uniq_index);
-        }
-        if (discoverDesc == "FindButtonByButtonText") {
-            return clickButtonByButtonText(text, uniq_index == -1? 0 : uniq_index);
-        }
-        if (discoverDesc == "FindButtonByToolTip") {
-            return clickButtonByToolTip(text, uniq_index == -1 ? 0 : uniq_index);
-        }
-        if (discoverDesc == "FindButtonByAccessibleName") {
-            return clickButtonByAccessbleName(text, uniq_index == -1 ? 0 : uniq_index);
-        }
-        if (discoverDesc == "FindButtonByButtonIndex") {
-            return clickButtonByButtonIndex(text, uniq_index == -1 ? 0 : uniq_index);
-        }
-
-        if (discoverDesc == "FindLineEditByItemIndex") {
-            const int &layer = instance()->m_itr->parameters().parameterValues.at(1).toInt();
-            const int &index = instance()->m_itr->parameters().parameterValues.at(2).toInt();
-            const QString &content = instance()->m_itr->parameters().parameterValues.at(3).toString();
-            return setLineEditTextByItemIndex(text, content, layer, index, instance()->m_itr);
-        }
-    }
-#endif
     return false;
 }
 
@@ -324,10 +209,10 @@ bool UiaController::createUiaWidget() {
 
 
     // 显示执行步骤
-    QTextEdit *edit = new QTextEdit;
-    vboxLayout->addWidget(edit);
-    QObject::connect(StepRecord::instance(), &StepRecord::stepAppend, [edit](QString step){
-        edit->append(step);
+    m_edit = new QTextEdit;
+    vboxLayout->addWidget(m_edit);
+    QObject::connect(StepRecord::instance(), &StepRecord::stepAppend, [this](QString step){
+        m_edit->append(step);
     });
 
     // for (auto window : qApp->allWidgets()) {
@@ -348,7 +233,7 @@ bool UiaController::createUiaWidget() {
     QObject::connect(button7, &QPushButton::clicked, [](bool checked){
         OperationManager::instance()->stop();
     });
-    QObject::connect(button6, &QPushButton::clicked, [edit](bool checked){
+    QObject::connect(button6, &QPushButton::clicked, [this](bool checked){
         QString openFileName = showFileDialog(QFileDialog::AcceptOpen);
         if (openFileName.isEmpty()) return;
 
@@ -357,7 +242,7 @@ bool UiaController::createUiaWidget() {
             qInfo() << "read error: " << openFileName;
             return;
         }
-        edit->setText(allData);
+        m_edit->setText(allData);
     });
     QObject::connect(button1, &QPushButton::clicked, [](bool checked){
         OperationManager::instance()->startRecording();
@@ -365,16 +250,16 @@ bool UiaController::createUiaWidget() {
     QObject::connect(button2, &QPushButton::clicked, [](bool checked){
         OperationManager::instance()->startPlaying();
     });
-    QObject::connect(button3, &QPushButton::clicked, [edit](bool checked){
-        if (OperationManager::instance()->state() != OperationManager::Recording) {
-            qInfo() << "不在录制状态!";
-            return;
-        }
+    QObject::connect(button3, &QPushButton::clicked, [this](bool checked){
+        // if (OperationManager::instance()->state() != OperationManager::Recording) {
+        //     qInfo() << "不在录制状态!";
+        //     return;
+        // }
 
         QString saveFileName = showFileDialog(QFileDialog::AcceptSave);
         if (saveFileName.isEmpty()) return;
         qInfo() << "Save json file to: " << saveFileName;
-        QByteArray byte = edit->toPlainText().toUtf8();
+        QByteArray byte = m_edit->toPlainText().toUtf8();
         bool res = fileReadWrite(saveFileName, byte, false);
         if (res) {
             qInfo() << "save success";

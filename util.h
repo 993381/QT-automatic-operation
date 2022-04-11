@@ -19,7 +19,6 @@
 #include <qitemselectionmodel.h>
 #include <QThread>
 
-#include "objectpath.h"
 #include "objectlistmanager.h"
 #include "objectpathresolver.h"
 
@@ -504,9 +503,9 @@ inline ObjInfo findUniqInfo(QObject *object, QVariant value = {}) {
         }
     }
     // byObjName
-    if (!object->objectName().isEmpty()) {
-        findTypes << QPair<LocationType, QString>{ byObjName, object->objectName() };
-    }
+    // if (!object->objectName().isEmpty()) {
+    //     findTypes << QPair<LocationType, QString>{ byObjName, object->objectName() };
+    // }
     // byClassName   把这种方式放到最后,因为不是最佳的方式
     findTypes << QPair<LocationType, QString>{ byClassName, object->metaObject()->className() };
 
@@ -547,7 +546,7 @@ inline ObjInfo findUniqInfo(QObject *object, QVariant value = {}) {
         }
         if (findType.first == byClassName) {
             // 只有 widget 或继承自 widget 的有 accessableName
-            resolver.setValidFilter([&](QObject *obj) -> bool {
+            resolver.setValidFilter([=](QObject *obj) -> bool {
                 return obj->metaObject()->className() == findType.second.toString();
             });
             QObjectList list = resolver.validObjects();
@@ -747,7 +746,6 @@ inline bool clickButtonByButtonInfo(const QStringList &buttonInfo) {
         return false;
     }
     if (auto button = qobject_cast<QAbstractButton *>(list.at(index))){
-        // button->click();
         if (!button->isEnabled()) {
             return false;
         }
