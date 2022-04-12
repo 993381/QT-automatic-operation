@@ -32,13 +32,31 @@
 
 using namespace GammaRay;
 
-class Target {
+class EventMonitor {
+private:
+    EventMonitor() {}
+    ~EventMonitor() {}
 public:
-    static void focusOut(QWidget *target, QFocusEvent *ev) {
-        DVtableHook::callOriginalFun(target, &QWidget::focusOutEvent, ev);
-
+    static EventMonitor *instance() {
+        static EventMonitor *instance = new EventMonitor;
+        return  instance;
+    }
+    static void focusOutEvent(QWidget *object, QFocusEvent *ev) {
+        DVtableHook::callOriginalFun(object, &QWidget::focusOutEvent, ev);
+        if (instance()->textChanged[object]) {
+            instance()->jsCmdGenerate(object);
+        }
+    }
+    void update(QObject *object, bool shouldUpdate = true) {
+        textChanged[object] = shouldUpdate;
+    }
+    bool shouldUpdate(QObject *object) {
+        return textChanged[object];
+    }
+private:
+    void jsCmdGenerate(QObject *object) {
         QString finalCmd;
-        QLineEdit *lineEdit = qobject_cast<QLineEdit *>(target);
+        QLineEdit *lineEdit = qobject_cast<QLineEdit *>(object);
         if (lineEdit) {
             qInfo() << "editingFinished ..........................";
             ObjInfo info = findUniqInfo(lineEdit);
@@ -48,7 +66,11 @@ public:
         // 追加显示生产的执行命令
         if (!finalCmd.isEmpty())
             StepRecord::instance()->append(finalCmd);
+
+        instance()->update(object, false);
     }
+private:
+    QMap<QObject *, bool> textChanged;    // bool: should update
 };
 
 int signalIndexToMethodIndex(const QMetaObject *metaObject, int signalIndex) {
@@ -137,10 +159,11 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
             }
         }
         QLineEdit *lineEdit = qobject_cast<QLineEdit *>(caller);
-        if (lineEdit && methodSignature == "textChanged(QString)") {
+        if (lineEdit && methodSignature == "textEdited(QString)") {
             if (!DVtableHook::hasVtable(lineEdit)) {
-                DVtableHook::overrideVfptrFun(lineEdit, &QWidget::focusOutEvent, &Target::focusOut);
+                DVtableHook::overrideVfptrFun(lineEdit, &QWidget::focusOutEvent, &EventMonitor::focusOutEvent);
             }
+            EventMonitor::instance()->update(lineEdit);
             // qInfo() << "editingFinished ..........................";
             // ObjInfo info = findUniqInfo(caller);
             // QString cmdParam = paramGenerate(info, lineEdit);
