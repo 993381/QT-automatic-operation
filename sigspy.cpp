@@ -1,3 +1,7 @@
+#define protected public
+#include <QWidget>
+#undef protected
+
 #include "sigspy.h"
 #include "probe.h"
 #include <QDebug>
@@ -24,8 +28,28 @@
 #endif
 
 #include "steprecord.h"
+#include "util/dvtablehook.h"
 
 using namespace GammaRay;
+
+class Target {
+public:
+    static void focusOut(QWidget *target, QFocusEvent *ev) {
+        DVtableHook::callOriginalFun(target, &QWidget::focusOutEvent, ev);
+
+        QString finalCmd;
+        QLineEdit *lineEdit = qobject_cast<QLineEdit *>(target);
+        if (lineEdit) {
+            qInfo() << "editingFinished ..........................";
+            ObjInfo info = findUniqInfo(lineEdit);
+            QString cmdParam = paramGenerate(info, lineEdit);
+            finalCmd = QString("输入('%1', %2)").arg(lineEdit->text()).arg(cmdParam);
+        }
+        // 追加显示生产的执行命令
+        if (!finalCmd.isEmpty())
+            StepRecord::instance()->append(finalCmd);
+    }
+};
 
 int signalIndexToMethodIndex(const QMetaObject *metaObject, int signalIndex) {
     return QMetaObjectPrivate::signal(metaObject, signalIndex).methodIndex();
@@ -57,37 +81,6 @@ static void executeSignalCallback(const Func &func)
 #endif
     }
     func(m_previousSignalSpyCallbackSet);
-}
-
-QString paramGenerate(const ObjInfo &info, QWidget *widget) {
-    qInfo() << "index: " << info.index << " find method: " << type2Str[info.type];
-    QStringList params;
-    if (info.type == byAccName) {
-        params << "'byAcc'" << QString("'%1'").arg(widget->accessibleName());
-    }
-    if (info.type == byObjName) {
-        params << "'byObj'" << QString("'%1'").arg(widget->objectName());
-    }
-    if (info.type == byClassName) {
-        params << "'byClass'" << QString("'%1'").arg(widget->metaObject()->className());
-    }
-    if ((info.type == byAccName || info.type == byObjName) && !params.isEmpty()) {
-        if (info.index != 0) {
-            qInfo() << "Error, 标记过的控件不唯一: " << params;
-        }
-    }
-    if (info.index != 0) {
-        params << QString("%1").arg(info.index);
-    }
-
-    QString cmdParam;
-    for (int i = 0; i < params.size(); ++i) {
-        cmdParam += params.at(i);
-        if (i != params.size() - 1) {
-            cmdParam += ", ";
-        }
-    }
-    return cmdParam;
 }
 
 void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
@@ -144,11 +137,14 @@ void signal_begin_callback(QObject *caller, int method_index_in, void **argv)
             }
         }
         QLineEdit *lineEdit = qobject_cast<QLineEdit *>(caller);
-        if (lineEdit && methodSignature == "editingFinished()") {
-            qInfo() << "editingFinished ..........................";
-            ObjInfo info = findUniqInfo(caller);
-            QString cmdParam = paramGenerate(info, lineEdit);
-            finalCmd = QString("输入('%1', %2)").arg(lineEdit->text()).arg(cmdParam);
+        if (lineEdit && methodSignature == "textChanged(QString)") {
+            if (!DVtableHook::hasVtable(lineEdit)) {
+                DVtableHook::overrideVfptrFun(lineEdit, &QWidget::focusOutEvent, &Target::focusOut);
+            }
+            // qInfo() << "editingFinished ..........................";
+            // ObjInfo info = findUniqInfo(caller);
+            // QString cmdParam = paramGenerate(info, lineEdit);
+            // finalCmd = QString("输入('%1', %2)").arg(lineEdit->text()).arg(cmdParam);
         }
 
         // 追加显示生产的执行命令

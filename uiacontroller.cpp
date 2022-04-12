@@ -17,7 +17,7 @@
 #include "steprecord.h"
 
 #include <QEvent>
-#include <QWidget>
+// #include <QWidget>
 #include <QListView>
 #include <QMouseEvent>
 #include <QPushButton>
@@ -29,6 +29,8 @@
 #include <QVBoxLayout>
 #include <QJsonDocument>
 #include <QtCore/private/qobject_p.h>  // qt_register_signal_spy_callbacks
+
+#include "util.h"
 
 class EventFilter : public QObject {
 public:
@@ -272,4 +274,4 @@ bool UiaController::createUiaWidget() {
     widget->setFixedSize(QSize(widget->sizeHint().width(), widget->sizeHint().height() + 200));
     widget->show();
 }
-
+#include "uiacontroller.moc"

@@ -56,7 +56,8 @@ set(SOURCES          # ${LOCAL_SOCKET}
     daemon/daemon_process.h
     # daemon/daemon_process.cpp
 
-
+    util/dvtablehook.h
+    util/dvtablehook.cpp
 
     # dbus_register.h
     # dbus_register.cpp
@@ -150,10 +151,10 @@ set(INSTANCE
 
 add_library(injector SHARED ${SOURCES} ${INSTANCE})
 set_target_properties(injector PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-target_link_libraries(injector ${QT_LIBS})
+target_link_libraries(injector ${QT_LIBS} -ldl)
 
 add_executable(injector_test_demo main.cpp ${SOURCES} ${INSTANCE})
-target_link_libraries(injector_test_demo ${QT_LIBS})
+target_link_libraries(injector_test_demo ${QT_LIBS} -ldl)
 
 add_executable(test-cli
     daemon/main.cpp

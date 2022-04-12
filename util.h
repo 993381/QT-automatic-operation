@@ -759,5 +759,35 @@ inline bool clickButtonByButtonInfo(const QStringList &buttonInfo) {
     return false;
 }
 
+inline QString paramGenerate(const ObjInfo &info, QWidget *widget) {
+    qInfo() << "index: " << info.index << " find method: " << type2Str[info.type];
+    QStringList params;
+    if (info.type == byAccName) {
+        params << "'byAcc'" << QString("'%1'").arg(widget->accessibleName());
+    }
+    if (info.type == byObjName) {
+        params << "'byObj'" << QString("'%1'").arg(widget->objectName());
+    }
+    if (info.type == byClassName) {
+        params << "'byClass'" << QString("'%1'").arg(widget->metaObject()->className());
+    }
+    if ((info.type == byAccName || info.type == byObjName) && !params.isEmpty()) {
+        if (info.index != 0) {
+            qInfo() << "Error, 标记过的控件不唯一: " << params;
+        }
+    }
+    if (info.index != 0) {
+        params << QString("%1").arg(info.index);
+    }
+
+    QString cmdParam;
+    for (int i = 0; i < params.size(); ++i) {
+        cmdParam += params.at(i);
+        if (i != params.size() - 1) {
+            cmdParam += ", ";
+        }
+    }
+    return cmdParam;
+}
 
 #endif//UTIL_H
